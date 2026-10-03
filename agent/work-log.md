@@ -163,3 +163,13 @@
 - ประเด็นที่ยังทำไม่ได้จริง: (1) ย้าย Bearer token ของ `N7` ไป credential — MCP มีแค่ read-only (`aiva-n8n_list_credentials`) ต้องทำใน UI และ token หมดอายุ 2026-10-28 (2) `E11` รอนโยบาย Accounting (3) `N12` ยังชี้ httpbin จึงไม่รัน execution เต็มจริงกับเอกสารจริง (จะ tag บิลโดยผลลัพธ์ไม่เข้า Portal)
 - พบงานคู่ขนาน: อีกรันหนึ่งของ agent (`TASK-012` 3-Way Pipeline) กำลังแก้ไข `app/engines/`, `tests/test_corpus_v66.py` และไฟล์ memory ชุดเดียวกัน → tier `corpus` มี fail จากงานนั้น (ไม่ได้แตะ) และ ID ใน `.agent/CHANGELOG.md` มีเลขซ้ำกัน (002 ถูกใช้ซ้ำ) จึงขยับไปใช้ `CHG-20261003-005` / `TASK-013`
 - commit แยกเฉพาะงานนี้: `docs/workflows/n8n_flow_v6_6.md`, `docs/workflows/parity_spec_matrix.md` + ไฟล์ memory (เพื่อไม่ดึงโค้ด WIP ของอีก session ที่ยัง commit ไม่เสร็จ)
+
+## 2026-10-03T14:35:00+07:00 — TASK-20261003-006: ทำให้ corpus v6.6 เป็น benchmark ที่เชื่อได้จริง
+
+- เริ่มจาก audit แทนการเชื่อสถานะที่ส่งต่อมา → พบ 14 failed / 199 passed, runner ไม่รวม v6.6 tier และ multi-PO 36 เคสสร้างจากเลขที่ใบรับที่ไม่มีใน ERP
+- หลักที่ยึด: (1) ทุก expectation ต้อง re-derive ผ่าน `app.core.rules` (2) ห้ามสังเคราะห์เลขที่เอกสาร ERP (3) ตัวเลข realism ต้องวัดจาก dataset แล้ว assert ไม่ใช่ hardcode ในรายงาน (4) แตะ engine เท่าที่จำเป็นและเฉพาะ `app/core/rules.py` เพื่อไม่ชน TASK-012
+- ทำจริง: เพิ่ม `gate_halt_reason()` (Gate 2 ต้องบอกชื่อ breaker), เก็บ multi-PO จริงจาก Oracle 28 ใบรับเข้า snapshot v1.1, deterministic realism weaving + fail-fast guard, แก้ renderer ที่พิมพ์ `None` ในกล่องยอดรวม, ปิด test bug ที่นับกล่องลายเซ็นได้ 0 เสมอ (needle ไม่ได้ collapse), ต่อ suite เข้า runner, sync เอกสาร contract
+- เคสที่ตรวจพบระหว่างทางแล้วแก้ตรง ๆ: 043/046/049 (ราคาต่าง → กลายเป็น Hold), 068 (defect ฝังไม่ลง → Auto-pass เงียบ), 080 (draw ใบที่มีแถว EXPECTED → E05 ปลอม), 069 (PDF พิมพ์คำว่า None), 007/022 (บิลหลาย PO แต่พิมพ์ PO เดียว)
+- ผลลัพธ์: 100 cases 35/30/30/5 · re-derived 100/100 · 215 corpus checks passed · `run_tests.py --all` ALL PASSED · answer key เก่า 155 ใบ recalibrate เฉพาะ `halted_by` 9 เคส
+- สิ่งที่ไม่แกล้งทำให้ผ่าน: คง E11/E13 เป็น documented gap, คง intercompany = 4 (อีก 1 เคสถูก Gate 1 ตัดก่อนถึงขั้น flag), คง Known delta 4 ของ canvas ไว้ในเอกสาร
+- บันทึก canonical records ครบทั้งสองชุด (root `agent/` + service `.agent/`) และย้าย plan ไป `plans/completed/`

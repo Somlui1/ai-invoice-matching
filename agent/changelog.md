@@ -152,3 +152,15 @@ ode_modules/, rontend/dist/, playwright-report/, 	est-results/, *.tsbuildinfo
 - ยืนยันด้วย `oracle_sql_run` (invoice branch 7 แถว / fallback 4 แถว), `cmp` ว่า SQL ที่ render บน canvas ตรงกับไฟล์ที่ validate, และรัน canvas จริงผ่าน `test_workflow` แบบ pin I/O → execution `#324` success ถึง `N14`
 - ผลเทียบ Table 9: `decision`/`rules`/`exceptions`/`dms`/`access`/`receiver`/`invoice_summary`/`oracle_data.count` ตรงกันหมด เหลือ known deltas 3 ข้อ (รูปแบบตัวเลขในข้อความ `E15`, superset field ของ canvas, `timestamp`) — จงใจคงไว้
 - ไม่แก้โค้ด Python; `tests/run_tests.py --mode offline` = ALL PASSED; workflow ยัง `active: false`
+
+### Code / Tests — CHG-20261003-004 (OCR service/n8n — Standard v6.6 synthetic corpus)
+- Timestamp: 2026-10-03T14:35:00+07:00
+- Task: `TASK-20261003-006` (detail ใน `OCR service/n8n/.agent/CHANGELOG.md` → `CHG-20261003-006`)
+- Audit แล้วพบว่า corpus v6.6 ที่รายงานว่า "เสร็จแล้ว" ยังไม่ผ่านจริง: `pytest tests/test_corpus_v66.py` = 14 failed / 199 passed, `run_tests.py --all` ไม่เคยเรียก suite นี้ และตัวเลข realism ที่รายงาน (multi-PO 36, splits, fuzzy) มาจากการ **สร้างเลขที่ใบรับปลอม** (`RCV-CONSOLIDATED-*`) ที่ไม่มีใน Oracle จึงรื้อทิ้งทั้งส่วน
+- แก้ engine 1 จุด (real gap): `app/core/rules.py` เพิ่ม `gate_halt_reason()` → `decision.halted_by` ระบุตัว breaker ที่ Gate 2 (`V-04`) และ manual review (`V-05`) แทน `null` โดยไม่แก้ผลของกฎ; recalibrate answer key เก่า 155 ใบด้วย `verify_dataset.py --fix` (9 เคส เปลี่ยนเฉพาะ `halted_by`)
+- เก็บ ground truth จริง: เพิ่ม multi-PO harvest ใน `extract_oracle_snapshot.py` (discovery SQL + fetch ด้วย projection rcv_v01 ของ production + parse ผ่าน `parse_csv_receipts()`) ได้ใบรับที่หลาย PO จริง 28 ใบ → snapshot v1.1 = 170 scenarios / 653 rows
+- Builder: `_weave_realism_quotas()` กระจาย multi-PO 26 + lot split 16 slots แบบ deterministic พร้อม guard แบบ fail-fast (index เกินจำนวนแถวจริง → raise, ล็อก mutation ที่ calibrate กับมูลค่า, pool multi รับเฉพาะ FULLY RECEIVED) และวัด `meta.realism` จากเคสที่ build เสร็จแล้ว
+- Renderer: `baht()` ไม่พิมพ์คำว่า `None` ในกล่องยอดรวมของบิลที่จงใจไม่มียอดรวม; บิลหลาย PO พิมพ์ PO ครบทุกเลข
+- ผลตรวจจริง: dataset 100 cases Auto-pass 35 / Review 30 / Hold 30 / Reject 5 · **re-derived 100/100 expectations ผ่าน engine จริง** · realism วัดได้ (suppliers 20, multi-PO 34, two-hop 5, split 17, intercompany 4, fuzzy 99, weight 13) · `pytest tests/test_corpus_v66.py` = **215 passed** · `tests/run_tests.py --all` = **SUCCESS (ALL PASSED)** 4 tiers 30.99s
+- เอกสาร: sync contract `halted_by` (`V-02|V-04|V-05|null`) ใน `docs/workflows/n8n_flow_v6_6.md` + `parity_spec_matrix.md` และบันทึก Known delta 4 — canvas ยังส่ง `null` ที่ `N8.1` ต้องใส่ `"V-04"`
+- ข้อจำกัดคงค้าง: `E11`/`E13` ไม่ถูกยกใน engine จึงไม่อยู่ใน corpus; corpus เป็น offline answer-key layer ยังไม่ใช่วงจรวัด OCR accuracy; ยังไม่ commit เพราะ workspace มี WIP ของ TASK-012 ปนอยู่ (dataset/_raw/pdf เป็น gitignored build output)

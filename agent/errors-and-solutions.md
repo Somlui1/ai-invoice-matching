@@ -147,3 +147,36 @@
 - เวลาเทียบ parity ให้เทียบ "จำนวนแถว/ข้อมูลที่ยิงจริง" ด้วย ไม่ใช่เทียบเฉพาะ output JSON — output ที่ถูกอาจเกิดจากการกรองของ node ถัดไปก็ได้
 - ห้ามลบ `NOT EXISTS` guard ออกจาก branch PO (บันทึกไว้เป็น checklist ข้อ 3 ใน `docs/workflows/n8n_flow_v6_6.md`)
 - ถ้าอนาคตต้องใช้ view รวม (เช่น `APPS.AH_DEV_RCV_PO_AP_MATCHING_V`) ต้องตรวจว่ามี `SHIPMENT_NUM`/`PACKING_SLIP`/`LINE_STATUS`/`RECEIVER` ก่อน เพราะ view เดิมไม่มีคอลัมน์เหล่านี้
+
+---
+
+## ERR-20261003-004: ตัวเลข "realism" ของ synthetic corpus มาจากการสังเคราะห์ข้อมูล ERP และการนับที่ needle เอียง ทำให้ benchmark รายงานเกินจริง
+
+- **ID:** `ERR-20261003-004`
+- **Timestamp:** 2026-10-03T14:35:00+07:00
+- **Component:** `OCR service/n8n/tests/test_invoices/*` (corpus builder + `tests/test_corpus_v66.py`)
+- **Task:** `TASK-20261003-006` / `CHG-20261003-006`
+
+### Context
+corpus v6.6 100 เคส + PDF 100 ไฟล์ถูกรายงานว่าเสร็จและครบ quota (multi-PO 36, splits 25, fuzzy 40) เพื่อใช้เป็น answer key ฝึก/วัด multimodal OCR
+
+### Symptom
+- `pytest tests/test_corpus_v66.py` = 14 failed / 199 passed แต่ถูกรายงานว่า green เพราะ `tests/run_tests.py --all` ไม่เคยเรียก suite นี้
+- 12 เคส fail แบบ "PDF ไม่มีกล่องลายเซ็น" ทั้งที่ PDF พิมพ์กล่องว่างครบ
+- multi-PO 36 เคสใช้เลขที่ใบรับ `RCV-CONSOLIDATED-*` ที่ประกอบขึ้นจากการรวม 2 ใบรับ
+
+### Root Cause
+1. Assertion ฝั่ง search ผ่าน `collapse()` (ตัด whitespace) แต่ needle ไม่ผ่าน → `count()` ได้ 0 เสมอ (false failure ทุกไฟล์)
+2. Builder ยอมให้ defect ที่ระบุตำแหน่งบรรทัด "ถูกข้ามเงียบ" เมื่อ pool ที่ draw มา มีแถวน้อยกว่า index → เคสหลุดเป้าโดยไม่มี warning
+3. เพื่อชน quota มีการสร้าง primary key ของ ERP ขึ้นมาเอง → expectation ที่ engine คำนวณต่อ ไม่ได้สะท้อนพฤติกรรมของระบบจริงอีกต่อไป (เลขที่ไม่มีใน Oracle = ไม่มีวันถูก query เจอ)
+
+### Solution
+- collapse needle ก่อนค้นหาเสมอ (constant `BLANK_SIGNATURE_MARKER`) + assert จำนวนกล่องว่าง = จำนวนลายเซ็นที่หายจริง
+- builder fail-fast: `take(..., min_rows=)` และ raise เมื่อ index เกินจำนวนแถวจริง, ล็อก mutation ที่ calibrate กับมูลค่าเอกสาร, ตรวจ `archetype → decision_status` หลัง build ทุกครั้ง
+- ทิ้งเลขสังเคราะห์ทั้งหมด แล้วเก็บใบรับที่หลาย PO จริงจาก Oracle (28 ใบ) ผ่าน projection + parser ตัวเดียวกับ production → snapshot v1.1 (170 scenarios)
+- ทุกตัวเลข realism คำนวณจากเคสที่ build เสร็จแล้ว และล็อกไว้ด้วย test assertions (multi_po ≥25, split ≥15, fuzzy ≥25, weight ≥10, two-hop ≥4, suppliers ≥15)
+
+### Prevention
+- **ห้ามสร้างเลขที่เอกสาร ERP (RECEIPT_NUM / PO_NUM / TAX_ID) ขึ้นเองในชุดทดสอบ** — ถ้าสถานการณ์ที่ต้องการยังไม่มีใน ERP ให้ไปเก็บของจริงมา หรือบันทึกว่าไม่ครอบคลุม ไม่ใช่ประกอบเลขปลอม
+- ทุก quota ต้องมี 3 ส่วนครบ: วัดจริง → พิมพ์ออกใน meta → assert ใน test; ตัวเลขที่ไม่มี test จับถือว่ายังไม่จริง
+- เวลา "งานเก่าบอกว่า done" ให้รันคำสั่งตรวจจริงก่อนเสมอ และตรวจว่าคำสั่งนั้นถูกเรียกจาก entry point จริง (runner/report ที่ไม่เรียก suite = false green)

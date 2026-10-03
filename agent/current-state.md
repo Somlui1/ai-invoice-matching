@@ -1,10 +1,11 @@
 # Current State
 
-Last verified: `2026-10-03T14:25:00+07:00`
+Last verified: `2026-10-03T14:35:00+07:00`
 
 ## Repository
-- Branch: `main` (remote `origin/main`); ย้ายและรวมโค้ด Web Portal ทั้งหมด (frontend, backend, docs, examples, infra, scripts) จาก `invoice-web/` เข้าสู่โฟลเดอร์ `Web portal/` อย่างสมบูรณ์ โฟลเดอร์ `invoice-web/` ถูกลบออกแล้ว
-- Existing OCR service (`OCR service/n8n`) และ original HTML mockup (`Web portal/AIVA-Web-Portal-Mockup-v4.4-Release.html`) ยังคงอยู่ตามเดิม
+- Branch: `main` (remote `origin/main`) ยัง diverged (ahead 1 / behind 6) — อยู่ระหว่าง integrate งาน portal จาก `origin/main`
+- การย้าย `invoice-web/` → `Web portal/` ที่ทำค้างไว้ใน working tree **ถูกยกเลิก** เพื่อรับ layout ของ `origin/main`: โค้ด portal เดิมถูก archive ไว้ที่ `Web portal/invoice-web-9054076/` และมี mockup `invoice-web1/`, `invoice-webV2/`, `invoice-webv3/` กับ skill `.agents/skills/aiva-invoice-core/` อยู่ข้างใต้
+- Existing OCR service (`OCR service/n8n`) และ original HTML mockup (`Web portal/AIVA-Web-Portal-Mockup-v4.4-Release.html`) ยังคงอยู่ตามเดิม — ไม่มีการแก้ไฟล์ใน `OCR service/` ระหว่าง integrate
 - Agent records ถูกจัดเก็บบน `agent/` ตาม canonical protocol
 
 ## Implemented Portal (`Web portal/`)
@@ -29,7 +30,15 @@ Last verified: `2026-10-03T14:25:00+07:00`
 - `invoice_engine.py` เป็น bridge ที่เรียก `app/core/rules.py` (Step 1–4) จริงแบบ offline โดยรับชุดแถว Oracle ที่เก็บไว้ในแต่ละ invoice (`oracle_rows`) ทำให้ expected_result ไม่มีวันหลุดจาก logic ของ production และรันซ้ำได้โดยไม่ต้องต่อ Oracle MCP.
 - `build_test_dataset_wave2.py` สร้าง 100 เคสใหม่โดย expected_result ทุกตัวมาจาก engine; `verify_dataset.py` replay ทั้ง 155 เคสและ `--fix` ใช้ recalibrate key ได้; `check_pdfs.py` ตรวจว่า PDF ที่ render ตรงกับ key (ฟิลด์ที่มีต้องปรากฏ, ฟิลด์ที่หายไปต้องไม่ปรากฏ, จำนวนหน้าตรง `document_flags`).
 - `generate_invoices.py` รองรับ 3 layout เดิมและเพิ่ม `pdf_hints`: watermark/ speckle จำลองเอกสาร scan, ต่อบัญชี 2 หน้า, เชิงอรรถหมายเหตุ, และพิมพ์ `—` สำหรับฟิลด์ที่ key ระบุว่าหาย.
-- เคสสำคัญที่ควรทราบเมื่ออ่าน key: `halted_by` เป็น `V-02` เท่านั้นใน engine ปัจจุบัน; partial billing (E34) เกิดพร้อม E31 เสมอ; E16 บนเอกสารที่คำนวณถูกเกิดจาก float noise ของ `sub_total + vat`; `INV-J17` และ `INV-J20` เป็น forgery ที่ระบบตรวจไม่พบโดยเจตนา (ต้องได้ Auto-pass).
+- เคสสำคัญที่ควรทราบเมื่ออ่าน key: `halted_by` ระบุชื่อ circuit breaker จริงแล้ว (`V-02` Gate 1 / `V-04` Gate 2 / `V-05` manual review จาก STEP 2 ผ่าน `rules.gate_halt_reason()` — answer key ของ 155 ใบ recalibrate แล้วรอบนี้ เปลี่ยนเฉพาะ 9 เคสที่ `null` → `V-04` partial billing (E34) เกิดพร้อม E31 เสมอ; E16 บนเอกสารที่คำนวณถูกเกิดจาก float noise ของ `sub_total + vat`; `INV-J17` และ `INV-J20` เป็น forgery ที่ระบบตรวจไม่พบโดยเจตนา (ต้องได้ Auto-pass).
+## Standard v6.6 Corpus (`OCR service/n8n/tests/test_invoices/test_dataset_v66.json` + `pdfs_v66/`)
+- **Verified 2026-10-03T14:35:00+07:00** (`TASK-20261003-006` / `CHG-20261003-004`) — 100 cases + 100 PDFs เป็น answer key ที่ตรวจผ่านจริง: `pytest tests/test_corpus_v66.py` = **215 passed** (จากเดิม 14 failed / 199 passed) และ suite ถูกเชื่อมใน `tests/run_tests.py --all` เป็น tier ที่ 4
+- Decision mix 35 Auto-pass / 30 Review / 30 Hold / 5 Reject · **100/100 เคส re-derive ผ่าน `app/core.rules` ได้ผลเดิม** · Gate 1 (`E02`) 5 เคส halt ก่อน query Oracle, Gate 2 (`E05`/`E06`) 9 เคส halt ก่อน Line Matcher และ `V-07 = not_evaluated` ทุกเคส
+- Realism ที่ **วัดจาก dataset** (ไม่ใช่ตัวเลขที่ตั้งเป้า): ผู้ขาย Oracle 20 ราย · multi-PO 34 · two-hop (บิลไม่พิมพ์ Tax ID ผู้ขาย) 5 · split/lot lines 17 · intercompany 4 · fuzzy descriptions 99 · weight-based 13
+- ทุก scenario อ้าง receipt/PO ที่มีจริงใน EBS; multi-PO 28 ใบรับถูกเก็บเพิ่มจากการ probe Oracle ตรง ๆ (snapshot v1.1 = 170 scenarios / 653 rows) — **ไม่มีการสังเคราะห์เลขที่เอกสาร** (แบบ `RCV-CONSOLIDATED-*` ที่ถูกรื้อทิ้งรอบนี้)
+- Exception ที่ครอบ: E01 7 · E02 5 · E03 13 · E04 29 · E05 5 · E06 4 · E07 4 · E08 11 · E09 3 · E10 9 · E12 8 · E14 4 · E15 14 — **ไม่ถูกยก: `E11`, `E13`** (documented gap ของ engine, corpus จึงไม่ครอบ)
+- Corpusนี้เป็น offline answer-key layer (payload + PDF ที่ render จาก payload) ยังไม่ใช่วงจรวัด OCR accuracy — รอบ vision ต้องรันแยกแล้วเทียบ `invoice_data` ต่อ field; `test_dataset_v66.json`, `_raw/`, `pdfs_v66/*.pdf` เป็น gitignored build output ที่ regenerate ได้จาก 3 สคริปต์ (extract → build → render)
+
 - ขอจำกัด: Tahoma subset ที่ฝังใน PDF ไม่มี ToUnicode map ที่ใช้ได้ ทำให้ดึงอักษรไทยเป็นข้อความได้เป็น mojibake (การ render ถูกต้อง) — เครื่องมือตรวจจึงเทียบเฉพาะ ASCII/ตัวเลข; corpus ใช้ dependencies `fpdf2` (render) และ `pypdf` (ตรวจ PDF) ซึ่งไม่ใช่ `requirements.txt` ของ service.
 
 ## n8n Workflow `aLUCmn3l0bZDjbVV` (Standard v6.6, on server)
@@ -43,6 +52,7 @@ Last verified: `2026-10-03T14:25:00+07:00`
 - **Parity กับ Python engine ยืนยันแล้ว:** รัน canvas จริงด้วย `test_workflow` (execution `#324`, pin I/O ที่ `N2`/`N2.3a`/`N2.3b`/`N3`/`N7`/`N12`/`N13.1` ไม่แตะระบบจริง) ด้วย fixture `tests/fixtures/verified_scenario.json` → `decision` (`Hold`/`user`), `rules` 9 ข้อ, `exceptions` (`E09` High + `E15` Medium + `E03` High), `dms`, `access`, `receiver`, `invoice_summary`, `oracle_data.count` ตรงกับ Python ทุกข้อ · known deltas ที่จงใจคงไว้: รูปแบบตัวเลขในข้อความ `E15` (`10` vs `10.0`), canvas ส่ง `po_numbers`/`SUPPLIER_IS_INTERNAL`/`MATCHED` เผื่อไว้, `timestamp`
 - `N11` normalize `rules[]` ให้ทุกแถวมี key `code`/`severity`/`details` (null เมื่อ PASS) ตรงกับ `model_dump()` ของ `RuleResult` เพื่อให้ body ที่ POST เข้า Portal เท่ากันจริง
 - การทดสอบฝั่ง Python หลังงานนี้: `tests/run_tests.py --mode offline` = ALL PASSED (ไม่มีการแก้โค้ด Python) · tier `corpus` มี fail จาก `tests/test_corpus_v66.py` ซึ่งเป็นงานคู่ขนานของ `TASK-012` (3-Way Pipeline) ไม่ใช่ regression จากงานนี้
+- Known delta ใหม่ (ต้องแก้บน canvas): Python ตั้ง `decision.halted_by = "V-04"` เมื่อ Gate 2 ตัดวงจร ส่วน canvas ยังส่ง `null` ที่ `N8.1` → บันทึกเป็น Known delta ข้อ 4 ใน `parity_spec_matrix.md`
 - ข้อจำกัดที่ค้าง: N7 ยังใส่ Bearer token ตรงๆ ใน header (`HARDCODED_CREDENTIALS`) — token หมดอายุ **2026-10-28T01:57:06Z** และ MCP ไม่มี tool สร้าง credential จึงต้องย้ายใน UI; `N12` ยังชี้ `https://httpbin.org/post` จึงไม่รัน `execute_workflow` เต็มจริงกับเอกสารจริง; `E11` ยังไม่ถูกยกทั้งสอง engine (รอนโยบาย Accounting)
 - Data shape ของ n8n ต่างจาก Python และห้ามสลับกัน: ใช้ `invoice.po_number`, `lines[]`, `oracle_rcv_rows[]` (แถว active สำหรับ STEP 3), `oracle_rows_all` (ทุกแถว สำหรับ Table 9), `rules[]`, `exceptions[]` — **ไม่มี** `mergedFields` / `po_lines` / `oracle_data.rows`
 

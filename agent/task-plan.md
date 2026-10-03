@@ -74,3 +74,34 @@ Last updated: 2026-10-03T14:25:00+07:00
 - Table 9 ตรงกับ Python ทุกหัว field หลัก; known deltas 3 ข้อบันทึกใน `parity_spec_matrix.md` §5 (รูปแบบตัวเลข `E15`, superset field `po_numbers`/`SUPPLIER_IS_INTERNAL`/`MATCHED`, `timestamp`)
 - Oracle rows: 7 (invoice branch) และ 4 (fallback) เท่า Python — ลดจาก 8,359 แถวของเวอร์ชันก่อนแก้
 - ไม่แก้โค้ด Python; `tests/run_tests.py --mode offline` = ALL PASSED
+
+---
+
+## TASK-20261003-006: ทำให้ Standard v6.6 Synthetic Corpus เป็น benchmark ที่เชื่อถือได้จริง
+- **Status:** completed
+- **Started / Completed:** 2026-10-03T13:50:00+07:00 → 2026-10-03T14:35:00+07:00
+- **Depends on:** TASK-20261003-003 (engine v6.6), TASK-20261003-005
+- **Goal:** dataset 100 cases + PDF 100 ไฟล์ + suite offline replay ต้องเป็น answer key ที่เอาไปวัด OCR/decision ได้จริง ไม่ใช่ชุดที่รายงานว่าครบแต่ตรวจไม่ผ่าน
+
+### Plan
+- [x] audit สถานะจริง (pytest + ดูว่า runner เรียก suite หรือไม่) แทนการเชื่อรายงานเดิม
+- [x] ปิดช่องว่าง engine: Table 9 ต้องระบุชื่อ breaker ที่ Gate 2 (`halted_by = "V-04"`) โดยไม่เปลี่ยนผลของกฎ
+- [x] เก็บ multi-PO ground truth จาก Oracle จริง (ห้ามสังเคราะห์เลขที่ใบรับ) → snapshot v1.1
+- [x] deterministic realism weaving + fail-fast guard + วัด `meta.realism` จากของ build จริง
+- [x] แก้ renderer/test ที่ผิด และต่อ v6.6 tier เข้า `tests/run_tests.py`
+- [x] sync เอกสาร contract (`halted_by`) + recalibrate answer key เก่า 155 ใบ
+- [x] บันทึก canonical records ทั้งสองชุด + ย้าย plan ไป completed
+
+### Acceptance criteria
+- 100 cases · decision mix 35/30/30/5 · 100% re-derive ผ่าน engine จริงได้ผลเดิม
+- PDF 100 ไฟล์ตรงกับ payload (หน้า, เลขบิล, กล่อง PO ครบทุกเลข, ยอด, กล่องลายเซ็นว่าง = ลายเซ็นที่หาย)
+- Gate 1/Gate 2 ถูกตัดจริงและ `V-07 = not_evaluated`; `halted_by` ระบุชื่อ breaker
+- realism quotas ผ่านแบบวัดได้: multi-PO ≥25, split ≥15, fuzzy ≥25, weight ≥10, two-hop ≥4, ผู้ขาย Oracle ≥15 ราย
+- `pytest tests/test_corpus_v66.py` ผ่าน 100% และ `tests/run_tests.py --all` ALL PASSED
+
+### Result
+- 100 cases · Auto-pass 35 / Review 30 / Hold 30 / Reject 5 · **re-derived 100/100 expectations identically**
+- realism (measured): suppliers 20 · multi-PO 34 · two-hop 5 · split/lot 17 · intercompany 4 · fuzzy 99 · weight 13
+- exception coverage E01–E10/E12/E14/E15 ครบ (ไม่ถูกยก: `E11`, `E13` — documented gap ของ engine)
+- `pytest tests/test_corpus_v66.py` = **215 passed** (จาก 14 failed) · `tests/run_tests.py --all` = **SUCCESS (ALL PASSED)** 4 tiers / 30.99s
+- multi-PO ทุกเคสอ้างใบรับที่มีจริงใน EBS (28 ใบรับที่เก็บเพิ่มรอบนี้) — ไม่มีเลขสังเคราะห์เหลืออยู่
