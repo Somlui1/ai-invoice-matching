@@ -180,3 +180,35 @@ corpus v6.6 100 เคส + PDF 100 ไฟล์ถูกรายงานว�
 - **ห้ามสร้างเลขที่เอกสาร ERP (RECEIPT_NUM / PO_NUM / TAX_ID) ขึ้นเองในชุดทดสอบ** — ถ้าสถานการณ์ที่ต้องการยังไม่มีใน ERP ให้ไปเก็บของจริงมา หรือบันทึกว่าไม่ครอบคลุม ไม่ใช่ประกอบเลขปลอม
 - ทุก quota ต้องมี 3 ส่วนครบ: วัดจริง → พิมพ์ออกใน meta → assert ใน test; ตัวเลขที่ไม่มี test จับถือว่ายังไม่จริง
 - เวลา "งานเก่าบอกว่า done" ให้รันคำสั่งตรวจจริงก่อนเสมอ และตรวจว่าคำสั่งนั้นถูกเรียกจาก entry point จริง (runner/report ที่ไม่เรียก suite = false green)
+
+## ERR-20261003-005: `git pull` ล้มเพราะ uncommitted directory rename ชนกับ remote ที่ย้ายโฟลเดอร์เดียวกัน — และการฝืน merge จะลบงานของอีกฝั่งทิ้งเงียบ ๆ
+
+- Recorded: 2026-10-03T15:35:00+07:00 · Task: `TASK-20261003-007` · Related: `CHG-20261003-007`
+
+### Context
+- `main` diverged (ahead 1 / behind 6) ทำให้ `git pull` เป็น merge จริงซึ่งต้องการ working tree ที่สะอาดใน path ที่จะถูกเขียน
+- ฝั่ง local มีการย้าย `invoice-web/` → `Web portal/` แบบ staged (87 ไฟล์) + worktree edits 6 ไฟล์ แต่ยังไม่ได้ commit
+- ฝั่ง `origin/main` ย้าย `invoice-web/` ไป `Web portal/invoice-web-9054076/` และเพิ่ม `invoice-web1/`, `invoice-webV2/`, `invoice-webv3/`, `.agents/` (รวม 272 path ที่ทับพื้นที่กัน)
+
+### Symptom
+- `error: Your local changes to the following files would be overwritten by merge: Web portal/...` แล้วจบที่ `Merge with strategy ort failed.` (ort เป็น default merge strategy ของ git 2.49+; ล้มที่ขั้นตอน checkout ไม่ใช่ขั้นตอนคำนวณ merge)
+- บรรทัด `<stdin>:2568: trailing whitespace.` และ `warning: 11 lines add whitespace errors` เป็นเพียง warning จากเนื้อหา blob (xref table ของ PDF) ไม่เกี่ยวกับความล้มเหลว — อ่าน error ผิดบรรทัดจึงวินิจฉัยผิดทาง
+- ผลข้างเคียง: merge ที่ล้มเหลวทิ้งผลคำนวณไว้ที่ `.git/AUTO_MERGE`
+
+### Root Cause
+- ทั้งสองฝ่ายย้ายโฟลเดอร์ต้นทางเดียวกันไปยังคนละตำแหน่ง และฝ่ายหนึ่งยังไม่ commit → git ไม่สามารถเลือกปลายทางได้เอง จึงปฏิเสธการเขียนทับ
+- directory rename detection ของ ort ตัดสินใจ "ยุบ" ทั้งคู่ลงบน `Web portal/` ฝั่งเรา ผลคือ tree ใน `.git/AUTO_MERGE` มี 159 ไฟล์ ขณะที่ `origin/main` มี 340 ไฟล์ — ถ้าฝืน merge ด้วย `git checkout -f` / `git clean -fd` / `git stash -u && git pull` งาน mockup 176 ไฟล์ + session log 8 ไฟล์ของอีกฝั่งจะหายไปโดยไม่มี conflict ให้แก้
+
+### Solution
+- จำลอง merge ที่ระดับ commit ก่อนแตะ worktree: `git merge-tree --write-tree HEAD origin/main` → พบว่า conflict จริงมีไฟล์เดียว (`agent/current-state.md`) และ portal renames เป็น `R100` (เนื้อหาไม่เปลี่ยน) → วางแผนได้ว่า "แก้ conflict 1 ไฟล์" ไม่ใช่ "แก้ 87 ไฟล์"
+- ตรวจผลข้างเคียงที่ค้าง: `git ls-tree -r $(cat .git/AUTO_MERGE)` แล้วเทียบด้วย `comm` เพื่อวัดปริมาณว่างานฝั่งไหนจะหาย → ใช้เป็นหลักฐานยืนยันว่าห้ามฝืน merge
+- backup สองชั้น: `git stash create -u` + `git branch backup/wip-dirty-20261003 <sha>` (ไม่แตะ worktree เลย) และคัดลอกทุก path จาก `git status --porcelain` ออกนอก repo
+- ยกเลิกการย้ายฝั่งเราอย่างมีลำดับ: `git rm -r --cached -f -- "Web portal"` → `git checkout HEAD -- invoice-web "Web portal"` → `git clean -fd -- "Web portal"` (**ไม่ใช้ `-x`** เพื่อไม่ให้ลบไฟล์ ignored เช่น `data/`, sqlite, `node_modules`) + `find ... -name __pycache__ -exec rm -rf` สำหรับโครงโฟลเดอร์ที่เหลือแต่ไดเรกทอรีว่าง
+- set `git config merge.directoryRenames conflict` ให้ directory rename ที่กระทบกันกลายเป็น conflict ให้อ่าน ไม่ถูกยุบเงียบ แล้ว `git merge --no-ff origin/main` → แก้ conflict ด้วยมือ (คงเนื้อหาทั้งสองฝ่าย) → merge commit `2ce5b9e`
+
+### Prevention
+- **เห็น `would be overwritten by merge` ให้ `git status` + `git fetch` + `git log --oneline HEAD..origin/main` ก่อนเสมอ** ถ้าอีกฝั่งมีการ restructure ระดับโฟลเดอร์ ต้อง commit หรือยกเลิกงานย้ายโฟลเดอร์ของเราก่อน อย่าฝืน
+- แยก commit การย้าย/เปลี่ยนชื่อโฟลเดอร์ออกจาก commit เนื้อหา และ commit เร็ว — directory rename ที่ค้างใน working tree คือแหล่ง conflict ที่ debug ยากที่สุด
+- ใช้ `git merge-tree --write-tree` เป็น dry-run มาตรฐานก่อน merge ครั้งใหญ่ (ไม่แตะ worktree, อ่าน conflict ได้จริงทั้งชื่อไฟล์และจำนวน)
+- `git stash`/snapshot อย่างเดียวไม่พอสำหรับ untracked files — เก็บ `git stash create -u` (แล้วทำ branch ชี้ผล) ควบคู่กับการคัดลอกไฟล์ออกนอก repo และ **ตรวจ mtime/ขนาดไฟล์หลัง backup** เพราะไฟล์อาจถูก editor อื่นบันทึกซ้ำระหว่างทำ (พบจริงกับ `OCR service/n8n/app/AIVA-Document-Card-Verification-v3.html`)
+- warning เรื่อง whitespace / `LF will be replaced by CRLF` (จาก `core.autocrlf=true`) ให้ตัดออกจากการวินิจฉัย; ถ้าต้องการให้เงียบและนิ่งจริงให้เพิ่ม `.gitattributes` แบบ `* text=auto eol=lf`

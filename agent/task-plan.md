@@ -1,12 +1,12 @@
 # Task และ Plan
 
-Last updated: 2026-10-03T14:25:00+07:00
+Last updated: 2026-10-03T15:35:00+07:00
 
 ## Active Task
-- Task ID: TASK-20261003-002
-- Title: อัปเดต n8n canvas `aLUCmn3l0bZDjbVV` และเอกสาร `OCR service/n8n/docs/workflows/` ให้เป็น Standard v6.6 แบบ Explanatory Flow
+- Task ID: TASK-20261003-007
+- Title: Integrate `origin/main` (portal restructure) เข้ากับ `main` โดยไม่แตะ `OCR service/`
 - Status: completed
-- Goal: ทำให้ Canvas บนเซิร์ฟเวอร์ n8n และเอกสารอ้างอิงสอดคล้อง Standard v6.6 (exception E01–E15, Gate 1/2, Two-Hop Multi-PO, Table 9 Schema v1.5) โดยเอกสารต้องอธิบาย "ตรรกะและเหตุผล" รายขั้น อ่านแล้วเข้าใจทันทีโดยไม่ต้องเปิดดูโค้ดทีละโหนด
+- Goal: ทำให้ repo กลับเป็นเส้นเดียวที่ push ได้ โดยยอมรับ layout ของ `origin/main` ทั้งพื้นที่ `Web portal/` (ผู้ใช้สั่งชัดเจนว่าสถานะ portal ในเครื่องไม่สำคัญ ให้ merge ทับ) แต่ต้องมีหลักฐานยืนยันว่างาน `OCR service/n8n` ฝั่ง local (15 แก้ไข + 26 untracked + v6.6 corpus) ไม่หายและไม่ถูกแตะ
 
 ## Plan
 - [x] backup full workflow JSON + แยกโหนดเก็บก่อนแก้ (ไว้ restore)
@@ -105,3 +105,33 @@ Last updated: 2026-10-03T14:25:00+07:00
 - exception coverage E01–E10/E12/E14/E15 ครบ (ไม่ถูกยก: `E11`, `E13` — documented gap ของ engine)
 - `pytest tests/test_corpus_v66.py` = **215 passed** (จาก 14 failed) · `tests/run_tests.py --all` = **SUCCESS (ALL PASSED)** 4 tiers / 30.99s
 - multi-PO ทุกเคสอ้างใบรับที่มีจริงใน EBS (28 ใบรับที่เก็บเพิ่มรอบนี้) — ไม่มีเลขสังเคราะห์เหลืออยู่
+
+---
+
+## TASK-20261003-007: Integrate `origin/main` (portal restructure) เข้ากับ `main` โดยไม่แตะ `OCR service/`
+- **Status:** completed
+- **Started / Completed:** 2026-10-03T15:10:00+07:00 → 2026-10-03T15:35:00+07:00
+- **Depends on:** TASK-20261003-001 (การย้ายโฟลเดอร์ที่ค้างอยู่), งาน portal ของอีกฝั่งใน `origin/main`
+- **Goal:** ปลดล็อก `git pull` ที่ล้มเหลวแบบ `Merge with strategy ort failed` โดยไม่สูญเสียงานของฝ่ายใดฝ่ายหนึ่ง — ยอมรับ layout portal ของ remote ทั้งก้อน แต่ `OCR service/` ต้องไม่ถูกแตะ
+
+### Plan
+- [x] วินิจฉัยจากหลักฐาน: แยก error จริงออกจาก warning (whitespace) และวัดระดับความรุนแรงของ divergence
+- [x] dry-run merge ด้วย `git merge-tree --write-tree` เพื่อ counting conflict จริงก่อนแตะ worktree
+- [x] ตรวจผล merge ที่ค้างใน `.git/AUTO_MERGE` ว่าถ้าฝืนแล้วไฟล์ของ remote กี่ไฟล์จะหาย
+- [x] backup สองชั้น: snapshot commit จาก `git stash create -u` + คัดลอก dirty paths ทุก path ออกนอก repo
+- [x] ยกเลิกการย้ายโฟลเดอร์ฝั่ง local (unstage → restore `invoice-web/` จาก HEAD → `git clean -fd` แบบไม่ใช้ `-x`)
+- [x] commit records + ปรับ `.gitignore` ตาม layout ใหม่ แล้ว merge และแก้ conflict `agent/current-state.md` แบบคงเนื้อหาทั้งสองฝ่าย
+- [x] รัน test จริงสองฝั่ง + พิสูจน์ว่า `OCR service/` ไม่ถูกแตะ แล้วบันทึก canonical records ครบชุด
+
+### Acceptance criteria
+- merge สำเร็จ ไม่มี conflict ค้าง; `invoice-web/` หมดจาก repo; งาน mockup ของ remote ครบ (invoice-web1 106 / invoice-webV2 58 / invoice-webv3 9 / .agents 3 / session log 8)
+- `OCR service/` = 0 ไฟล์ที่ถูกแก้โดย merge และ dirty items 41 รายการคงเดิม; test ผ่านจริงบันทึกพร้อมตัวเลข
+- ไม่มีข้อมูลลับ (sqlite/invoice payload/token) ถูก commit
+
+### Result
+- merge commit `2ce5b9e`; conflict มีไฟล์เดียวคือ `agent/current-state.md` (แก้ด้วยมือ คงเนื้อหาทั้งสองฝ่าย) — ตรงตามที่ dry-run ทำนายไว้
+- layout ใหม่: `Web portal/{invoice-web-9054076, invoice-web1, invoice-webV2, invoice-webv3, .agents}`; `git ls-files invoice-web` = 0
+- พิสูจน์ว่าไม่แตะ OCR: `git diff <merge-base> origin/main -- "OCR service"` = 0 ไฟล์; dirty items ในโฟลเดอร์คงเดิม 41 รายการ
+- test หลัง merge: OCR service `235 passed, 9 deselected (35.10s)` · portal backend `invoice-web1` `15 passed (3.68s)` · mockup v3 smoke `46 checks passed`
+- backup คงอยู่: `git\wip-backup-20261003\` (136 paths) + branch `backup/wip-dirty-20261003`; `Web portal/` ตรงกับ `origin/main` ทุก byte; branch ยังนำหน้า remote (ยังไม่ push รอคำสั่ง)
+- งานต่อเนื่องที่เปิดไว้: เลือกเวอร์ชัน canonical ของ portal, แก้ `build-domain-data.py` ให้รองรับ shape ใหม่ของ `master_data.py` (`--check` กำลัง fail), ล้าง `Web portal/data/` ที่ค้าง

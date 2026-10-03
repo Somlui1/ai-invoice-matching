@@ -164,3 +164,19 @@ ode_modules/, rontend/dist/, playwright-report/, 	est-results/, *.tsbuildinfo
 - ผลตรวจจริง: dataset 100 cases Auto-pass 35 / Review 30 / Hold 30 / Reject 5 · **re-derived 100/100 expectations ผ่าน engine จริง** · realism วัดได้ (suppliers 20, multi-PO 34, two-hop 5, split 17, intercompany 4, fuzzy 99, weight 13) · `pytest tests/test_corpus_v66.py` = **215 passed** · `tests/run_tests.py --all` = **SUCCESS (ALL PASSED)** 4 tiers 30.99s
 - เอกสาร: sync contract `halted_by` (`V-02|V-04|V-05|null`) ใน `docs/workflows/n8n_flow_v6_6.md` + `parity_spec_matrix.md` และบันทึก Known delta 4 — canvas ยังส่ง `null` ที่ `N8.1` ต้องใส่ `"V-04"`
 - ข้อจำกัดคงค้าง: `E11`/`E13` ไม่ถูกยกใน engine จึงไม่อยู่ใน corpus; corpus เป็น offline answer-key layer ยังไม่ใช่วงจรวัด OCR accuracy; ยังไม่ commit เพราะ workspace มี WIP ของ TASK-012 ปนอยู่ (dataset/_raw/pdf เป็น gitignored build output)
+
+### Structure / VCS — CHG-20261003-007 (repository layout — integrate `origin/main`)
+- Timestamp: 2026-10-03T15:35:00+07:00
+- Task: `TASK-20261003-007` · Merge commit: `2ce5b9e` (merge `origin/main` 6 commits เข้า `main`)
+- โครงสร้าง `Web portal/` เปลี่ยนเป็น layout ของ `origin/main` ตามคำสั่งผู้ใช้ ("ไม่สนใจสถานะ portal ในเครื่อง ให้ merge ทับ"):
+  - `Web portal/invoice-web-9054076/` (87 ไฟล์) — archive ของ portal React+FastAPI เดิม (เดิมอยู่ `invoice-web/`)
+  - `Web portal/invoice-web1/` (106 ไฟล์) — portal ชุดงาน redesign ตาม Mockup v4.4 พร้อม `agent/` records ของตัวเอง = เวอร์ชันที่มี backend+frontend ครบและ test ผ่านล่าสุด
+  - `Web portal/invoice-webV2/` (58 ไฟล์) — React app ชุดใหม่ที่ align กับ skill `aiva-invoice-core`
+  - `Web portal/invoice-webv3/` (9 ไฟล์) — mockup no-build ที่ generate ข้อมูลจาก `OCR service/n8n/app/core/{master_data,rules}.py`
+  - `Web portal/.agents/skills/aiva-invoice-core/` (3 ไฟล์) — domain reference ที่ถูก force-add ทั้งที่ root `.gitignore` ระบุ `.agents/`
+- **ยกเลิก** การย้าย `invoice-web/` → `Web portal/` ที่ค้างอยู่ใน working tree (87 staged renames + 6 ไฟล์แก้ไข) เพื่อไม่ให้บดบังงาน mockup ของอีกฝั่ง; สำเนาก่อนทิ้งอยู่ที่ `C:\Users\wajeepradit.p\git\wip-backup-20261003\` และ snapshot commit `backup/wip-dirty-20261003`
+- ผลถาวรต่อ contract/เอกสาร: path อ้างอิง canonical ย้ายเป็น `Web portal/invoice-web1/docs/04-receiving-api.md` (และ `05/06/07`) โดยสำเนาเก่าคงอยู่ใน `Web portal/invoice-web-9054076/docs/`; root `agent/` ยังเป็นบันทึกกลาง ส่วน `Web portal/invoice-web1/agent/` และ `Web portal/invoice-webV2/agent/` เป็นบันทึกแยกของอีกฝั่ง
+- `.gitignore`: เปลี่ยน pattern ที่ผูกกับ path ที่ตายแล้วเป็นรูปแบบตาม version (`data/` + `Web portal/*/data/`, `!Web portal/*/examples/invoice.pdf`) และลบ `invoice-web/data/`, `!invoice-web/examples/invoice.pdf`, `Web\ portal/...` ที่ไม่จำเป็น; ยืนยันด้วย `git check-ignore -v` ว่า `examples/invoice.pdf` ทั้งสองสำเนาไม่ถูก ignore และทุกโฟลเดอร์ `data/` ยังถูก ignore
+- ขอบเขตของรอบนี้: `OCR service/` ไม่ถูกแตะเลย — ยืนยันว่า `origin/main` ไม่มี diff ในโฟลเดอร์นี้ (0 ไฟล์) และ working tree ฝั่ง local คงเดิมทั้ง 15 แก้ไข + 26 untracked
+- ผลตรวจ: OCR service `python -m pytest -q` = 235 passed / 9 deselected · portal backend (`invoice-web1`) 15 passed · mockup v3 smoke test ผ่าน 46 การตรวจ · conflict มีไฟล์เดียวคือ `agent/current-state.md` ซึ่ง merge ด้วยมือ
+- ข้อจำกัดคงค้าง: ยังไม่คัดเลือกเวอร์ชัน canonical ของ portal (4 ชุดซ้อนกัน + เอกสารซ้ำทุกชุด); `Web portal/invoice-webv3/tools/build-domain-data.py --check` fail (`master_data.py shape changed`) ต้องแก้ generator แล้ว re-generate `assets/data.js`; `Web portal/data/` (sqlite runtime เก่า) ยังค้างบน disk แบบ untracked; branch ยังนำหน้า remote 3 commits (ยังไม่ push)

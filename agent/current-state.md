@@ -58,7 +58,7 @@ Last verified: `2026-10-03T15:50:00+07:00`
 - Current file map, dependency direction และตำแหน่งเพิ่ม feature อยู่ใน `Web portal/invoice-web1/docs/06-project-structure.md`.
 - Legacy core Table9 converter preserves original standard/code and leaves unavailable receipts/matches empty.
 - Persistent local data is in ignored `<portal version>/data/` (root `.gitignore` มี pattern `data/` ครอบคลุมทุกโฟลเดอร์ย่อย); dependency/build/test artifacts are ignored.
-- โฟลเดอร์ `Web portal/data/` และ `Web portal/backend/` ( เปล่า/`__pycache__` จาก layout ที่ถูกยกเลิก) ยังค้างอยู่บน disk แต่ไม่ถูก track — ลบทิ้งได้เมื่อต้องการ
+- โฟลเดอร์ `Web portal/data/` (sqlite runtime เก่า `data/tests/bootstrap/portal.sqlite3` + pdf cache) ยังค้างอยู่บน disk จาก layout ที่ถูกยกเลิก — ไม่ถูก track (root `.gitignore` มี `data/` + `*.sqlite3`) ลบทิ้งได้เมื่อไม่ต้องการใช้ต่อ
 - Local preview runs at `http://127.0.0.1:8010`; API docs at `/api/docs`. One clearly labeled synthetic example with two JSON/PDF revisions was loaded for manual preview.
 
 ## Synthetic OCR Test Corpus (`OCR service/n8n/tests/test_invoices`)
@@ -111,6 +111,12 @@ ode_modules/, rontend/dist/, playwright-report/, 	est-results/, *.tsbuildinfo
 - ตรวจสอบยืนยันด้วย git check-ignore -v ครอบคลุม 25+ pattern ตัวอย่างของ sensitive data ทุกหมวดหมู่ และยืนยันว่า Web portal/invoice-web1/examples/invoice.pdf (และสำเนาใน `invoice-web-9054076`) กับ .env.example ไม่ถูก ignore
 
 ## Verified
+- Integration merge `2ce5b9e` (2026-10-03T15:31:00+07:00): `origin/main` 0 commits behind (นำหน้า 4 commits รวม commit records ของรอบนี้ — ยังไม่ push); conflict มีเพียงไฟล์เดียวคือ `agent/current-state.md` ซึ่ง merge ด้วยมือ (คงเนื้อหาทั้งสองฝ่าย)
+- `git diff --stat origin/main HEAD -- "Web portal"` = **ว่าง** → ทั้งโฟลเดอร์ตรงกับ `origin/main` ทุก byte (รับ layout ของ remote เต็มตามคำสั่งผู้ใช้) และ `git status` ไม่มี dirty file นอก `OCR service/` เลย (41/41 dirty items อยู่ใน OCR service ทั้งหมด)
+- OCR service หลัง merge: `python -m pytest -q` = **235 passed, 9 deselected in 35.10s** (offline, `.venv` ของ n8n) และยืนยันว่า `origin/main` ไม่มี diff ใน `OCR service/` เลย (0 ไฟล์) — working tree ของ OCR service คงเดิมครบทั้ง 15 แก้ไข + 26 untracked
+- Portal backend เวอร์ชันปัจจุบัน: `pytest "Web portal/invoice-web1/backend/tests"` = **15 passed in 3.68s**
+- Mockup v3: `node tools/smoke-test.js` = ผ่าน 46 การตรวจ
+- **พบปัญหาใหม่ (ยังไม่แก้):** `python tools/build-domain-data.py --check` ใน `Web portal/invoice-webv3` = **rc 1** พร้อมข้อความ `master_data.py shape changed; update this generator` → `assets/data.js` ที่ mockup v3 ใช้ ล้าสมัยเทียบ กับ `app/core/master_data.py` และ `rules.py` ที่แก้ไว้เฉพาะใน working tree ฝั่ง local (ยังไม่ commit)
 - OCR Service Regression: 9 passed, 6 deselected in 5.22s (`OCR service/n8n`) ก่อน merge; หลัง merge ยืนยันว่า `origin/main` ไม่มีไฟล์ใดแตะ `OCR service/` (0 ไฟล์) และ working tree ของ OCR service คงเดิมทั้ง 15 แก้ไข + 26 untracked
 - Mockup v3: `node --check` ผ่านทั้ง 4 สคริปต์ใน `Web portal/invoice-webv3/assets/` และ `node tools/smoke-test.js` ผ่าน 46 การตรวจ (ครอบคลุม 409 ไม่แก้สถานะ, confirm เพิ่ม `wf_version`, rerun สร้าง outbox, บล็อก action เมื่อขาด note, KPI นับตรงข้อมูล, master 48 แถว / 15 exception code / 9 กฎ, สแกนรูปแบบ credential)
 - Mockup v3 เปิดตรวจด้วย Chromium จริง (Playwright ที่ใช้ package จาก `invoice-web-9054076/frontend`): ไล่ 6 ผู้ใช้ × 4 หน้า × ทุกเอกสาร × 6 แท็บ + viewer + modal → console/page error 0, ไม่มี `undefined`/`NaN`/`[object Object]`, viewport 390px ไม่มี horizontal overflow (0px), header 56px `rgb(13,39,77)`, KPI 6 ใบ, active tab underline `rgb(0,181,175)`, คิวของผู้ใช้ตั้งต้น (ACC) 11 ฉบับ
@@ -135,6 +141,9 @@ ode_modules/, rontend/dist/, playwright-report/, 	est-results/, *.tsbuildinfo
 - `docs/` remains original architecture reference; code/docs have known contract and rules-version differences recorded in Web portal planning documents.
 
 ## Constraints / Next Work
+- ต้องเลือก "เวอร์ชันเดียวที่เป็น canonical" ของ portal: `invoice-web-9054076` / `invoice-web1` / `invoice-webV2` / `invoice-webv3` ยังอยู่ซ้อนกัน 4 ชุด และเอกสาร contract ถูก copy ซ้ำทุกโฟลเดอร์ — ต้องเลือกก่อนว่างานพัฒนาครั้งถัดไปลงโฟลเดอร์ไหน
+- ต้องแก้ `Web portal/invoice-webv3/tools/build-domain-data.py` ให้รองรับ shape ใหม่ของ `OCR service/n8n/app/core/master_data.py` + re-generate `assets/data.js` (ตอนนี้ `--check` fail) — งานนี้แตะ `OCR service/` ได้เฉพาะ "อ่าน" ห้ามแก้
+- root `.gitignore` ปรับ pattern ให้ตาม layout ใหม่ (`Web portal/*/data/`, `!Web portal/*/examples/invoice.pdf`) และลบ path ที่ตายแล้ว (`invoice-web/...`); ยืนยันแล้วด้วย `git check-ignore` ว่า `examples/invoice.pdf` ทั้งสองสำเนาไม่ถูก ignore และ `data/` ยังถูก ignore
 - n8n workflow v6.6 ยัง `active: false` (ตามนโยบาย: ไม่เปิด schedule โดยไม่ได้สั่ง) และยังไม่เคยรัน end-to-end จริงกับ Paperless/LiteLLM/Portal — การยืนยัน ณ ขณะนี้เป็นแบบ static (topology + code diff) + Oracle query จริงหนึ่งคำสั่งด้วย base tables
 - N7 ยัง hardcode Authorization header (ควรย้ายไป credential `httpTemplatedCustomAuth` ตามที่ n8n แนะนำ)
 - Current release is local/integration pilot, not company-scoped production: shared API keys are workspace-wide; Entra, user/receiver RBAC and immutable user audit remain unimplemented.
