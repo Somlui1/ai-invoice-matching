@@ -126,3 +126,40 @@
   - invoice-web/backend unittest: 15 passed in 2.332s
 - ปรับปรุง canonical records: gent/current-state.md, gent/task-plan.md, gent/changelog.md, gent/work-log.md, gent/sessions/2026-10-02-009-comprehensive-gitignore-sensitive-data.md
 - เตรียม commit และ push สู่ origin/main
+
+## 2026-10-03T09:33:00+07:00 — TASK-20261003-001: Consolidate Web Portal Files and Workflow into Web portal/ Folder
+
+- สอบถามความต้องการชัดเจนของผู้ใช้ผ่าน ask_question tool และได้รับคำยืนยันให้ย้ายเนื้อหาทั้งหมดจาก invoice-web/ (frontend, backend, docs, examples, infra, tests, scripts) และ Review Action Workflow ของ Web Portal เข้ามาไว้ในโฟลเดอร์ Web portal/
+- ย้ายไฟล์และโฟลเดอร์ที่ถูก track ใน git ทั้งหมดจาก invoice-web/ ไปยัง Web portal/ ด้วย git mv (backend, frontend, docs, examples, infra, .env.example, .gitignore, README.md, run-local.ps1) ทำให้รักษาประวัติ git ได้ครบถ้วน
+- ย้ายโฟลเดอร์ data/ และลบโฟลเดอร์ invoice-web/ ที่ว่างออก
+- ปรับปรุง root .gitignore: เพิ่มการ ignore Web portal/data/ และ Web\ portal/data/ พร้อมคงข้อยกเว้น !Web portal/examples/invoice.pdf และ !Web\ portal/examples/invoice.pdf
+- ทดสอบ git check-ignore: Web portal/data/tests/sample.sqlite3 ถูก ignore ถูกต้อง และ Web portal/examples/invoice.pdf ได้ exit code 1 (ไม่ถูก ignore)
+- ปรับแก้ path อ้างอิงใน Web portal/run-local.ps1, Web portal/README.md, Web portal/.env.example, และเอกสาร Web portal/docs/
+- รันการทดสอบยืนยันผลจริง:
+  - Web portal/backend unittest: 15 passed in 6.303s (รวม test_project_structure_keeps_entrypoints_and_boundaries_small)
+  - OCR service/n8n pytest: 9 passed, 6 deselected in 5.22s
+- บันทึก canonical records (current-state.md, task-plan.md, changelog.md, work-log.md, session file) ครบถ้วนตาม protocol
+
+## 2026-10-03T13:35:00+07:00 — TASK-20261003-002: อัปเดต n8n canvas + docs เป็น Standard v6.6 (Explanatory Flow)
+
+- รับคำสั่งให้ทำ 4 สิ่ง: (1) เอกสาร flow แบบ logic-first (2) อัปเดต parity matrix (3) แก้ canvas ผ่าน MCP `aiva-n8n` (4) ตรวจ connections + memory
+- ก่อนแก้ทุก batch ทำ backup full workflow JSON และแยกไฟล์ต่อโหนดเก็บไว้ (restore ได้) แล้ว diff โค้ด 7 jsCode nodes + `N7` jsonBody ระหว่าง live canvas กับ canonical copies → ต่างเฉพาะ comment จึง resync live → local และตรวจ `node --check` ผ่าน
+- แก้ canvas แบบ batch: rename workflow/description → v6.6 (Explanatory Flow), ปรับ IF gate condition ให้ใช้ boolean field ใหม่, rename `N7`/`N8`/`N9` และ IF nodes 3 ตัว, เพิ่ม Sticky Notes 8 ใบ, จัด 6 Node Groups
+- เจอปัญหา 2 ครั้งติดที่ `setNodeGroups` ถูก skip (group มี `Manual Trigger` ปน / ชื่อ IF โดนตัด `?` ท้าย) → แก้ด้วยการ rename IF ให้ไม่มี `?` แล้วส่ง group ops พร้อมกัน ใน batch เดียว → group ตั้งครบและคำเตือน `TOP_LEVEL_ITEMS_OVER_CEILING` หมดไป
+- ตรวจ canvas ด้วยสคริปต์จาก live export (edges/dangling/`$()` refs/ตำแหน่ง sticky ชัดเจนว่าทับโหนดหรือไม่) เพราะ `aiva-n8n_validate_workflow` ตรวจได้แค่ shape ของ SDK code ไม่ใช่ canvas จริง
+- ยืนยันกับ Oracle EBS จริงด้วยบิล `ED6909/0837`: 7 แถว ข้าม 3 POs (`40083989`,`40089558`,`40118686`), GR `510522788`, receiver `Oracle, Concurrent` และตรวจว่า view เก่า `APPS.AH_DEV_RCV_PO_AP_MATCHING_V` (29 คอลัมน์) ไม่มีคอลัมน์จำเป็นของ v6.6
+- สร้าง `OCR service/n8n/docs/workflows/n8n_flow_v6_6.md` (376 บรรทัด, logic-first, มี mermaid + 4 สถานการณ์ตัวอย่าง + ตารางเทียบรหัสเก่า/ใหม่) และเขียน `parity_spec_matrix.md` ใหม่เป็น v2.0.0 (ตาราง 23 โหนด + data contract ราย edge + ตารางเทียบ E01–E15 ↔ รหัสเดิม + checklist 6 ข้อ)
+- คงความต่างระหว่าง Python กับ Canvas ไว้ตรง ๆ ในเอกสาร (Canvas รวม Two-Hop เป็น query เดียว, Python ยิงสูงสุด 2 queries; `E11` ยังไม่ถูกยก) แทนการเขียนว่า "เหมือนกัน 100%"
+- Workflow คงสถานะ `active: false` ตามนโยบาย ไม่เปิด schedule
+- บันทึก canonical records ครบทั้งชุด root (`current-state.md`, `task-plan.md`, `changelog.md` CHG-20261003-002, `work-log.md`, `errors-and-solutions.md` ERR-20261003-001/002, session file) และชุด service (`.agent/` CHG-20261003-004, TASK-011, work-log, active-plan, session)
+
+## 2026-10-03T14:25:00+07:00 — TASK-20261003-005: เทียบผล n8n canvas กับ Python engine + แก้ SQL ของ N7
+
+- รับคำสั่ง "ทำ task ทุกอย่างให้สมบูรณ์" → เป้าคือปิด follow-up ที่ค้าง: (1) parity test จริง (2) ย้าย credential (3) E11 (4) commit
+- Parity test: ทำได้ครบโดยไม่แตะระบบจริง — ใช้ fixture เดียวกันรัน Python pipeline แล้วรัน canvas ผ่าน `aiva-n8n_test_workflow` พร้อม pinData ที่ `N2`/`N2.3a`/`N2.3b`/`N3`/`N7`/`N12`/`N13.1` (execution `#324` success, `lastNodeExecuted = N14`)
+- สิ่งที่เจอจริงและแก้: `N7` ดึงแถวกว้างเกิน (8,359 แถวจาก PO เดี่ยว) เพราะ branch PO ไม่มี guard และไม่มี Hop 1 → inline Hop 1 + `NOT EXISTS` ทำให้เหลือ 7 แถว โดยผลลัพธ์เท่า Python (ตรวจกับ Oracle ทั้ง 2 branch ก่อน deploy)
+- `N11`: normalize `rules[]` ให้ตรงกับ `model_dump()` ของ Python (key `code`/`severity`/`details` = null เมื่อ PASS) เพื่อให้ body ที่ POST เข้า Portal เท่ากันจริง
+- สรุปผลเทียบ: decision/rules/exceptions + `dms`/`access`/`receiver`/`invoice_summary` ตรงกันทั้งหมด; known deltas 3 ข้อเป็น cosmetic/superset จึงบันทึกไว้ในเอกสารแทนการแก้
+- ประเด็นที่ยังทำไม่ได้จริง: (1) ย้าย Bearer token ของ `N7` ไป credential — MCP มีแค่ read-only (`aiva-n8n_list_credentials`) ต้องทำใน UI และ token หมดอายุ 2026-10-28 (2) `E11` รอนโยบาย Accounting (3) `N12` ยังชี้ httpbin จึงไม่รัน execution เต็มจริงกับเอกสารจริง (จะ tag บิลโดยผลลัพธ์ไม่เข้า Portal)
+- พบงานคู่ขนาน: อีกรันหนึ่งของ agent (`TASK-012` 3-Way Pipeline) กำลังแก้ไข `app/engines/`, `tests/test_corpus_v66.py` และไฟล์ memory ชุดเดียวกัน → tier `corpus` มี fail จากงานนั้น (ไม่ได้แตะ) และ ID ใน `.agent/CHANGELOG.md` มีเลขซ้ำกัน (002 ถูกใช้ซ้ำ) จึงขยับไปใช้ `CHG-20261003-005` / `TASK-013`
+- commit แยกเฉพาะงานนี้: `docs/workflows/n8n_flow_v6_6.md`, `docs/workflows/parity_spec_matrix.md` + ไฟล์ memory (เพื่อไม่ดึงโค้ด WIP ของอีก session ที่ยัง commit ไม่เสร็จ)

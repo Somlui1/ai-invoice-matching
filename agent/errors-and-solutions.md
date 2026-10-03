@@ -91,3 +91,59 @@
 - Prevention: when editing the N7 SQL, never trim the select list without trimming `ORDER BY`; treat row counts from this dev view as non-deterministic (same query returned 2 rows then 0 rows minutes apart) and assert only shape/syntax
 - Evidence: bounded queries through `oracle_sql_run` returned the expected columns including the `SUPPLIER_IS_INTERNAL` scalar (`1` for tax `0145556001111`)
 - Status: `resolved`
+
+## ERR-20261003-001: `setNodeGroups` of `aiva-n8n_update_workflow` silently skipped (returns `skippedOperations`)
+
+- Error ID: `ERR-20261003-001`
+- Detected: 2026-10-03T13:05:00+07:00
+- Context: การจัด Node Groups ให้ workflow `aLUCmn3l0bZDjbVV` ผ่าน MCP `aiva-n8n` (node names of IF nodes contain a trailing `?`)
+- Symptom: คำขอตอบกลับ success แต่กลุ่มไม่ถูกสร้าง และรายการ node ถูกยัดกลับไปใน `skippedOperations` โดยไม่มี error message ที่บอกเหตุผลตรงๆ
+- Root Cause: 2 สาเหตุที่เกิดคนละรอบ
+  1. n8n ไม่อนุญาตให้ node ประเภท trigger (`n8n-nodes-base.manualTrigger`) อยู่ภายใน node group — ถ้า list ของ group มี trigger ปนอยู่ทั้ง group ถูก skip
+  2. Node name ที่ส่งไปไม่ตรงกับชื่อจริงบน canvas แบบตัวต่อตัว โดยเฉพาะชื่อที่ลงท้ายด้วย `?` ซึ่งมีโอกาสสูงที่จะถูกถอด/ใส่ไม่ครบตอนประกอบคำขอ (matching เป็น exact string)
+- Solution: เอา trigger ออกจากทุก group (ปล่อยไว้ topLevel) และเปลี่ยนชื่อ IF nodes ทั้งสามให้ไม่มี `?` (`N6: IF: Gate 1 Breaker (E02)`, `N8.1: IF: Gate 2 Breaker (E05 E06)`, `N2.2: IF: Unprocessed Document Found`) จากนั้นส่ง rename + `setNodeGroups` ในคำขอเดียวกัน → group ตั้งครบ และคำเตือน `TOP_LEVEL_ITEMS_OVER_CEILING` หมดไป
+- Prevention:
+  - ก่อนตั้งกลุ่ม ให้ดึงชื่อโหนดจาก `get_workflow` มาใช้ตรงๆ ห้ามพิมพ์เอง และอย่าให้ trigger ติดไปในกลุ่ม
+  - ถ้าเป็นไปได้ตั้งชื่อโหนดที่ไม่มี `?` ท้าย (ชื่อ gate ควรบอกหน้าที่ เช่น `Gate 1 Breaker (E02)`) และโหนดใดที่ถูก `$()` อ้างถึงต้องตรวจรายชื่อก่อน rename เสมอ
+  - หลังส่ง ops ต้องอ่าน `skippedOperations` / warnings ใน response แล้ว re-fetch workflow เพื่อยืนยัน ไม่ใช่เชื่อว่า success แล้วเสร็จ
+- Evidence: response ของ `aiva-n8n_update_workflow` 2 ครั้งแรก (4 ops applied / 6 groups skipped) และผล re-export หลังแก้ = 31 nodes, 24 edges, 0 dangling, 0 broken `$()` ref
+- Status: `resolved`
+
+## ERR-20261003-002: ไม่สามารถใส่ node-level `notes` ให้โหนดเดิมผ่าน `aiva-n8n_update_workflow`
+
+- Error ID: `ERR-20261003-002`
+- Detected: 2026-10-03T12:55:00+07:00
+- Context: ต้องการเขียนคำอธิบายไว้ในตัวโหนดของ canvas เพื่อให้เปิดแล้วเข้าใจทันที
+- Symptom: `addNode` รับ field `notes` ได้ แต่ไม่มี path ใดใน update API ที่ตั้ง/แก้ `notes` ของโหนดที่มีอยู่แล้ว (แก้ได้เฉพาะ parameter ของโหนดนั้น)
+- Root Cause: ข้อจำกัดของ MCP update surface —โหนดเดิมรับได้แค่ rename/parameters/positions ไม่ใช่ property ทุกชนิด
+- Solution: ใช้ node ประเภท `n8n-nodes-base.stickyNote` (`addNode` + parameters `{content,width,height}`) วางกำกับแต่ละกลุ่มแทน และ **ไม่เอา sticky เข้า node group** เพื่อให้เป็น annotation ล้วนๆ ที่ไม่มีผลต่อ workflow execution
+- Prevention: เมื่อต้อง "เขียนคำอธิบายบน canvas" ให้เริ่มที่ Sticky Notes เป็นทางเลือกแรก และเก็บเนื้อหาเดียวกันไว้ในเอกสาร (`docs/workflows/n8n_flow_v6_6.md`) ด้วยเสมอ เพราะ sticky หากระงับ/ลบจะหายไปจากประวัติ
+- Evidence: workflow ปัจจุบันมี 31 nodes = 23 flow nodes + 8 Sticky Notes และทุก sticky ไม่มี edge เชื่อมต่อ
+- Status: `resolved`
+
+---
+
+## ERR-20261003-003: Oracle query ของ n8n canvas คืนแถวกว้างเกินจริง (8,359 แถวจาก PO เดี่ยว) เพราะ branch PO ไม่มี guard
+- **ID:** `ERR-20261003-003`
+- **Date:** `2026-10-03T14:25:00+07:00`
+- **Severity:** High (ประสิทธิภาพ + ความเสี่ยงรอบ error cap 50 แถว)
+- **Context:** ตรวจ parity ระหว่าง canvas `aLUCmn3l0bZDjbVV` กับ Python pipeline บนบิลจริง `ED6909/0837` (PO เดี่ยว `40083989`)
+
+### Symptom
+- คำสั่งของ `N7: Oracle MCP: Hop 2 (RCV-V01)` คืน **8,359 แถว** ทั้งที่คำตอบที่ถูกคือ 7 แถว
+- `N7.1: Parse Oracle Receipts` ยังเลือกแถวได้ถูกต้อง (filter แถว invoice ก่อน) ผลลัพธ์ Table 9 จึงไม่เพี้ยน — แต่ payload เข้า memory เกินจริงราว 2.5 MB ต่อเอกสาร
+
+### Root Cause
+1. Canvas ยุบ Two-Hop ให้เป็น query เดียว โดยเอา branch PO มา `OR` กับ branch invoice **แบบไม่มีเงื่อนไข** → PO ที่มีการรับสินค้าสะสมหลายร้อยใบจะคืนทุกประวัติการรับของ PO นั้น
+2. Canvas ไม่มียิง Hop 1 → เมื่อ OCR อ่าน Tax ID ไม่เจอ branch invoice จะไม่ bind ด้วย Tax ID เลย ยิ่งทำให้ branch PO ถูกใช้บ่อย
+3. Python ไม่มีปัญหานี้เพราะ `get_receipts()` ยิง branch PO **เฉพาะเมื่อ invoice query คืน 0 แถว**
+
+### Solution
+- inline Hop 1 เป็น scalar subquery บน PO แรก: `(SELECT COALESCE(pv1.VAT_REGISTRATION_NUM, pv1.NUM_1099) FROM apps.po_headers_all ph1 JOIN apps.po_vendors pv1 ON pv1.VENDOR_ID = ph1.vendor_id WHERE ph1.SEGMENT1 = '<PO แรก>')` ใช้เฉพาะกรณี Tax ID ว่าง + invoice_num มีอยู่ + PO ไม่ขึ้นต้น `INV` (ตรงกับเงื่อนไข `resolve_supplier_tax_id_by_po()`)
+- ครอบ branch PO ด้วย `NOT EXISTS (<branch invoice เดิม>)` ให้ fallback ทำงานเฉพาะเมื่อไม่เจอแถวจากเลขที่บิล
+- ผลหลังแก้ (ตรวจด้วย `oracle_sql_run` จริง): `ED6909/0837` + PO `40083989` = **7 แถว**; กรณีบิลไม่มีใน ERP (`TLP-NOT-EXIST-9999` + PO `42052835`) = **4 แถว** เท่า log Python เดิม
+
+### Prevention
+- เวลาเทียบ parity ให้เทียบ "จำนวนแถว/ข้อมูลที่ยิงจริง" ด้วย ไม่ใช่เทียบเฉพาะ output JSON — output ที่ถูกอาจเกิดจากการกรองของ node ถัดไปก็ได้
+- ห้ามลบ `NOT EXISTS` guard ออกจาก branch PO (บันทึกไว้เป็น checklist ข้อ 3 ใน `docs/workflows/n8n_flow_v6_6.md`)
+- ถ้าอนาคตต้องใช้ view รวม (เช่น `APPS.AH_DEV_RCV_PO_AP_MATCHING_V`) ต้องตรวจว่ามี `SHIPMENT_NUM`/`PACKING_SLIP`/`LINE_STATUS`/`RECEIVER` ก่อน เพราะ view เดิมไม่มีคอลัมน์เหล่านี้

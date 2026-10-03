@@ -111,3 +111,44 @@ ode_modules/, rontend/dist/, playwright-report/, 	est-results/, *.tsbuildinfo
   12. Logs: *.log, logs/
 - ตรวจยืนยันด้วย git check-ignore -v ครอบคลุม 25+ pattern ตัวอย่างของ sensitive data ทุกหมวดหมู่
 - รัน regression tests: pytest 9/11 passed (2 deselected), unittest 15/15 passed
+
+### Structure / Changed — CHG-20261003-001
+- Timestamp: 2026-10-03T09:33:00+07:00
+- ย้ายและรวมโค้ดและไฟล์ทั้งหมดของ Web Portal จาก invoice-web/ เข้าสู่โฟลเดอร์ Web portal/ ตามคำสั่งผู้ใช้:
+  - invoice-web/frontend/ -> Web portal/frontend/
+  - invoice-web/backend/ -> Web portal/backend/ (รวมทั้ง backend/app/domain/workflow/ Review Action State Machine)
+  - invoice-web/docs/ -> Web portal/docs/
+  - invoice-web/examples/ -> Web portal/examples/
+  - invoice-web/infra/ -> Web portal/infra/
+  - invoice-web/data/ -> Web portal/data/
+  - invoice-web/.env.example -> Web portal/.env.example
+  - invoice-web/.gitignore -> Web portal/.gitignore
+  - invoice-web/README.md -> Web portal/README.md
+  - invoice-web/run-local.ps1 -> Web portal/run-local.ps1
+- ลบโฟลเดอร์ invoice-web/ ที่ว่างออกอย่างสมบูรณ์
+- ปรับปรุง .gitignore ที่ระดับ root ให้ครอบคลุม Web portal/data/ และคง whitelist !Web portal/examples/invoice.pdf
+- ปรับปรุงพาธใน Web portal/run-local.ps1, Web portal/README.md, Web portal/.env.example, และเอกสารใน Web portal/docs/
+- ตรวจสอบความถูกต้อง: Backend unittest 15 รายการใน Web portal/backend ผ่าน 100% (6.303s), Regression pytest ใน OCR service/n8n ผ่าน 9 รายการ (5.22s)
+
+### Documentation / Structure — CHG-20261003-002
+- Timestamp: 2026-10-03T13:35:00+07:00
+- Task: `TASK-20261003-002` (detail ใน `OCR service/n8n/.agent/CHANGELOG.md` → `CHG-20261003-004`)
+- อัปเดต n8n workflow `aLUCmn3l0bZDjbVV` บนเซิร์ฟเวอร์ (ผ่าน MCP `aiva-n8n`) ให้เป็น Standard v6.6 แบบ Explanatory Flow:
+  - rename workflow → `AIVA PO-INV Matching Verification v6.6 (Explanatory Flow)` (ยัง `active: false`)
+  - rename `N7` → `N7: Oracle MCP: Hop 2 (RCV-V01)`, `N8` → `N8: Code: STEP 2 (Receipt & Customer)`, `N9` → `N9: Code: STEP 3 (8-Pass Line Matcher)`
+  - rename IF nodes → `N6: IF: Gate 1 Breaker (E02)`, `N8.1: IF: Gate 2 Breaker (E05 E06)`, `N2.2: IF: Unprocessed Document Found` และปรับ condition ให้ผูกกับ boolean `has_e02` / `has_critical_receipt_issue`
+  - เพิ่ม Sticky Notes 8 ใบ (NOTE 1–6 + REF A exception map + REF B worked examples) และจัด 6 Node Groups ตาม STEP โดย `Manual Trigger` อยู่ภายนอก (n8n ห้าม trigger ใน group)
+- เพิ่มเอกสารใหม่ `OCR service/n8n/docs/workflows/n8n_flow_v6_6.md` (376 บรรทัด): ภาพรวม 6 ขั้น + mermaid, เหตุผลของ Gate 1/2, Two-Hop Multi-PO (พร้อมตารางเทียบ Python vs Canvas แบบตรงไปตรงมา), 8-Pass matcher + เหตุผลที่ใช้ `QUANTITY_RECEIVED`, Table 8 + Table 9 v1.5 (`dms`, `access`, `receiver`, `release_num`), ตารางเทียบรหัสเก่า E05–E35 → ใหม่ E01–E15, ผังโหนด/กลุ่ม/รายชื่อที่ห้าม rename, 4 สถานการณ์ตัวอย่าง, checklist 5 ข้อ
+- เขียน `OCR service/n8n/docs/workflows/parity_spec_matrix.md` ใหม่จาก v1.0.0 (Standard v6.2 + snippet ที่ค้างยุค `has_e28`) → v2.0.0: หลักการ D1–D6, ตาราง 23 โหนด, Data Contract ราย edge, ตารางเทียบ E01–E15 ↔ รหัสเดิม + User Task Codes, checklist 6 ข้อ
+- ผลตรวจยืนยันจริง: live export = 31 nodes (23 flow + 8 sticky) / 24 edges / 0 dangling / 0 broken `$()` ref; gate wiring ถูกต้อง; diff โค้ดโหนด = comment-only; `node --check` ผ่าน; Oracle EBS จริง `ED6909/0837` → 7 แถว / 3 POs (GR `510522788`, receiver `Oracle, Concurrent`)
+- ข้อจำกัดคงค้าง: `N7` ยัง hardcode Authorization header (`HARDCODED_CREDENTIALS`), `E11` ยังไม่ถูกยกทั้งสอง engine, ยังไม่รัน end-to-end จริงที่ v6.6, workflow ยัง inactive
+
+### Code / Canvas — CHG-20261003-003 (OCR service/n8n — n8n canvas)
+- Timestamp: 2026-10-03T14:25:00+07:00
+- Task: `TASK-20261003-005` (detail ใน `OCR service/n8n/.agent/CHANGELOG.md` → `CHG-20261003-005`)
+- ปิดงาน "ทดสอบเทียบ canvas กับ Python engine จริง" โดยใช้ fixture `tests/fixtures/verified_scenario.json` เป็น input เดียวกันทั้งสองฝั่ง
+- พบและแก้ข้อแตกต่างจริง 1 จุด: `N7` ประกอบ WHERE แบบ `(invoice branch) OR (ph.SEGMENT1 IN (...))` โดยไม่มี guard และไม่มี Hop 1 → PO `40083989` คืน **8,359 แถว** ทั้งที่แถวที่ถูกคือ 7 แถว; แก้เป็น inline Hop 1 (scalar subquery บน PO แรก เมื่อ Tax ID ว่าง) + `NOT EXISTS` guard รอบ branch PO = ตรรกะ "fallback เฉพาะเมื่อไม่เจอแถวจากเลขที่บิล" ของ Python
+- เพิ่ม normalization ที่ `N11` ให้ `rules[]` ทุกแถวมี key `code`/`severity`/`details` (null เมื่อ PASS) ตรงกับ `model_dump()` ของ `RuleResult`
+- ยืนยันด้วย `oracle_sql_run` (invoice branch 7 แถว / fallback 4 แถว), `cmp` ว่า SQL ที่ render บน canvas ตรงกับไฟล์ที่ validate, และรัน canvas จริงผ่าน `test_workflow` แบบ pin I/O → execution `#324` success ถึง `N14`
+- ผลเทียบ Table 9: `decision`/`rules`/`exceptions`/`dms`/`access`/`receiver`/`invoice_summary`/`oracle_data.count` ตรงกันหมด เหลือ known deltas 3 ข้อ (รูปแบบตัวเลขในข้อความ `E15`, superset field ของ canvas, `timestamp`) — จงใจคงไว้
+- ไม่แก้โค้ด Python; `tests/run_tests.py --mode offline` = ALL PASSED; workflow ยัง `active: false`
