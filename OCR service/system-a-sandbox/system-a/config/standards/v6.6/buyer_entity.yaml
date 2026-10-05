@@ -1,25 +1,180 @@
-# Standard v6.6 Table 4 (SUBSET for sandbox — owner: AERP; complete all 28 ORG_IDs before UAT)
-# status: confirmed | inferred | unknown | cancelled
+# Standard v6.6 Table 4 — ทะเบียนนิติบุคคล ORG_ID และที่อยู่สาขา (ฐานข้อมูลตรวจลูกค้า)
+# owner: AERP · source of truth: AH-IT-DOC-PO-INV-Matching-Standard-v6.6-DRAFT-261001-WT.md §04
+#
+# status: confirmed (ยืนยันแล้ว) | inferred (อนุมาน) | unknown (ยังไม่ทราบ) | cancelled (ยกเลิก)
+# กฎ V-05: unknown / cancelled / ไม่มี tax_id => Manual Review (ตามที่มาตรฐานกำหนด)
+#
+# ── ORG_ID สองระบบ (ตรวจพบ 2026-10-05, ดู agent/errors-and-solutions.md ERR-20261005-002) ──────
+# มาตรฐานตารางที่ 4 ลงทะเบียนด้วย organization_id ของ *sub-organization* (เช่น 196 = AHT Tooling)
+# แต่ RCV-V01 ส่ง `ph.ORG_ID` จาก PO_HEADERS_ALL ซึ่งคือ **operating unit** (195 = Aapico Hitech
+# Tooling Legal) — คนละแถวใน HR_ALL_ORGANIZATION_UNITS แม้เป็นบริษัทเดียวกัน
+# ผล: เดิมไม่มี ORG_ID ที่กฎได้รับอยู่ในตารางนี้เลยแม้แต่แถวเดียว V-05 จึงเป็น Manual Review 100%
+#
+# วิธีแก้ที่ใช้ที่นี่: เขียนแถวเพิ่มด้วยคีย์ = operating unit id ที่ Oracle ส่งจริง
+#   โดยดึงข้อมูลนิติบุคคล (Tax ID / ชื่อ / ที่อยู่) จากแถวตารางที่ 4 ของบริษัทเดียวกัน
+#   จับคู่จากชื่อใน HR_OPERATING_UNITS เท่านั้น ไม่เดา — แถวที่จับได้ไม่ชัด 1:1 ปล่อย status: unknown
+#   (V-05 ส่ง Manual Review ต่อตามมาตรฐาน) ผิดพลาดได้ทางเดียวคือ E07 (Hold ให้คนตรวจ)
+#   ไม่ใช่ผ่านอัตโนมัติแบบผิด
+# field table4_org_id / erp_ou_name = หลักฐานอ้างอิงแต่ละแถว (audit) · ตรวจสอบด้วย:
+#   SELECT organization_id, name FROM APPS.HR_ALL_ORGANIZATION_UNITS
 entities:
+  # ══ 1) แถวตามมาตรฐานตารางที่ 4 ต้นฉบับ (คีย์ = organization id ตามเอกสาร) ══════════════
   103: {short: APD, status: confirmed, tax_id: "0107545000179",
         name_th: "บริษัท อาปิโก ไฮเทค จำกัด (มหาชน)", name_en: "AAPICO HITECH PUBLIC CO., LTD.", former: [],
         addr_th: "99 ม.1 นิคมอุตสาหกรรมไฮเทค ต.บ้านเลน อ.บางปะอิน จ.พระนครศรีอยุธยา 13160",
         addr_en: "99 MOO 1 HITECH INDUSTRIAL ESTATE, TAMBON BAN LANE, AMPHUR BANG PA-IN, AYUTTHAYA 13160",
         branches: {"00003": "อาคารสาทรนคร ทาวเวอร์ ชั้น 9 เลขที่ 100/11 ถ.สาทรเหนือ แขวงสีลม เขตบางรัก กรุงเทพมหานคร 10500"}}
   104: {short: ATD, status: cancelled}
+  175: {short: AHP, status: confirmed, tax_id: "0145548001549",
+        name_th: "บริษัท อาปิโก ไฮเทค พาร์ทส์ จำกัด", name_en: "AAPICO HITECH PARTS CO., LTD.", former: [],
+        addr_th: "99/2 ม.1 นิคมอุตสาหกรรมไฮเทค ต.บ้านเลน อ.บางปะอิน จ.พระนครศรีอยุธยา 13160", addr_en: null,
+        branches: {}}
   196: {short: AHT, status: confirmed, tax_id: "0145548001557",
         name_th: "บริษัท อาปิโก ไฮเทค ทูลลิ่ง จำกัด", name_en: "AAPICO HITECH TOOLING CO., LTD.", former: [],
         addr_th: "99/1 ม.1 นิคมอุตสาหกรรมไฮเทค ต.บ้านเลน อ.บางปะอิน จ.พระนครศรีอยุธยา 13160",
-        addr_en: "99/1 MU 1 NIKHOMUTTASAHAKAM HITEK, BAN LEN, BANG PA-IN, PHRA NAKHON SI AYUTTHAYA 13160", branches: {}}
+        addr_en: "99/1 MU 1 NIKHOMUTTASAHAKAM HITEK, BAN LEN, BANG PA-IN, PHRA NAKHON SI AYUTTHAYA 13160",
+        branches: {}}
+  199: {short: AF, status: confirmed, tax_id: "0107547000354",
+        name_th: "บริษัท อาปิโก ฟอร์จจิ้ง จำกัด (มหาชน)", name_en: "AAPICO FORGING PUBLIC CO., LTD.", former: [],
+        addr_th: "700/20 ม.6 ถ.บางนา-ตราด ต.หนองไม้แดง อ.เมืองชลบุรี จ.ชลบุรี 20000", addr_en: null, branches: {}}
   222: {short: AHR, status: confirmed, tax_id: "0107545000179",
         name_th: "บริษัท อาปิโก ไฮเทค จำกัด (มหาชน) (ระยอง)", name_en: "AAPICO HITECH PUBLIC CO., LTD. (RAYONG)", former: [],
         addr_th: "7/289 ม.6 นิคมอุตสาหกรรมอมตะซิตี้ ระยอง ต.มาบยางพร อ.ปลวกแดง จ.ระยอง 21140", addr_en: null, branches: {}}
   224: {short: AMT, status: unknown}
+  244: {short: AMK, status: confirmed, tax_id: "0145549002085",
+        name_th: "บริษัท อาปิโก มิตซูอิเกะ (ประเทศไทย) จำกัด", name_en: "AAPICO MITSUIKE (THAILAND) CO., LTD.", former: [],
+        addr_th: "99 ม.1 นิคมอุตสาหกรรมไฮเทค ต.บ้านเลน อ.บางปะอิน จ.พระนครศรีอยุธยา 13160",
+        addr_en: "99 MU 1 NIKHOM-UTSAHAKAM HITECH, BAN LEN, BANG PA-IN, PHRA NAKHON SI AYUTTHAYA 13160", branches: {}}
   264: {short: AERP, status: inferred, tax_id: null, name_th: "บริษัท เออีอาร์พี จำกัด", name_en: "AERP CO., LTD.",
         addr_th: "99/2 ม.1 นิคมอุตสาหกรรมไฮเทค ต.บ้านเลน อ.บางปะอิน จ.พระนครศรีอยุธยา 13160"}
+  287: {short: APB, status: inferred, tax_id: "0107537000131",
+        name_th: "บริษัท อาปิโก พลาสติค จำกัด (มหาชน) (บางพลี)", name_en: "AAPICO PLASTICS PUBLIC CO., LTD. (BANGPLEE)", former: [],
+        addr_th: "358-358/1 ม.17 นิคมอุตสาหกรรมบางพลี ถ.เทพารักษ์ ต.บางเสาธง อ.บางเสาธง จ.สมุทรปราการ 10570",
+        addr_en: "358-358/1 NICOM UTSAHAKHAM BANGPLI MU 17 THANON THEPHARAK, BANG SAO THONG, BANG SAO THONG, SAMUT PRAKAN 10570",
+        branches: {}}
+  288: {short: APR, status: inferred, tax_id: "0107537000131",
+        name_th: "บริษัท อาปิโก พลาสติค จำกัด (มหาชน) (ระยอง)", name_en: "AAPICO PLASTICS PUBLIC CO., LTD. (RAYONG)", former: [],
+        addr_th: "7/288 ม.6 นิคมอุตสาหกรรมอมตะซิตี้ ระยอง ต.มาบยางพร อ.ปลวกแดง จ.ระยอง 21140", addr_en: null, branches: {}}
+  291: {short: ASP, status: confirmed, tax_id: "0205551028176",
+        name_th: "บริษัท อาปิโก สตรัคเจอรัล โปรดักส์ จำกัด", name_en: "AAPICO STRUCTURAL PRODUCTS CO., LTD.", former: [],
+        addr_th: "700/16 ม.6 ต.หนองไม้แดง อ.เมืองชลบุรี จ.ชลบุรี 20000",
+        addr_en: "700/16 Moo 6 Amata City Chonburi Industrial Estate, T.Nongmaidaeng, A.Muang-Chonburi, Chonburi 20000",
+        branches: {}}
+  310: {short: AA, status: inferred, tax_id: "0105535001499",
+        name_th: "บริษัท อาปิโก อมตะ จำกัด", name_en: "AAPICO AMA-A COMPANY LIMITED.", former: [],
+        addr_th: "700/483 ม.2 ต.บ้านเก่า อ.พานทอง จ.ชลบุรี 20160",
+        addr_en: "46/77-78 FL.16 NATION BUILDING TOWER MOO 10, BAN KAO, PHAN THONG, CHON BURI 20160", branches: {}}
+  330: {short: AL, status: inferred, tax_id: "0145556001111",
+        name_th: "บริษัท อาปิโก ลีดเทค จำกัด", name_en: "AAPICO LEADTECH CO., LTD.",
+        former: ["บริษัท อาปิโก เลมเทค (ประเทศไทย) จำกัด", "AAPICO LEMTECH (THAILAND) CO., LTD."],
+        addr_th: "152 ม.1 นิคมอุตสาหกรรมไฮเทค ต.บ้านเลน อ.บางปะอิน จ.พระนครศรีอยุธยา 13160", addr_en: null, branches: {}}
+  350: {short: EA, status: confirmed, tax_id: "0145556001391",
+        name_th: "บริษัท เอ็ดช่า อาปิโก ออโตโมทีฟ จำกัด", name_en: "EDSCHA AAPICO AUTOMOTIVE CO., LTD.", former: [],
+        addr_th: "99/2 ม.1 นิคมอุตสาหกรรมไฮเทค ต.บ้านเลน อ.บางปะอิน จ.พระนครศรีอยุธยา 13160",
+        addr_en: "99/2 Moo 1, Hi-Tech Industrial Estate, Phra Nakhon Si Ayutthaya 13160", branches: {}}
+  352: {short: AHD, status: confirmed, tax_id: "0145548001557",
+        name_th: "บริษัท อาปิโก ไฮเทค ทูลลิ่ง จำกัด", name_en: "AAPICO HITECH TOOLING CO., LTD.", former: [],
+        addr_th: "99/1 ม.1 นิคมอุตสาหกรรมไฮเทค ต.บ้านเลน อ.บางปะอิน จ.พระนครศรีอยุธยา 13160",
+        addr_en: "99/1 MU 1 NIKHOMUTTASAHAKAM HITEK, BAN LEN, BANG PA-IN, PHRA NAKHON SI AYUTTHAYA 13160", branches: {}}
+  354: {short: APC, status: inferred, tax_id: "0205557018563",
+        name_th: "บริษัท อาปิโก พรีซิชั่น จำกัด", name_en: "AAPICO PRECISION CO., LTD.", former: [],
+        addr_th: "700/16 ม.6 ต.หนองไม้แดง อ.เมืองชลบุรี จ.ชลบุรี 20000",
+        addr_en: "700/16 Moo 6 Amata City Chonburi Industrial Estate, T.Nongmaidaeng, A.Muang-Chonburi, Chonburi 20000",
+        branches: {}}
   376: {short: AM, status: confirmed, tax_id: "0135546008643",
         name_th: "บริษัท เอเบิล มอเตอร์ส จำกัด", name_en: "ABLE MOTORS CO., LTD.", former: [],
         addr_th: "14/9 ม.14 ถ.พหลโยธิน ต.คลองหนึ่ง อ.คลองหลวง จ.ปทุมธานี 12120",
         addr_en: "14/9 MU 14 THANON PHAHON YOTHIN, KHLONG NUENG, KHLONG LUANG, PATHUM THANI 12120",
         branches: {"00002": "2418-2420 ถ.ลาดพร้าว แขวงพลับพลา เขตวังทองหลาง กรุงเทพมหานคร 10310",
-                   "00004": "888 ม.14 ต.ราชาเทวะ อ.บางพลี จ.สมุทรปราการ 10540"}}
+                   "00004": "888 ม.14 ต.ราชาเทวะ อ.บางพลี จ.สมุทรปราการ 10540",
+                   "00005": "8/7 ม.7 ถ.พหลโยธิน-ลำลูกกา ต.ลาดสวาย อ.ลำลูกกา จ.ปทุมธานี 12150"}}
+  433: {short: AHA, status: confirmed, tax_id: "0145563000434",
+        name_th: "บริษัท อาปิโก ไฮเทค ออโตเมชั่น จำกัด", name_en: "AAPICO HITECH AUTOMATION CO., LTD.", former: [],
+        addr_th: "99 ม.1 นิคมอุตสาหกรรมไฮเทค ต.บ้านเลน อ.บางปะอิน จ.พระนครศรีอยุธยา 13160",
+        addr_en: "99 MOO 1 HITECH INDUSTRIAL ESTATE, BAN LEN, BANG PA-IN, PHRA NAKHON SI AYUTTHAYA 13160", branches: {}}
+  # แถวที่มาตรฐานระบุ "ยังไม่ทราบ" — คง Manual Review ตามมาตรฐาน (ห้ามเดา)
+  454: {short: AMPK, status: unknown}
+  474: {short: AMPT, status: unknown}
+  515: {short: ABF, status: unknown}
+  536: {short: AEV, status: unknown}
+  556: {short: MGP, status: unknown}
+  575: {short: MGR, status: unknown}
+  576: {short: MGS, status: unknown}
+  615: {short: AVP, status: unknown}
+  635: {short: AVT, status: unknown}
+
+  # ══ 2) แถวคีย์ = operating unit id ที่ RCV-V01 ส่งจริง (HR_OPERATING_UNITS, 05-Oct-2026) ══════
+  #     จับคู่กับตารางที่ 4 ด้วยชื่อนิติบุคคลใน Oracle เท่านั้น · ทุกแถวมี 1 บริษัทตรง 1 แถวเท่านั้น
+  101: {short: APD, status: confirmed, tax_id: "0107545000179", table4_org_id: 103, erp_ou_name: "AH - Aapico Hitech",
+        name_th: "บริษัท อาปิโก ไฮเทค จำกัด (มหาชน)", name_en: "AAPICO HITECH PUBLIC CO., LTD.", former: [],
+        addr_th: "99 ม.1 นิคมอุตสาหกรรมไฮเทค ต.บ้านเลน อ.บางปะอิน จ.พระนครศรีอยุธยา 13160",
+        addr_en: "99 MOO 1 HITECH INDUSTRIAL ESTATE, TAMBON BAN LANE, AMPHUR BANG PA-IN, AYUTTHAYA 13160",
+        branches: {"00003": "อาคารสาทรนคร ทาวเวอร์ ชั้น 9 เลขที่ 100/11 ถ.สาทรเหนือ แขวงสีลม เขตบางรัก กรุงเทพมหานคร 10500"}}
+  176: {short: AHP, status: confirmed, tax_id: "0145548001549", table4_org_id: 175, erp_ou_name: "Aapico Hitech Parts Legal",
+        name_th: "บริษัท อาปิโก ไฮเทค พาร์ทส์ จำกัด", name_en: "AAPICO HITECH PARTS CO., LTD.", former: [],
+        addr_th: "99/2 ม.1 นิคมอุตสาหกรรมไฮเทค ต.บ้านเลน อ.บางปะอิน จ.พระนครศรีอยุธยา 13160", addr_en: null, branches: {}}
+  195: {short: AHT, status: confirmed, tax_id: "0145548001557", table4_org_id: 196, erp_ou_name: "Aapico Hitech Tooling Legal",
+        name_th: "บริษัท อาปิโก ไฮเทค ทูลลิ่ง จำกัด", name_en: "AAPICO HITECH TOOLING CO., LTD.", former: [],
+        addr_th: "99/1 ม.1 นิคมอุตสาหกรรมไฮเทค ต.บ้านเลน อ.บางปะอิน จ.พระนครศรีอยุธยา 13160",
+        addr_en: "99/1 MU 1 NIKHOMUTTASAHAKAM HITEK, BAN LEN, BANG PA-IN, PHRA NAKHON SI AYUTTHAYA 13160", branches: {}}
+  197: {short: AF, status: confirmed, tax_id: "0107547000354", table4_org_id: 199, erp_ou_name: "Aapico Forging Legal",
+        name_th: "บริษัท อาปิโก ฟอร์จจิ้ง จำกัด (มหาชน)", name_en: "AAPICO FORGING PUBLIC CO., LTD.", former: [],
+        addr_th: "700/20 ม.6 ถ.บางนา-ตราด ต.หนองไม้แดง อ.เมืองชลบุรี จ.ชลบุรี 20000", addr_en: null, branches: {}}
+  243: {short: AMK, status: confirmed, tax_id: "0145549002085", table4_org_id: 244, erp_ou_name: "Aapico Mitsuike Legal",
+        name_th: "บริษัท อาปิโก มิตซูอิเกะ (ประเทศไทย) จำกัด", name_en: "AAPICO MITSUIKE (THAILAND) CO., LTD.", former: [],
+        addr_th: "99 ม.1 นิคมอุตสาหกรรมไฮเทค ต.บ้านเลน อ.บางปะอิน จ.พระนครศรีอยุธยา 13160",
+        addr_en: "99 MU 1 NIKHOM-UTSAHAKAM HITECH, BAN LEN, BANG PA-IN, PHRA NAKHON SI AYUTTHAYA 13160", branches: {}}
+  289: {short: ASP, status: confirmed, tax_id: "0205551028176", table4_org_id: 291, erp_ou_name: "Aapico Structural Legal",
+        name_th: "บริษัท อาปิโก สตรัคเจอรัล โปรดักส์ จำกัด", name_en: "AAPICO STRUCTURAL PRODUCTS CO., LTD.", former: [],
+        addr_th: "700/16 ม.6 ต.หนองไม้แดง อ.เมืองชลบุรี จ.ชลบุรี 20000",
+        addr_en: "700/16 Moo 6 Amata City Chonburi Industrial Estate, T.Nongmaidaeng, A.Muang-Chonburi, Chonburi 20000",
+        branches: {}}
+  309: {short: AA, status: inferred, tax_id: "0105535001499", table4_org_id: 310, erp_ou_name: "Aapico Amata Legal",
+        name_th: "บริษัท อาปิโก อมตะ จำกัด", name_en: "AAPICO AMA-A COMPANY LIMITED.", former: [],
+        addr_th: "700/483 ม.2 ต.บ้านเก่า อ.พานทอง จ.ชลบุรี 20160",
+        addr_en: "46/77-78 FL.16 NATION BUILDING TOWER MOO 10, BAN KAO, PHAN THONG, CHON BURI 20160", branches: {}}
+  329: {short: AL, status: inferred, tax_id: "0145556001111", table4_org_id: 330, erp_ou_name: "Aapico Leadtech Legal",
+        name_th: "บริษัท อาปิโก ลีดเทค จำกัด", name_en: "AAPICO LEADTECH CO., LTD.",
+        former: ["บริษัท อาปิโก เลมเทค (ประเทศไทย) จำกัด", "AAPICO LEMTECH (THAILAND) CO., LTD."],
+        addr_th: "152 ม.1 นิคมอุตสาหกรรมไฮเทค ต.บ้านเลน อ.บางปะอิน จ.พระนครศรีอยุธยา 13160", addr_en: null, branches: {}}
+  349: {short: EA, status: confirmed, tax_id: "0145556001391", table4_org_id: 350, erp_ou_name: "Edscha Aapico Automotive Legal",
+        name_th: "บริษัท เอ็ดช่า อาปิโก ออโตโมทีฟ จำกัด", name_en: "EDSCHA AAPICO AUTOMOTIVE CO., LTD.", former: [],
+        addr_th: "99/2 ม.1 นิคมอุตสาหกรรมไฮเทค ต.บ้านเลน อ.บางปะอิน จ.พระนครศรีอยุธยา 13160",
+        addr_en: "99/2 Moo 1, Hi-Tech Industrial Estate, Phra Nakhon Si Ayutthaya 13160", branches: {}}
+  353: {short: APC, status: inferred, tax_id: "0205557018563", table4_org_id: 354, erp_ou_name: "Aapico Precision Legal",
+        name_th: "บริษัท อาปิโก พรีซิชั่น จำกัด", name_en: "AAPICO PRECISION CO., LTD.", former: [],
+        addr_th: "700/16 ม.6 ต.หนองไม้แดง อ.เมืองชลบุรี จ.ชลบุรี 20000",
+        addr_en: "700/16 Moo 6 Amata City Chonburi Industrial Estate, T.Nongmaidaeng, A.Muang-Chonburi, Chonburi 20000",
+        branches: {}}
+  373: {short: AM, status: confirmed, tax_id: "0135546008643", table4_org_id: 376, erp_ou_name: "Able Motors Legal",
+        name_th: "บริษัท เอเบิล มอเตอร์ส จำกัด", name_en: "ABLE MOTORS CO., LTD.", former: [],
+        addr_th: "14/9 ม.14 ถ.พหลโยธิน ต.คลองหนึ่ง อ.คลองหลวง จ.ปทุมธานี 12120",
+        addr_en: "14/9 MU 14 THANON PHAHON YOTHIN, KHLONG NUENG, KHLONG LUANG, PATHUM THANI 12120",
+        branches: {"00002": "2418-2420 ถ.ลาดพร้าว แขวงพลับพลา เขตวังทองหลาง กรุงเทพมหานคร 10310",
+                   "00004": "888 ม.14 ต.ราชาเทวะ อ.บางพลี จ.สมุทรปราการ 10540",
+                   "00005": "8/7 ม.7 ถ.พหลโยธิน-ลำลูกกา ต.ลาดสวาย อ.ลำลูกกา จ.ปทุมธานี 12150"}}
+  413: {short: AHA, status: confirmed, tax_id: "0145563000434", table4_org_id: 433, erp_ou_name: "Aapico Hitech Automation Legal",
+        name_th: "บริษัท อาปิโก ไฮเทค ออโตเมชั่น จำกัด", name_en: "AAPICO HITECH AUTOMATION CO., LTD.", former: [],
+        addr_th: "99 ม.1 นิคมอุตสาหกรรมไฮเทค ต.บ้านเลน อ.บางปะอิน จ.พระนครศรีอยุธยา 13160",
+        addr_en: "99 MOO 1 HITECH INDUSTRIAL ESTATE, BAN LEN, BANG PA-IN, PHRA NAKHON SI AYUTTHAYA 13160", branches: {}}
+  # operating unit ที่ตารางที่ 4 ยังไม่มีนิติบุคคลชัดเจน — คง Manual Review ตามมาตรฐาน (ห้ามเดา)
+  #   177 XXX (OU ทดสอบ) · 202 Aapico ITS Legal · 223 A Maction Legal (ตาราง 224 ยังไม่ทราบ)
+  #   263 A ERP Legal (264 ยังไม่มี Tax ID) · 285 Aapico Plastics Legal (287 บางพลี หรือ 288 ระยอง — กำกวม)
+  #   292 Master Legal · 375 AM Master Legal · 393 OU_AAPICO CONSO GROUP (รวมบัญชี)
+  #   453/473 Able Motors Pakkred / Pathumthani (454/474 ยังไม่ทราบ)
+  #   475 Aapico Bike Legal (495 ABC หรือ 515 ABF — กำกวม) · 535 Able EV Legal (536 ยังไม่ทราบ)
+  #   555 MG Able Motors Legal (556/575/576 — กำกวม) · 596 Aapico AVEE (615/635 — กำกวม)
+  177: {short: XXX, status: unknown}
+  202: {short: AITS, status: unknown}
+  223: {short: AMT, status: unknown}
+  263: {short: AERP, status: unknown}
+  285: {short: AP, status: unknown}
+  292: {short: MSTR, status: unknown}
+  375: {short: AMM, status: unknown}
+  393: {short: CONSO, status: unknown}
+  453: {short: AMPK, status: unknown}
+  473: {short: AMPT, status: unknown}
+  475: {short: AB, status: unknown}
+  535: {short: AEV, status: unknown}
+  555: {short: MGA, status: unknown}
+  596: {short: AVEE, status: unknown}
