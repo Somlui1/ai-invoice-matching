@@ -1,27 +1,56 @@
 # Current State
 
-Last verified: `2026-10-02T20:20:00+07:00`
+Last verified: `2026-10-03T15:45:00+07:00`
 
 ## Repository
-- Branch: `invoice-web` (remote `origin/main`); งานล่าสุดเป็นการอัปเดต n8n workflow บนเซิร์ฟเวอร์ผ่าน MCP + แก้เอกสาร `OCR service/n8n/n8n flow structure.md` เท่านั้น
+- Branch: `invoice-web`
+- Web portal ประกอบด้วย:
+  - `Web portal/invoice-webV2`: React 19 + TypeScript + Vite portal เวอร์ชันใหม่ล่าสุด (พอร์ต 5180)
+  - `Web portal/invoice-web1`: สำรองโค้ดเวอร์ชันเดิม
+  - `Web portal/invoice-web-9054076`: โค้ดจาก commit 9054076 สำหรับทดสอบเทียบเคียง (พอร์ต 5173 / 8010)
+  - `Web portal/invoice-webv3`: mockup ใหม่แบบ no-build (plain classic script ไม่ต้อง build) สำหรับรีวิว UI + business rule
+  - `Web portal/invoice-webV4`: web portal no-build แบบ ES modules ที่แยก layer จริง (domain/data/engine/ui/views) และ**แสดงผลจาก snapshot เท่านั้น** — ยังไม่ต่อ backend (untracked ใน `git status`)
+  - Web portal/invoice-webV5: repo-reference web portal no-build (ES modules) ซิงก์ข้อมูลอ้างอิงตรงจาก repo (	ools/sync.py) และแสดงผล snapshot เท่านั้น
 - Existing OCR service and original HTML mockup remain unchanged this development session.
-- Agent records, central docs and invoice-web working tree are organized; latest commit `94d8cad` (invoice-webv3 mockup) pushed to `origin/invoice-web`.
+- Agent records, central docs and invoice-web working tree are organized; latest pushed commit `94d8cad`; local ahead ด้วย `cd76db0` (invoice-webv3 รอบ 2) ยังไม่ได้ push.
 - Repository-local skill `.agents/skills/aiva-invoice-core` สรุปขอบเขตระบบ field หลัก กฎ V-01–V-09, decision/routing, workflow/audit requirements และความขัดแย้งระหว่าง code, docs และ mockup เพื่อใช้เป็น domain reference ระหว่างพัฒนาต่อ.
+
+## Web Portal V4 (no-build, snapshot-driven) — `Web portal/invoice-webV4`
+  - Web portal/invoice-webV5: repo-reference web portal no-build (ES modules) ซิงก์ข้อมูลอ้างอิงตรงจาก repo (	ools/sync.py) และแสดงผล snapshot เท่านั้น
+
+สถานะ: ใช้งาน/เดโมได้ครบ (22 เอกสาร / 24 snapshot) — `smoke-test` ผ่าน **107/107** และ `browser-check` ผ่าน **14/14** ด้วย Chromium จริง; ยังไม่ต่อ backend/OCR จริง และยังไม่ commit
+
+หลักการที่บังคับด้วยเทสต์ (ไม่ใช่แค่สัญญาในเอกสาร):
+- Portal **ไม่ recompute matching** — `src/engine/rules.js` เป็น as-built mirror ที่ `tools/` ใช้สร้าง fixture เท่านั้น (group 7 ตรวจ import pattern จริง)
+- เงิน/จำนวนคงเป็น **decimal string** + helper BigInt (`src/domain/money.js`) — เคสคุมคือ `600 × 30.666667 = 18400.0002`
+- ทุกอย่างเข้าระบบทาง `store.ingest()` ทางเดียว: `validateSnapshot()` (receiving contract v1.0) → ห้าม `event_id` ซ้ำ → revision ต้องเพิ่มขึ้น → ปิด outbox → audit
+- นโยบาย 3 ชั้นก่อน action: `access` (ใคร) → `workflow` (สถานะงานอนุญาตไหม + optimistic version) → `guards` (หลักฐาน/สัญญาพอไหม) และปุ่มที่ปิดต้องตอบเหตุผลได้
+- ข้อมูลบนจอทั้งหมด **generate ห้ามพิมพ์มือ**: `tools/cases-*.mjs` × engine mirror → `src/data/snapshots.js` (+ golden `expect`/`expectRevisions`) และ `build-fixtures.mjs --check` จับ drift ของไฟล์ generated ได้
+
+ของที่ทำในโฟลเดอร์นี้: domain 10 ไฟล์ (`money schema company exceptions access workflow guards audit store ruleCatalog`), views 6 หน้า (dashboard/queue/detail/master/audit/help) + hash router ใน `app.js`, `src/styles/app.css` (token จาก mockup v4.4 + responsive ≤860px), tools 6 ตัว (`serve.py build-master-data.py build-fixtures.mjs cases-*.mjs smoke-test.mjs browser-check.mjs`), เอกสาร `README.md` + `docs/00…07.md`
+
+เครื่องมือ: `python tools/serve.py --open` · `node tools/build-fixtures.mjs [--check]` · `node tools/smoke-test.mjs` (107 การตรวจ) · `node tools/browser-check.mjs` (14 การตรวจใน Chromium; ข้ามตัวเองเมื่อหา playwright ไม่เจอ)
+
+ช่องที่ยังเปิด (จดใน `docs/05` + `docs/06`): contract test กับ producer จริง, visual regression, accessibility audit, concurrency จริง (จำลองด้วย `expectedVersion`), AP posting ปิดด้วย guard `ap-contract`, PDF เป็น metadata เท่านั้น
 
 ## Mockup v3 (no-build) — `Web portal/invoice-webv3`
 
-สถานะ: สร้างใหม่ทั้งโฟลเดอร์ ยังไม่ต่อ backend — commit `94d8cad` และ push ไป `origin/invoice-web` แล้ว (2026-10-03)
+สถานะ: ใช้งานได้ครบรอบ 2 (action parity + revisions + audit chain + queue + viewer + decimal) — ยังไม่ต่อ backend; รอบแรก commit `94d8cad` (push แล้ว) ส่วนรอบ 2 commit แล้วเป็น `cd76db0` (local branch `invoice-web` ยังไม่ได้ push)
 
 - เปิดจาก `file://` ได้ทันที (ดเบิลคลิก `index.html`) ไม่ต้องมี `node_modules` หรือ bundler; ปุ่มคัดลอก JSON ต้องเปิดผ่าน `python -m http.server 5190`
 - โหลดสคริปต์คลาสสิก 4 ไฟล์ตามลำดับ `assets/data.js` → `assets/domain.js` → `assets/docs.js` → `assets/app.js`
 - `assets/data.js` ถูกรีเจเนอเรตด้วย `tools/build-domain-data.py` จาก `OCR service/n8n/app/core/master_data.py` (นิติบุคคล 48 แถว) และ `rules.py` (exception as-built 15 รหัส + ชุดรหัสฝั่ง user)
 - พฤติกรรมที่ฝังใน UI ตรงกับ as-built engine: decision order (manual_review → Manual Review, High → Hold, Medium → Review, ที่เหลือรวม Low → Auto-pass), ownership ตาม `owner_of()`, ladder จับคู่ M1–M4 (M4 = ต้องให้คนตรวจ)
-- ข้อมูลเอกสาร 16 ฉบับใน `assets/docs.js` เป็นข้อมูลสังเคราะห์ แต่โครงสร้าง field ตาม receiving contract (schema 1.0) และครอบคลุมเคส fail-safe/duplicate/revision/pipeline-fail
-- จำลอง workflow ตาม contract: reason code + required note + `expected_workflow_version` + Idempotency-Key → 409 Conflict เมื่อ version ไม่ตรง (ไม่แก้สถานะ), `rerun` สร้าง action outbox `waiting_revision` และกันการสั่งซ้ำ
-- RBAC page แสดงผู้ใช้ 6 คน/5 บทบาท ขอบเขต company ↔ receiver, ผัง Portal ↔ Entra ID ↔ Oracle `RECEIVER` ↔ บริษัท และตาราง Mockup ↔ Production gap
+- ข้อมูลเอกสาร 17 ฉบับใน `assets/docs.js` เป็นข้อมูลสังเคราะห์ แต่โครงสร้าง field ตาม receiving contract (schema 1.0) และครอบคลุมเคส fail-safe/duplicate/revision/pipeline-fail และ Decimal ↔ float (`AIVA-2609-0017` เก็บยอดเป็น string ตรงตาม snapshot)
+- workflow ครบ 9 action ตาม action parity (`explain` `resubmit` `rerun` `return` `hold` `release_hold` `reject` `confirm` `post`) และ `guards(doc)` เป็นความจริงชุดเดียวของ "ปุ่มไหนกดได้/ไม่ได้ + เพราะอะไร" ที่ใช้ร่วมกันทั้ง action bar, การ์ดขั้นตอนถัดไป และ modal; ทุกปุ่ม disabled ต้องมี `title` บอกเหตุผล
+- บังคับ separation of duties (ผู้แนบเอกสาร `upl` ตัดสินเองไม่ได้), ล็อกฝั่งบัญชีเมื่อ High exception ที่ engine มอบให้ผู้ใช้ยังไม่ปิด, ล็อก action ขณะ On Hold (ถอนพักได้เฉพาะผู้ถือ hold/เจ้าของงาน/ADM) และ `post` ปิดตายพร้อมเหตุผลจนกว่าจะมี AP acknowledgement contract
+- Revision snapshot: เลือกดู revision เก่าได้เป็นโหมดอ่านอย่างเดียว (banner + PDF/JSON/ผลตรวจตรงรุ่น + action ถูกบล็อก) และกลับสู่ revision ล่าสุดได้
+- คิว: KPI 7 ใบ (รวม "งานของฉัน"), คอลัมน์ "งานที่ต้องทำ" ทุกแถว, sort 3 แบบ, แบ่งหน้าละ 8 รายการ; viewer มี toolbar + คีย์ลัด `←/→` + บันทึก access event + ปิดดาวน์โหลด/พิมพ์พร้อมนโยบาย
+- audit ถูกผูกเป็น hash chain (`prev_hash`/`hash`) แบบจำลอง: ตรวจความต่อเนื่อง, จำลองการแก้ไขให้เห็น chain ขาด, deep link กลับเอกสาร, ส่งออก CSV พร้อม hash — hash เป็นของจำลองเพื่อการสาธิตเท่านั้น
+- RBAC page แสดงผู้ใช้ 7 คน/4 บทบาท (EU/ACC/APR/ADM) ขอบเขต company ↔ receiver, nav เองก็ถูกปิดตามสิทธิ์ (ADM ไม่มีคิว, audit เห็นเฉพาะ APR/ADM), ผัง Portal ↔ Entra ID ↔ Oracle `RECEIVER` ↔ บริษัท และตาราง Mockup ↔ Production gap
 - ความขัดแย้งของแหล่งข้อมูลแสดงต่อหน้าผู้ใช้ ไม่ถูกทำให้หาย: ผัง docs-catalog ↔ as-built, รหัสชนกัน (`E13`, `E34`), Tax ID `0107545000179` / ORG `222` / ORG `196` ที่ไม่มีใน master, ORG `556` ที่ master map แล้ว, ขีดจำกัด PDF portal ↔ Vision, `Decimal` ↔ JSON float
 - ตัดสินใจ design สำคัญ: เอกสารที่ map บริษัทไม่ได้ (ORG/Tax ID ว่างหรือไม่อยู่ใน master) ต้องขึ้นในคิวฝ่ายบัญชีพร้อมป้ายเตือน แทนการถูกกรองหายจากทุกคิว
-- `tools/smoke-test.js` เป็น DOM ปลอมสำหรับตรวจว่าทุกผู้ใช้/ทุกหน้า/ทุกแท็บ/ทุกเอกสาร/ทุก action เรนเดอร์ได้ และคง invariant ของ `decide()`
+- เครื่องมือตรวจ: `tools/smoke-test.js` (DOM ปลอม 60 การตรวจ — logic/invariant) และ `tools/browser-check.js` (Chromium จริง 14 การตรวจ — console error, คีย์ลัด, layout 390px, ตามหน้าที่ nav เปิดให้แต่ละบทบาท); `browser-check` หา playwright จาก env/โฟลเดอร์ข้างเคียงและข้ามตัวเองถ้าไม่มี
 
 ## Implemented Portal
 - `invoice-web/frontend`: React + TypeScript + Vite + TanStack Query; UI ถูกปรับให้ตรงตามต้นแบบ `AIVA-Web-Portal-Mockup-v4.4-Release.html` อย่างสมบูรณ์ 100%:
@@ -53,44 +82,13 @@ Last verified: `2026-10-02T20:20:00+07:00`
 - Persistent local data is in ignored `invoice-web/data/`; dependency/build/test artifacts are ignored.
 - Local preview runs at `http://127.0.0.1:8010`; API docs at `/api/docs`. One clearly labeled synthetic example with two JSON/PDF revisions was loaded for manual preview.
 
-## Synthetic OCR Test Corpus (`OCR service/n8n/tests/test_invoices`)
-- Corpus ถูกเชื่อมกัด pytest เป็น regression gate: `tests/test_invoice_corpus.py` replay ทั้ง 155 เคส มี pytest ที่ติด marker `live` ของ LiteLLM/Paperless เลืกงขัน offline (`python -m pytest` → `9 passed, 2 deselected in ~1.7s`) โดย `tests/conftest.py` กังไม่ให้ pytest เก็ป `test_suite.py` ที่เป็นสคริปที่ต้องยิง service จริง
-- `invoice_engine.py` เป็น bridge ที่เรียก `app/core/rules.py` (Step 1–4) จริงแบบ offline โดยรับชุดแถว Oracle ที่เก็บไว้ในแต่ละ invoice (`oracle_rows`) ทำให้ expected_result ไม่มีวันหลุดจาก logic ของ production และรันซ้ำได้โดยไม่ต้องต่อ Oracle MCP.
-- `build_test_dataset_wave2.py` สร้าง 100 เคสใหม่โดย expected_result ทุกตัวมาจาก engine; `verify_dataset.py` replay ทั้ง 155 เคสและ `--fix` ใช้ recalibrate key ได้; `check_pdfs.py` ตรวจว่า PDF ที่ render ตรงกับ key (ฟิลด์ที่มีต้องปรากฏ, ฟิลด์ที่หายไปต้องไม่ปรากฏ, จำนวนหน้าตรง `document_flags`).
-- `generate_invoices.py` รองรับ 3 layout เดิมและเพิ่ม `pdf_hints`: watermark/ speckle จำลองเอกสาร scan, ต่อบัญชี 2 หน้า, เชิงอรรถหมายเหตุ, และพิมพ์ `—` สำหรับฟิลด์ที่ key ระบุว่าหาย.
-- เคสสำคัญที่ควรทราบเมื่ออ่าน key: `halted_by` เป็น `V-02` เท่านั้นใน engine ปัจจุบัน; partial billing (E34) เกิดพร้อม E31 เสมอ; E16 บนเอกสารที่คำนวณถูกเกิดจาก float noise ของ `sub_total + vat`; `INV-J17` และ `INV-J20` เป็น forgery ที่ระบบตรวจไม่พบโดยเจตนา (ต้องได้ Auto-pass).
-- ขอจำกัด: Tahoma subset ที่ฝังใน PDF ไม่มี ToUnicode map ที่ใช้ได้ ทำให้ดึงอักษรไทยเป็นข้อความได้เป็น mojibake (การ render ถูกต้อง) — เครื่องมือตรวจจึงเทียบเฉพาะ ASCII/ตัวเลข; corpus ใช้ dependencies `fpdf2` (render) และ `pypdf` (ตรวจ PDF) ซึ่งไม่ใช่ `requirements.txt` ของ service.
-
-## n8n Workflow `aLUCmn3l0bZDjbVV` (v6.5, on server)
-- Workflow ชื่อ `AIVA PO-INV Matching Verification v6.5` สถานะ `active: false`, 23 nodes, ผังการเดินงานเท่าเดิม (ไม่เพิ่ม/ลด node หรือ connection) — แก้เฉพาะ `N2.4`, `HTTP Request`, `N4`, `N7`, `N7.1`, `N8`, `N9`, `N10`, `N12`, `N13`
-- ตรรกะของแต่ละ node ถูก port จาก Python แบบ 1:1: `normalize_extracted_document`→N4, `evaluate_step1`→N5, `build_receipts_sql`+`parse_csv_receipts`→N7/N7.1, `evaluate_step2`→N8, `evaluate_step3`→N9, `evaluate_step4_decision`+`pipeline`→N10, `validate_output`→N11, `PortalClient`→N12, `PaperlessClient.update_verification_status`→N13/N13.1
-- Oracle REST ตรงเดียว: `((Invoice No. ทุก variation + Supplier Tax ID) OR PO_NUM)` พร้อม `CUSTOMER_TAX_ID` (ผู้ซื้อ) และ scalar `SUPPLIER_IS_INTERNAL` (สมาชิก `financials_system_params_all`) ในคำสั่งเดียว; ลำดับความสำคัญ Invoice→PO ตกอยู่ที่ N7.1 ผ่านฟิลด์ `oracle_query_mode`
-- Data shape ของ n8n ต่างจาก Python และห้ามสลับกัน: ใช้ `invoice.po_number`, `lines[]`, `oracle_rcv_rows[]` (แถว active สำหรับ STEP 3), `oracle_rows_all` (ทุกแถว สำหรับ Table 9), `rules[]`, `exceptions[]` — **ไม่มี** `mergedFields` / `po_lines` / `oracle_data.rows`
-- ผลตรวจ (offline): `node --check` ผ่านทั้ง 12 Code nodes และ harness `tmp/run_flow_sim.js` รัน `jsCode` ที่ export จากเซิร์ฟเวอร์จริงด้วย 7 เคส (Auto-pass, `PO_FALLBACK`, E28 bypass, E17, E06, E35, intercompany+E26) ได้ผลตรงกับ `app/core.rules` ทุกเคส
-- ข้อจำกัดที่ค้าง: N7 ยังใส่ Bearer token ตรงๆ ใน header (n8n แนะนำให้ย้ายเป็น credential) และ canvas ยังไม่มี node group (20 boxes > 7);
-  ยังไม่ได้ทดสอบการรันจริงแบบ end-to-end กับ Paperless/LiteLLM/Portal
-
-## Repository Security & Git Boundary
-- Global .gitignore ครอบคลุมข้อมูลความลับและเอกสารสำคัญของบริษัท 12 หมวดหมู่:
-  1. Environment & Config: .env, .env.*, *.env (ยกเว้น !.env.example), *.secret*, secrets/, ault/
-  2. Tokens & Credentials: credentials/, *credential*.json, *token*.json, 	oken.json, *service_account*.json, client_secret*.json, *api_key*, *apikey* (ยกเว้น package.json, package-lock.json)
-  3. Private Keys & SSL/SSH: *.key, *.pem, *.pfx, *.p12, *.pkcs12, *.cer, *.crt, *.der, id_rsa*, id_ed25519*, id_ecdsa*, id_dsa*
-  4. Oracle EBS & Databases: Oracle Wallet (cwallet.sso, ewallet.p12, *.wallet), Net config (*.ora, ojdbc.properties), Database files (*.db, *.sqlite*, data/, invoice-web/data/), Dumps/Backups (*.dmp, *.dump, *.bak, *.backup, *dump*.sql, *.sql.gz)
-  5. Company Financials & Invoices: Real PDFs (*.pdf ทั่วทั้ง repo ยกเว้น synthetic fixture !invoice-web/examples/invoice.pdf), Excel (*.xlsx, *.xls, *.xlsm), CSV extracts (*export*.csv, *report*.csv, *receipt*.csv, *invoice*.csv, *entity*.csv, *oracle*.csv), Batch reports/payloads (*my_report*, *my_failed*, *batch_result*.json, paperless_downloads/, extracted_invoices/), Synthetic corpus จาก production extract (	ests/test_invoices/_raw/, pdfs/, 	est_dataset.json)
-  6. Automation & n8n: .n8n/, 
-8n-local/, *n8n_export*.json, *workflow_export*.json
-  7. Python Environment: __pycache__/, *.py[cod], .venv/, env/, uild/, dist/, .pytest_cache/, coverage files
-  8. Node & Frontend: 
-ode_modules/, rontend/dist/, playwright-report/, 	est-results/, *.tsbuildinfo
-  9. IDE, Agent & Scratch: .vscode/* (ยกเว้น !.vscode/extensions.json), .idea/, .agent/, .agents/, .pi/, .mcp.json, .gemini/, scratch/, /tmp/, 	mp/, 	emp/
-  10. Archives: *.7z, *.zip, *.tar*, *.rar, *.gz, *.bz2
-  11. Operating System: .DS_Store, Thumbs.db, desktop.ini, ehthumbs.db, $RECYCLE.BIN/
-  12. Logs: *.log, logs/
-- ตรวจสอบยืนยันด้วย git check-ignore -v ครอบคลุม 25+ pattern ตัวอย่างของ sensitive data ทุกหมวดหมู่ และยืนยันว่า invoice-web/examples/invoice.pdf และ .env.example ไม่ถูก ignore
-
 ## Verified
-- Mockup v3: `node --check` ผ่านทั้ง 4 สคริปต์ใน `Web portal/invoice-webv3/assets/` และ `node tools/smoke-test.js` ผ่าน 46 การตรวจ (ครอบคลุม 409 ไม่แก้สถานะ, confirm เพิ่ม `wf_version`, rerun สร้าง outbox, บล็อก action เมื่อขาด note, KPI นับตรงข้อมูล, master 48 แถว / 15 exception code / 9 กฎ, สแกนรูปแบบ credential)
-- Mockup v3 เปิดตรวจด้วย Chromium จริง (Playwright ที่ใช้ package จาก `invoice-web-9054076/frontend`): ไล่ 6 ผู้ใช้ × 4 หน้า × ทุกเอกสาร × 6 แท็บ + viewer + modal → console/page error 0, ไม่มี `undefined`/`NaN`/`[object Object]`, viewport 390px ไม่มี horizontal overflow (0px), header 56px `rgb(13,39,77)`, KPI 6 ใบ, active tab underline `rgb(0,181,175)`, คิวของผู้ใช้ตั้งต้น (ACC) 11 ฉบับ
+- Web Portal V5 (`Web portal/invoice-webV5`): repo-reference portal (no-build ES modules) — `node tools/smoke-test.mjs` ผ่าน **31/31** ข้อ (hygiene, provenance, domain, ui), `node tools/browser-check.mjs` ผ่าน **29/29** ข้อ (Edge headless, console error 0), `python tools/sync.py --check` ผ่าน
+- Web Portal V4 (`Web portal/invoice-webV4`): snapshot-driven portal (no-build ES modules) — `node tools/smoke-test.mjs` ผ่าน **107/107** ข้อ (decimal, contract, policy, architecture), `node tools/browser-check.mjs` ผ่าน **14/14** ข้อ (Chromium, 1440px + 390px no overflow), `tools/build-fixtures.mjs --check` ผ่าน
+  - Web portal/invoice-webV5: repo-reference web portal no-build (ES modules) ซิงก์ข้อมูลอ้างอิงตรงจาก repo (	ools/sync.py) และแสดงผล snapshot เท่านั้น
+- Mockup v3 (รอบ 2): `node --check` ผ่านทั้ง 6 สคริปต์, `node tools/smoke-test.js` ผ่าน **60** การตรวจ (เพิ่ม explain parity, SoD + ล็อกฝั่งบัญชี, on-hold/release_hold, idempotent replay + 422, expected_document_revision 409, revision read-only, audit hash chain + CSV, คิวแบ่งหน้า/sort/งานของฉัน, viewer toolbar + access event)
+- Mockup v3 Chromium จริง (`node tools/browser-check.js`) ผ่าน **14** การตรวจ: 7 ผู้ใช้ × nav ที่เปิดให้ตามสิทธิ์ (EU 3, ACC 3, APR 4 มี audit, ADM 3 ไม่มีคิว = 22 จอ), 17 ฉบับ × 6 แท็บ = 102 จอ, console/page error 0, 390px overflow 0px, pagination 1–8 จาก 17, "งานของฉัน" 5 ฉบับ, CSV พร้อม hash, deep link เปิดเอกสารตรงฉบับ
+- Mockup v3 (รอบแรก): เปิดด้วย Chromium แล้วแก้ first paint (`BOOT.user` ไม่เคยถูกsetค่าใน `<select>`), เพิ่ม STEP 4 "Portal ตรวจซ้ำ", highlight หลักฐานตาม `rule.page` และแถวแจ้งเตือนเมื่อเอกสารที่เปิดอยู่หลุดจากตัวกรอง
 - ยังไม่ได้ทดสอบ Safari/Firefox และการเรนเดอร์ font จริงจาก Google Fonts ต้องใช้ network (offline แล้ว fallback เป็น system-ui/monospace ตามลำดับ)
 - Skill package ผ่าน `quick_validate.py` เมื่อรันด้วย UTF-8 mode; reference link และ source paths ที่ระบุมีอยู่จริงครบ.
 - Backend: 15 unittest tests passed (persistence, idempotency, conflicts, revisions, schema validation, versioned PDF, global audit, workflow action/version/idempotency/outbox/revision completion, compatibility backfill, origin, keys, filters, adapter, architecture boundaries).
@@ -98,9 +96,6 @@ ode_modules/, rontend/dist/, playwright-report/, 	est-results/, *.tsbuildinfo
 - Playwright: 6 tests passed on Edge browser (15.2s), covering import, PDF canvas viewer, tabs, history, filters, mobile viewport (390px) no-overflow, invalid JSON rejection, exact large decimal display, revision deep link/archived PDF, access/audit navigation, and review action persistent outbox.
 - Visual inspection: ยืนยันเลย์เอาต์ Master-Detail (ซ้าย: คิว 370px, ขวา: เอกสารและ PDF) สะอาดตา กระชับ ตรงตามโครงสร้าง Mockup v4.4 ปราศจากตารางซ้ำซ้อนในแท็บสรุป.
 - Local preview on port 8010 serves latest production bundle successfully.
-- Test corpus: `verify_dataset.py` replayed 155/155 invoices and reported 0 drift against `app.core.rules`; `check_pdfs.py` audited 155 PDFs / 157 pages with 0 mismatches; 3 rendered pages visually inspected (Thai glyphs, watermark, blank receiver-signature area, continuation page).
-- Offline pytest suite: `9 passed, 2 deselected` ใน ~1.7 วินาที (corpus 7 tests + SSE UI 2 tests ที่ไม่เรียก service ภายนอก); ยืนยันความไวของ gate ด้วยการใส่ข้อมูลผิดตงใจ 4 แบบ แล้วเครื่องมือรายงาน error ครบ
-- n8n workflow v6.5: re-export จากเซิร์ฟเวอร์เทียบ byte-for-byte กับ `tmp/nodes/*.js` → ตรงกันทุกตัวอักษร (7 jsCode + N7 jsonBody); `node --check` ผ่าน 12 nodes; harness ที่รัน code จาก export จริงให้ผล 7/7 เคสตรง Python และผ่าน N11 Schema Validate ทุกเคส
 - No live OCR, Oracle, LiteLLM, Paperless or AP tests executed.
 
 
@@ -110,8 +105,12 @@ ode_modules/, rontend/dist/, playwright-report/, 	est-results/, *.tsbuildinfo
 - `docs/` remains original architecture reference; code/docs have known contract and rules-version differences recorded in invoice-web planning documents.
 
 ## Constraints / Next Work
-- n8n workflow v6.5 ยัง `active: false` และยังไม่เคยรัน end-to-end จริงกับ Paperless/LiteLLM/Portal; SQL ที่ใช้จริงบนเซิร์ฟเวอร์ยังไม่ถูกยิงกับ `AH_DEV_RCV_PO_AP_MATCHING_V` (ตรวจแค่ shape ผ่าน MCP `oracle`)
-- N7 ยัง hardcode Authorization header (ควรย้ายไป credential `httpTemplatedCustomAuth` ตามที่ n8n แนะนำ)
+- n8n workflow v6.5 ยัง ctive: false และยังไม่เคยรัน end-to-end จริงกับ Paperless/LiteLLM/Portal; SQL ที่ใช้จริงบนเซิร์ฟเวอร์ยังไม่ถูกยิงกับ AH_DEV_RCV_PO_AP_MATCHING_V (ตรวจแค่ shape ผ่าน MCP oracle)
+- N7 ยัง hardcode Authorization header (ควรย้ายไป credential httpTemplatedCustomAuth ตามที่ n8n แนะนำ)
+- Mockup v3 เป็น in-memory ทั้งหมด (reload แล้วคืนค่าเดิม) ยังไม่เรียก `GET /api/portal/v1/documents`, `/documents/{id}`, `/kpis`, `/workflow/actions`, `/workflow/outbox`
+- Mockup v3: hash chain ของ audit, access event และ idempotency store เป็นการจำลองในเบราว์เซอร์ (hash สั้น คำนวณ client-side) — ใช้สาธิตพฤติกรรม ไม่ได้ใช้พิสูจน์ความถูกต้องของบันทึกใน production
+- Mockup v3: `post` (ส่งเข้า AP) และปุ่มดาวน์โหลด/พิมพ์ PDF ถูกปิดพร้อมเหตุผล ต้องได้ AP acknowledgement contract + signed URL/download policy จากปลายทางก่อนทำให้กดได้
+- พฤติกรรมรอบ 2 ของ mockup v3 (SoD, ล็อกฝั่งบัญชี, ใครถอนพักได้, ความหมายของ `explain`) ยังเป็นการตีความตาม docs/contract ที่เขียนไว้ในโค้ด — ต้องให้ฝ่ายบัญชีรับรองก่อนใช้เป็นสเปก
 - Current release is local/integration pilot, not company-scoped production: shared API keys are workspace-wide; Entra, user/receiver RBAC and immutable user audit remain unimplemented.
 - Workflow actions ใน shared-key pilot ไม่มีตัวตนรายบุคคล; ต้องเชื่อม Entra ก่อนบังคับ EU/ACC/APR และ separation of duties.
 - SQLite startup table creation currently used; PostgreSQL/Alembic and production backup/storage/retention/scan/rate limits remain future work.
