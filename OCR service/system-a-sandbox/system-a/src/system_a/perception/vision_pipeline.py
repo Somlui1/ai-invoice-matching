@@ -351,6 +351,11 @@ class VisionPipeline:
         except Exception as e:
             read.error = f"page_items: {e}"
             return read
+        if getattr(self.client, "last_salvaged", False):
+            # The answer arrived as truncated JSON and only its complete members were kept.  The items we
+            # did get are used, but the page must not count as fully read: a silently missing row could
+            # otherwise hide an under-declared invoice line.
+            read.error = "page_items: truncated JSON answer, only complete members kept"
         read.doc_type = (str(raw.get("doc_type") or "unknown").strip().lower() or "unknown")
         read.items, read.dropped, read.coord_mode = filter_items(
             raw.get("items") or [], img_w, img_h, self.coord, ctx.layers.get(info.page_no, {}).get("words", []))

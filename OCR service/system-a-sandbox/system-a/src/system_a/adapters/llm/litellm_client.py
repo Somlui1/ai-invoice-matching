@@ -10,8 +10,9 @@ import time
 from typing import Any, Optional
 
 USAGE_KEYS = ("calls", "prompt_tokens", "completion_tokens", "reasoning_tokens", "ms", "call_ms",
-              "transport_errors", "decode_errors")
+              "transport_errors", "decode_errors", "decode_salvaged", "no_thinking_retries")
 CALL_MS_SAMPLES = 20000        # cap so a 100-document run cannot grow memory without bound
+SALVAGE_CUTS = 60              # how many closing positions to try when a body is cut mid-JSON
 
 import httpx
 
@@ -52,6 +53,51 @@ def extract_json_object(text: Any) -> dict:
     raise ValueError("truncated JSON object")
 
 
+def salvage_json_object(text: Any) -> Optional[dict]:
+    """Recover the complete members of a JSON object whose body was cut off (finish_reason=length).
+
+    Only ever returns a prefix of what the model actually printed — nothing is invented — and the caller
+    uses it solely where the alternative is losing the whole answer.  Measured need: 21 of 99 baseline
+    documents had a page whose page_items answer stopped mid-JSON because reasoning_tokens ate the
+    max_tokens budget (e.g. 2 577 reasoning tokens of an 8 000-token completion), which turned
+    ``pages_complete`` false and produced E01 on otherwise readable invoices.
+    """
+    s = _FENCE.sub("", _THINK.sub("", str(text or ""))).strip()
+    start = s.find("{")
+    if start < 0:
+        return None
+    fragment, cut = s[start:], len(s[start:])
+    closers = {"{": "}", "[": "]"}
+    for _ in range(SALVAGE_CUTS):
+        pos = fragment.rfind("}", 0, cut)
+        if pos < 0:
+            return None
+        cand, stack, in_str, esc = fragment[:pos + 1], [], False, False
+        for ch in cand:
+            if in_str:
+                if esc:
+                    esc = False
+                elif ch == "\\":
+                    esc = True
+                elif ch == '"':
+                    in_str = False
+            elif ch == '"':
+                in_str = True
+            elif ch in closers:
+                stack.append(closers[ch])
+            elif ch in "}]":
+                if stack and stack[-1] == ch:
+                    stack.pop()
+        if not in_str:
+            cand = re.sub(r",\s*$", "", cand.rstrip().rstrip(","))
+            try:
+                return json.loads(cand + "".join(reversed(stack)))
+            except ValueError:
+                pass
+        cut = pos
+    return None
+
+
 class LiteLLMClient:
     def __init__(self, base_url: str, api_key: str, *, timeout_s: float = 120, transport_retries: int = 2,
                  max_inflight: int = 6):
@@ -63,6 +109,7 @@ class LiteLLMClient:
         self.stats: dict[str, float] = {k: 0 for k in USAGE_KEYS}
         self.stats["call_ms"] = []                                 # per-call latency samples (p95 reporting)
         self.last_usage: dict[str, int] = {}
+        self.last_salvaged = False          # True when the answer had to be rescued from a truncated body
 
     def chat_json(self, model: str, system: str, user: str, *, temperature: float = 0.0,
                   enable_thinking: Optional[bool] = None, images: list[str] | None = None,
@@ -70,6 +117,7 @@ class LiteLLMClient:
         content: Any = user if not images else (
             [{"type": "text", "text": user}] + [{"type": "image_url", "image_url": {"url": u}} for u in images])
         messages = [{"role": "system", "content": system}, {"role": "user", "content": content}]
+        self.last_salvaged = False
         body: dict = {"model": model, "messages": messages, "temperature": temperature}
         if json_mode:
             body["response_format"] = {"type": "json_object"}
@@ -87,8 +135,31 @@ class LiteLLMClient:
                                            {"role": "user", "content": REPAIR}]
             try:
                 return extract_json_object(self._post(body))
-            except ValueError as e:
-                raise AIServiceError(f"AIResponseError: {e}") from e
+            except ValueError as first_error:
+                # Last two recoveries, both of which keep the answer the model really produced:
+                # (1) ask again with reasoning switched off — a page read is a transcription task, and the
+                #     thinking tokens are what overflowed max_tokens in the first place;
+                # (2) parse whatever members of the (still truncated) body are complete.
+                # Measured on the 99-document baseline: 22 pages failed as "no JSON object" (18) or
+                # "truncated JSON object" (4) — all of them with reasoning enabled.
+                with self._lock:
+                    self.stats["no_thinking_retries"] += 1
+                body["chat_template_kwargs"] = {"enable_thinking": False}
+                bodies: list[Any] = [text]
+                try:
+                    retry = self._post(body)
+                    bodies.append(retry)
+                    return extract_json_object(retry)
+                except (ValueError, AIServiceError):
+                    pass
+                for candidate in bodies:
+                    salvaged = salvage_json_object(candidate)
+                    if salvaged is not None:
+                        with self._lock:
+                            self.stats["decode_salvaged"] += 1
+                        self.last_salvaged = True         # caller keeps the page flagged as not fully read
+                        return salvaged
+                raise AIServiceError(f"AIResponseError: {first_error}") from first_error
 
     def _post(self, body: dict) -> str:
         last = None
