@@ -1,6 +1,34 @@
-# Standard v6.6 Table 3 #13 — no cross-group conversion (X-06)
-PCS: [PCS, PC, PIECE, PIECES, ชิ้น]
-KG:  [KG, KGS, KILOGRAM, ก.ก., ก.ก, กก., กก]
-SHT: [SHT, SHEET, แผ่น]
-JOB: [JOB]
-CYL: [CYL]
+# Standard v6.6 Table 3 #13 — กลุ่มหน่วยนับ (V-07 ใช้เทียบหน่วยสองฝั่ง)
+# ห้ามแปลงข้ามกลุ่ม (X-06): ทุก membership ข้างล่างเป็น "คำเดียวกัน/คำย่อของคำเดียวกัน"
+# หรือคำแปลไทย-อังกฤษของหน่วยเดียวกันเท่านั้น ไม่มีการแปลงหน่วย (ฟุต ≠ เมตร, ชุด ≠ ชิ้น)
+#
+# ค่าที่ไม่อยู่ในตารางนี้ fall-through เป็นชื่อกลุ่มของตัวเอง (uom_group() ใน standard.py)
+# ซึ่งหมายถึง "เทียบไม่กัน" → E10 ให้คนตรวจ — เป็นพฤติกรรมที่ถูกต้องสำหรับหน่วยที่กำกวม
+#
+# หลักฐาน: หน่วยที่พบจริงบนใบแจ้งหนี้ 99 ฉบับ (เอกสาร .agent/eval/uom_inventory.md)
+# และหน่วยฝั่งใบรับจาก RCV-V01 (Piece / Set / Kilogram / Job / Can / Roll)
+PCS: [PCS, PCS., PC, PC., PIECE, PIECES, PIECE(S), EACH, EA, ชิ้น, ตัว, อัน]
+KG:  [KG, KGS, KILOGRAM, KILOGRAMS, ก.ก., ก.ก, กก., กก]
+SHT: [SHT, SHEET, SHEETS, แผ่น]
+JOB: [JOB, JOBS]
+CYL: [CYL, CYLINDER, CYLINDERS, ถังทรงกระบอก]
+
+# แถวที่เพิ่ม 05-Oct-2026 — คำแปลไทย/คำย่อที่ยังไม่มีในตาราง (task.md §6.2 อนุญาตไว้)
+# SET: ใบแจ้งหนี้พิมพ์ SET/Set 54+10 บรรทัด · ฝั่งใบรับพิมพ์ Set · คำไทย ชุด
+SET:   [SET, SETS, ST, ชุด]
+# BOX: กล่อง = box/carton (คนละหน่วยกับ CAN — ไม่ได้เทียบกัน)
+BOX:   [BOX, BOXES, CTN, CARTON, กล่อง]
+# PACK: PK/PACK คือหน่วยเดียวกัน (ห่อ) · 4 บรรทัดบนใบแจ้งหนี้ใช้ PK
+PACK:  [PACK, PACKS, PK, ห่อ]
+# ROLL: ฝั่งใบรับใช้ Roll, ใบแจ้งหนี้ใช้ ROLL, คำไทย ม้วน
+ROLL:  [ROLL, ROLLS, ม้วน]
+# LOT: ล็อต = lot (3 บรรทัด)
+LOT:   [LOT, LOTS, ล็อต]
+# MTR: เมตร = metre · ตัว M ที่ตามลำพังหลังจำนวนหมายถึงเมตร (ไม่รวม /M ซึ่งเป็นราคาต่อเมตร)
+MTR:   [MTR, M, METER, METERS, METRE, METRES, เมตร]
+# FRAME: เฟรม (2 บรรทัด) ไม่มีคำอังกฤษเทียบในข้อมูลนี้ แต่กันตัวสะกดซ้ำ
+FRAME: [FRAME, FRAMES, เฟรม]
+# CAN: กระป๋อง (2 บรรทัด) · ฝั่งใบรับพิมพ์ Can — เดิมเทียบไม่กันเพราะไม่มีกลุ่มนี้ (E10 จริง 1 ราย)
+CAN:   [CAN, CANS, กระป๋อง]
+# DRUM: ถัง (2 บรรทัดพิมพ์ DRUMS)
+DRUM:  [DRUM, DRUMS, ถัง]
