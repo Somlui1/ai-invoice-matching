@@ -1,0 +1,18 @@
+# Standard v6.6 Table 7 — the ONLY exception codes System A may emit
+standard_version: "6.6"
+codes:
+  E01: {name: Missing Field,                    severity: Medium, rule: V-01}
+  E02: {name: Arithmetic Inconsistency,         severity: High,   rule: V-02}
+  E03: {name: Total Mismatch,                   severity: High,   rule: V-03/V-09}
+  E04: {name: Rounding,                         severity: Low,    rule: V-03}
+  E05: {name: Receipt Not Found,                severity: High,   rule: V-04}
+  E06: {name: Multiple Receipts,                severity: High,   rule: V-04}
+  E07: {name: Customer Mismatch,                severity: conditional, rule: V-05}   # Tax ID=High, name/address=Medium
+  E08: {name: Signature Missing,                severity: conditional, rule: V-06}   # receiver=High, deliverer=Medium
+  E09: {name: Price Variance,                   severity: High,   rule: V-07}
+  E10: {name: UOM Mismatch,                     severity: Medium, rule: V-07}
+  E11: {name: Line Resolved by Description,     severity: Medium, rule: V-07}
+  E12: {name: Price Variance Within Tolerance,  severity: Medium, rule: V-07}
+  E13: {name: Line Not Identified,              severity: High,   rule: V-07}
+  E14: {name: Over Quantity,                    severity: High,   rule: V-08}
+  E15: {name: Quantity Below Receipt,           severity: Medium, rule: V-08}

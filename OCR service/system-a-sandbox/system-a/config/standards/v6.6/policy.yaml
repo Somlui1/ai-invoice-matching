@@ -1,0 +1,27 @@
+# Standard v6.6 Table 6 tolerances + Decision Log v1.3 §7.1 provisional thresholds
+tolerance:
+  line_math: "0.50"
+  total: "0.50"
+  vat: "1.00"
+  vat_rate: "0.07"
+  price_exact: "0.005"
+  price_pct: "0.01"
+  price_abs: "200"
+oracle:
+  row_cap: 50
+required_fields: [invoice_num, po_number, customer_name, customer_address, customer_tax_id, sub_total, vat, grand_total]
+required_line_cells: [qty, uom, unit_price, amount]
+confidence:            # OQ-09 provisional — recalibrate from eval set
+  key:     {fields: [invoice_num, po_number, customer_tax_id], min: 0.95, require_agreement: true}
+  money:   {fields: [sub_total, vat, grand_total, qty, unit_price, amount], min: 0.90, require_agreement: true}
+  text:    {fields: [customer_name, customer_address], min: 0.80, require_agreement: false}
+  uom:     {fields: [uom], min: 0.85, require_agreement: false}
+  optional: {fields: [supplier_name, supplier_tax_id, invoice_date, release_num, description, currency, item_code], min: 0.70, require_agreement: false}
+signature:
+  min_confidence: 0.85
+ai:
+  v05_name_min_confidence: 0.85
+  v05_address_ai_enabled: true
+  v07_min_confidence: 0.80     # Table 6 part 2: < 0.80 = E13
+  v08_votes: 3
+  v08_consistency_guard: true
