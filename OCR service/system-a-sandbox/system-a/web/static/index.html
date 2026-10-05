@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AIVA System A — Web Testing Portal</title>
+<link rel="stylesheet" href="/static/styles.css">
+<script defer src="/static/js/api.js"></script>
+<script defer src="/static/js/viewer.js"></script>
+<script defer src="/static/js/bbox-overlay.js"></script>
+<script defer src="/static/js/panels.js"></script>
+<script defer src="/static/js/interaction.js"></script>
+<script defer src="/static/js/app.js"></script>
+</head>
+<body>
+<header class="topbar">
+  <div class="brand">
+    <span class="logo">AIVA</span>
+    <span class="sub">System A · Test Portal <span class="contract">Contract 3.0</span></span>
+  </div>
+
+  <div class="runbar">
+    <label class="field">
+      <span>Mode</span>
+      <select id="mode">
+        <option value="production">production (real Oracle + Qwen)</option>
+        <option value="sandbox">sandbox (simulated rules)</option>
+      </select>
+    </label>
+    <label class="check" title="Verified behaviour of --quick: it replaces perception options with do_table=False, do_crops=False — so the extraction and verdict differ from a normal run and the perception cache key changes (it is NOT faster). Left here to reproduce CLI behaviour, not as a speed switch.">
+      <input type="checkbox" id="quick"> <span class="warn">quick*</span>
+    </label>
+    <button id="btn-verify" class="primary" disabled>▶ Verify selected</button>
+    <button id="btn-cancel" class="ghost" disabled>■ Stop</button>
+    <label class="filebtn ghost">⤒ Upload PDF
+      <input type="file" id="file" accept="application/pdf,image/png,image/jpeg,image/tiff" hidden>
+    </label>
+  </div>
+
+  <div class="status">
+    <span id="health" class="pill" title="Paperless / LiteLLM / Oracle">checking…</span>
+    <span id="runs" class="pill muted" title="verification runs in flight">runs 0</span>
+  </div>
+</header>
+
+<main class="grid">
+  <!-- ---------------------------------------------------------------- catalog -->
+  <aside class="col catalog">
+    <div class="colhead">
+      <h2>Paperless-ngx</h2>
+      <span id="doc-count" class="muted"></span>
+    </div>
+    <div class="searchrow">
+      <input id="search" type="search" placeholder="search title / correspondent / full text…">
+      <button id="btn-search" class="ghost">⌕</button>
+      <button id="btn-reload" class="ghost" title="reload the list">↻</button>
+    </div>
+    <div class="legend" id="legend">
+      <span class="lg AUTO_PASS">AUTO_PASS</span><span class="lg REVIEW">REVIEW</span>
+      <span class="lg MANUAL_REVIEW">MANUAL_REVIEW</span><span class="lg HOLD">HOLD</span>
+    </div>
+    <ul id="doclist" class="doclist" aria-label="document list"></ul>
+    <div class="pager">
+      <button id="btn-prev" class="ghost">◀</button>
+      <span id="pagenum" class="muted"></span>
+      <button id="btn-next" class="ghost">▶</button>
+    </div>
+    <div id="uploads" class="uploads"></div>
+  </aside>
+
+  <!-- ---------------------------------------------------------------- viewer -->
+  <section class="col viewer">
+    <div class="viewerbar">
+      <div class="pagenav">
+        <button id="btn-page-prev" class="ghost" title="previous page">◀</button>
+        <span id="pageind">– / –</span>
+        <button id="btn-page-next" class="ghost" title="next page">▶</button>
+      </div>
+      <div class="zoom">
+        <button id="btn-zoom-out" class="ghost">−</button>
+        <span id="zoomind">100%</span>
+        <button id="btn-zoom-in" class="ghost">+</button>
+        <button id="btn-zoom-fit" class="ghost">fit</button>
+      </div>
+      <div class="rendermode" id="rendermode">
+        <button class="ghost active" data-mode="raster" title="server-rendered raster — same pixels perception saw">raster</button>
+        <button class="ghost" data-mode="vector" title="PDF.js from CDN — vector text layer, falls back to raster">vector</button>
+      </div>
+      <div class="layers" id="layers"></div>
+    </div>
+    <div class="stage" id="stage">
+      <div class="empty" id="viewer-empty">Select a document on the left, then press <b>Verify</b>.<br>
+        <span class="muted">A stored result opens instantly; a fresh run streams progress.</span></div>
+      <div class="page-wrap" id="page-wrap" hidden>
+        <div class="page-frame" id="page-frame">
+          <img id="page-img" alt="page" draggable="false">
+          <canvas id="page-canvas" hidden></canvas>
+          <div class="overlay" id="overlay"></div>
+        </div>
+      </div>
+      <div class="progress" id="progress" hidden>
+        <h3>Verification in progress</h3>
+        <ol id="steps"></ol>
+        <pre id="engine-log" class="log"></pre>
+      </div>
+    </div>
+    <div class="hint" id="hint">tip: click a value on the right to jump to its box on the page — or click a box to jump to the value</div>
+  </section>
+
+  <!-- ---------------------------------------------------------------- results -->
+  <aside class="col results">
+    <div id="verdict-empty" class="empty small">No verification loaded.</div>
+    <div id="verdict" hidden>
+      <div id="verdict-card" class="card"></div>
+      <div class="tabs" id="tabs">
+        <button class="tab active" data-tab="rules">Rules</button>
+        <button class="tab" data-tab="exceptions">Exceptions</button>
+        <button class="tab" data-tab="fields">Fields</button>
+        <button class="tab" data-tab="lines">Lines</button>
+        <button class="tab" data-tab="oracle">Receipts</button>
+        <button class="tab" data-tab="json">JSON</button>
+      </div>
+      <div class="tabbody">
+        <div class="tabpane active" id="tab-rules"></div>
+        <div class="tabpane" id="tab-exceptions"></div>
+        <div class="tabpane" id="tab-fields"></div>
+        <div class="tabpane" id="tab-lines"></div>
+        <div class="tabpane" id="tab-oracle"></div>
+        <div class="tabpane" id="tab-json"><pre id="jsonbox" class="log"></pre></div>
+      </div>
+    </div>
+  </aside>
+</main>
+
+<div id="toast" class="toast" hidden></div>
+<div id="bbox-tooltip" class="bbox-tooltip" hidden></div>
+
+<script type="module">
+  /* PDF.js is served from the same origin (web/static/vendor/pdfjs), not a CDN, so the portal
+     works on an offline intranet.  It is an ES module, so it is exposed explicitly for viewer.js;
+     if it fails to load the viewer keeps using the server-rendered page rasters. */
+  try {
+    const lib = await import('./pdf/pdf.min.mjs');
+    globalThis.pdfjsLib = lib;
+  } catch (err) {
+    console.warn('vector PDF renderer unavailable; falling back to page rasters', err);
+  }
+</script>
+<script>/* interaction registry names referenced by /api/manifest phase detection: FieldToBBox BBoxToField */</script>
+</body>
+</html>
