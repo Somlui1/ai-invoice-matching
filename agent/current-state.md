@@ -253,3 +253,30 @@ ode_modules/, rontend/dist/, playwright-report/, 	est-results/, *.tsbuildinfo
   pytest ที่บังคับให้มันรันได้ตอน portal ไม่อยู่ (ชน port ที่ปิด → ต้องได้ FAIL lines ไม่มี traceback)
 - Record ประกอบ: session `2026-10-05-004` + `2026-10-06-001`, `CHG-20261005-004/005`, `CHG-20261006-001`,
   `ERR-20261005-005/006`, `ERR-20261006-001/002`, DEC-013..015
+
+## System A — ราคาของงาน perception ที่วัดได้จริง (2026-10-06T08:32:00+07:00)
+
+วัดจาก cache baseline (`full_r0`) อย่างเดียว ไม่มี VLM call; harness อยู่ `.agent/harness/`
+(`uom_probe.py`, `consensus_probe.py`), ผลดิบ `.agent/eval/{uom,consensus}_probe_r0.json`
+
+- **สถานะ UOM (608 เส้น)**: 2 ผู้อ่านยืนยัน 202 · cell เดี่ยว 168 · ไม่มี cell 238
+  โดย **236/238 อยู่ในหน้าที่ไม่พิมพ์คอลัมน์หน่วยนับรายบรรทัด** (ยืนยันด้วยตาบน DMS-40/DMS-65)
+  → งาน "บังคับให้โมเดลคืนคอลัมน์ uom" **ถูกล้มล้าง** เพราะเท่ากับการเติมค่าที่ไม่ได้พิมพ์อยู่บนกระดาษ
+- **เอกสารที่พิมพ์หน่วยไว้ที่หัวคอลัมน์** (DMS-65: "จำนวนแผ่น Pcs.", "นน./แผ่น Kgs./Sheet") เมื่อใช้ geometry
+  ที่ implementation จริงใช้ได้ + vocabulary เข้ม → ได้เพิ่มแค่ **12/143 cell (2 เอกสาร)**
+- **เพดานของนโยบาย consensus ต่อ V-01 (documents/99)** — replay นโยบายจริงจาก `policy.yaml`:
+  `0` วันนี้ → `1` ยอมรับรันของคำใน box → `3` +containment → `5` + substring ของแถว → `16` + substring ทั้งหน้า
+  (ข้อหลังสุดไม่ใช่หลักฐานที่ยอมรับได้ทางบรรษัท)
+- **ถ้าแก้ UOM ให้สมบูรณ์ 100%**: ผ่านแค่ **11–13/99** → กำแพงที่ใหญ่กว่าคือ
+  (ก) `customer_name` สองผู้อ่านขัดกัน **43 เอกสาร** — VLM กลืน caption เข้าค่า ("ขายให้แก่ SOLD TO บริษัท...")
+  ขณะที่ text layer เป็นไทยที่ glyph แตก ("บ ริ ษั ท อ า ป บ โก") ซึ่ง Thai mark folding ที่มีอยู่ช่วยไม่ได้
+  (ข) ตัวเลขอยู่บนหน้าแต่ **ไม่อยู่ใน box ที่โมเดลเคลม** 34–39 เอกสาร (grounding ไม่ใช่การอ่าน)
+  (ค) cell ที่โมเดลไม่คืนมาเลย: qty 15 / unit_price 16 / amount 12 เอกสาร
+- **ข้อจำกัดของ perception ปัจจุบันที่วัดเพิ่ม**: `max_words = 2500` เป็น per-document → หน้าท้ายๆ ของเอกสารยาว
+  **ไม่เก็บ word เลย** (DMS-40 p5 text layer 2,054 ตัวอักษร / words=0); 42/99 เอกสารโดนตัดคำ,
+  **84 cell ที่ V-01 ต้องการตกบนหน้าที่โดนตัด**
+- **ข้อจำกัด control plane (ใหม่)**: `.agent/` ทั้งโฟลเดอร์ถูก gitignore (root `.gitignore:212`) และ
+  `git ls-files` คืน 0 ไฟล์ → baseline copy, `todo.md`, `decisions.md`, `recovery.md` มีสำเนาเดียวบนดิสก์เครื่องนี้
+  เป็นความเสี่ยงต่อ rollback anchor ที่ DEC-015 พิงอยู่ (ตั้งเป็น TASK-OPS-07)
+- **สถานะงาน**: ยังไม่แก้ engine, ยังไม่ re-pin baseline, **V-01 ยัง fail 99/99** ตาม baseline `full_r0`;
+  รอ user ตัดสินว่าจะจ่าย cache reset ซื้อชุดไหน (ดู TASK-20261006-002 ใน task-plan)

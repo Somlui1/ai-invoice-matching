@@ -323,3 +323,26 @@ un_stats.py และ erify_run.py รันผ่านครบ 14/14 Accepta
   `a stale document id explains itself` → `404 {"detail":"DMS-999999 is not in Paperless-ngx"}`
   · pytest ใหม่ 1 ตัวรัน checker ชน port ที่ปิด → ได้ FAIL lines ไม่มี traceback
 - ข้อจำกัดคงเดิม: ยังไม่มีการคลิกทดสอบโดยคนจริงบน browser (harness ครอบคลุม logic/DOM ไม่ใช่การจัดวาง CSS)
+- **CHG-20261006-002** (2026-10-06T08:32:00+07:00) — งานวัดผล (ไม่แก้ engine): ปฏิเสธสมมติฐาน "บังคับให้
+  perception คืนคอลัมน์หน่วยนับ" และกำหนดกรอบใหม่ของ `TASK-V01-00` พร้อมเพดานที่วัดได้จริง
+  - สมมติฐานเดิม: UOM ทำให้ E01 และ V-01 fails ทั้ง 99 เอกสาร ถ้าบังคับอ่าน UOM ได้จะแก้ได้มาก
+  - หลักฐานจริง (replay จาก cache baseline ไม่มี VLM call):
+    - 238 UOM NOT_PRESENT ในจำนวนนี้ **236 cell อยู่ในหน้าที่ไม่พิมพ์คอลัมน์หน่วยนับรายบรรทัด**
+      (DMS-40 หัวตารางคือ .../จำนวน/หน่วยละ/ส่วนลด/... — "หน่วยละ" = ราคาต่อหน่วย ไม่ใช่หน่วยนับ)
+    - เอกสารที่พิมพ์หน่วยไว้ใน **หัวคอลัมน์** (DMS-65 "จำนวนแผ่น Pcs.", "นน./แผ่น Kgs./Sheet") เมื่อกำหนด
+      geometry ที่ implementation จริงใช้ได้ พบว่า recover ได้แค่ **12/143 cell ใน 2 เอกสาร**
+    - จำลองนโยบาย V-01 จริงระดับเอกสาร: วันนี้ **0/99** → ยอมรับ "รันของคำใน box" **1/99** → +containment
+      **3/99** → +substring ของแถว **5/99** → +substring ทั้งหน้า (ไม่ใช่หลักฐานที่ยอมรับได้) **16/99**
+    - **ถ้าแก้ UOM ให้สมบูรณ์เลย**: P0 **0/99**, P2 **11/99**, P3 **13/99** → UOM ไม่ใช่กำแพงใหญ่สุด
+      กำแพงจริงคือ `customer_name` ขัดกัน **43 เอกสาร** (VLM ดึง caption มาปนในค่า + text layer ไทยเพี้ยน)
+      และตัวเลขที่อยู่บนหน้าแต่ **ไม่อยู่ใน box ที่โมเดลเคลม** (34–39 เอกสาร)
+  - สิ่งที่ค้นพบเพิ่ม: `max_words=2500` เป็นแบบ per-document ทำให้หน้าท้ายๆ ของเอกสารยาว **ไม่เก็บ word เลย**
+    (DMS-40 p5: text layer 2,054 ตัวอักษร แต่ words=0) → 42/99 เอกสารโดนตัดคำ และ **84 cell ที่ต้องการ
+    ตกบนหน้าที่โดนตัด**
+  - การตัดสินใจ: **ไม่รัน perception รอบ "บังคับ UOM"** — cache reset 1 ครั้งควรซื้อชุด 4 การแก้
+    (prompt ห้ามดูด caption เข้าค่า field / prompt อ่านหน่วยจากหัวคอลัมน์พร้อม provenance +
+    `NO_UOM_PRINTED` / code เทียบรันของคำใน box+pad / code cap words ต่อหน้า) + `fitz`→`pymupdf` (DEC-016)
+    โดยตั้งความคาดหวังใหม่คือ **V-01 ≈ 11–13/99 ไม่ใช่ 99**
+  - หลักฐาน: `.agent/eval/uom_probe_r0.json`, `.agent/eval/consensus_probe_r0.json`,
+    `.agent/harness/uom_probe.py`, `.agent/harness/consensus_probe.py`,
+    session `2026-10-06-002-uom-before-cache-reset.md`, DEC-019/020
