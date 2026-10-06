@@ -288,3 +288,16 @@ ode_modules/, rontend/dist/, playwright-report/, 	est-results/, *.tsbuildinfo
   เป็นความเสี่ยงต่อ rollback anchor ที่ DEC-015 พิงอยู่ (ตั้งเป็น TASK-OPS-07)
 - **สถานะงาน**: ยังไม่แก้ engine, ยังไม่ re-pin baseline, **V-01 ยัง fail 99/99** ตาม baseline `full_r0`;
   รอ user ตัดสินว่าจะจ่าย cache reset ซื้อชุดไหน (ดู TASK-20261006-002 ใน task-plan)
+
+## System A Sandbox — โครงสร้าง Multi-Task Sub-Agent (2026-10-06T09:30:00+07:00)
+
+รองรับการสั่ง Sub-Agent แยกทำงานตาม task ได้อย่างเป็นอิสระ (CHG-20261006-004 / TASK-20261006-004):
+- **Task Isolation Folders** (OCR service/system-a-sandbox/.agent/tasks/):
+  - core-optimization/ (SYS-A-OPT-001): เก็บ state.json, 	odo.md, progress.md, 
+ecovery.md, README.md สำหรับ Continuous Optimization Loop บน 99 เอกสาร
+  - web-test-portal/ (SYS-A-WEB-001): เก็บ state.json, 	odo.md, progress.md, 
+ecovery.md, README.md สำหรับ Web Testing Portal & BBox Viewer
+  - _template/: แม่แบบพร้อมใช้งานสำหรับการแตก task ใหม่
+- **Central Multi-Task Registry** (.agent/state.json): ระบุ active_task, เส้นทางของแต่ละ task, และ allowed_paths ป้องกันการแก้โค้ดข้ามขอบเขต
+- **Shared Resources**: .agent/decisions.md (บันทึกสถาปัตยกรรมร่วมระบุ Task ID), .agent/eval/, .agent/harness/, .agent/cache/
+- **Updated Protocols**: gent.md, 	ask.md, TASK_WEB_TEST_PORTAL.md บังคับให้ Sub-Agent อ่าน/เขียนเฉพาะใน task directory ของตนเอง และห้ามทำ git rollback ข้ามขอบเขตของ task อื่น

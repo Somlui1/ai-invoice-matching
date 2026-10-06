@@ -376,3 +376,17 @@ regression ทั้งสองเคส และพิสูจน์ด้�
   · overlay `E03.diffs = {sub_plus_vat_vs_grand: 3445.05}` · false failures 8 รายการจาก harness เก่าหายไป
 - **Records**: `CHG-20261006-003`, `ERR-20261006-004`, DEC-021, session `2026-10-06-003`
 - **Next (ค้าง, ไม่บล็อก)**: คลิกทดสอบ layout/CSS โดยคนบน browser จริง · vector PDF.js mode
+
+## TASK-20261006-004: ปรับโครงสร้าง .agent/ ให้รองรับ Multi-Task Sub-Agents แยกสถานะตาม task — DONE
+
+- **Status**: DONE 2026-10-06T09:30:00+07:00
+- **เป้าหมาย**: ป้องกันปัญหา state overwrite, context pollution และ git rollback ทับกันเมื่อมี sub-agents ทำงานแยก task (core-optimization vs web-test-portal)
+- **Acceptance**:
+  1. แยกโฟลเดอร์สถานะใน .agent/tasks/ เป็นอิสระต่อกัน (core-optimization, web-test-portal, _template)
+  2. .agent/state.json เป็น registry ชี้ไปยัง task folders
+  3. gent.md, 	ask.md, TASK_WEB_TEST_PORTAL.md ระบุกฎ task isolation และ allowed paths ชัดเจน
+- **Result**:
+  - สร้าง .agent/tasks/core-optimization/ และ .agent/tasks/web-test-portal/ ครบ 5 ไฟล์สถานะ
+  - สร้าง template สำหรับ task ใหม่ในอนาคต
+  - อัปเดตกติกา Sub-Agent ใน gent.md
+- **Records**: CHG-20261006-004, session 2026-10-06-004

@@ -356,3 +356,8 @@ uns/LATEST เป็น 2026-10-05-full
 - 08:50 — rewrite harness ให้ derive ความคาดหวังจาก payload (เลือกหน้าที่มี field+exception, dims จาก
   `pages[]`, label เทียบจากหัวค่าเพราะ label ตัดทอน by design) → ผ่านครบ **5/5 เอกสาร** (DMS-20/25/36/99/114)
 - 08:51 — สรุป: pytest **32/32**, live **77/77**, UI **5/5** — portal ใช้งานได้ และ commit `d5ad5c3`
+- 09:25 — ผู้ใช้ถามเรื่องการสั่ง sub-agent แยกกันตาม task และขอให้ปรับโครงสร้าง agent folder
+- 09:28 — วิเคราะห์ปัญหา state overwrite, backlog pollution, guardrail conflict และความเสี่ยง git rollback จากการแชร์ flat .agent/
+- 09:30 — สร้างระบบ Task Isolation ใน .agent/tasks/: แยก core-optimization และ web-test-portal พร้อม template
+- 09:32 — แปลง .agent/state.json เป็น Multi-Task Registry และอัปเดต gent.md, 	ask.md, TASK_WEB_TEST_PORTAL.md
+- 09:33 — บันทึก canonical records (CHG-20261006-004, TASK-20261006-004, session 2026-10-06-004)

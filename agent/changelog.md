@@ -362,3 +362,12 @@ un_stats.py และ erify_run.py รันผ่านครบ 14/14 Accepta
     ของที่ต้องแก้ตัวจริงตัวเดียว
   - pytest ใหม่ 1 ตัว: `test_an_exception_carries_the_sum_that_actually_differs` (ยืนยัน diffs กรองศูนย์
     + ค่าเดิมของ rule ที่ไม่มี diffs ไม่เปลี่ยน)
+- **CHG-20261006-004** (2026-10-06T09:30:00+07:00) — ปรับโครงสร้าง .agent/ รองรับ Multi-Task Sub-Agents แยกสถานะตาม task
+  - **ปัญหาที่แก้**: เมื่อ agent ทำงานพร้อมกันหลาย task (เช่น Evaluation Loop ใน task.md กับ Web Testing Portal ใน TASK_WEB_TEST_PORTAL.md) การใช้ state.json และ todo.md ก้อนเดียวกันทำให้เกิด state clashing, backlog ปนกัน, และเสี่ยงต่อ git rollback ข้ามขอบเขต
+  - **โครงสร้างใหม่**:
+    - .agent/tasks/core-optimization/ (state.json, todo.md, progress.md, recovery.md, README.md สำหรับ SYS-A-OPT-001)
+    - .agent/tasks/web-test-portal/ (state.json, todo.md, progress.md, recovery.md, README.md สำหรับ SYS-A-WEB-001)
+    - .agent/tasks/_template/ (แม่แบบสำหรับ task ใหม่)
+  - **Central Dispatcher**: .agent/state.json ปรับเป็น Multi-Task Registry ระบุ active_task, เส้นทางของแต่ละ task, และ allowed_paths
+  - **Protocol Updates**: ปรับ gent.md, 	ask.md, TASK_WEB_TEST_PORTAL.md ให้ Sub-Agents อ่าน/เขียนสถานะเฉพาะในโฟลเดอร์ task ของตนเอง และห้ามแตะไฟล์นอก Allowed Search Space
+  - หลักฐาน: session 2026-10-06-004-multitask-agent-structure.md
