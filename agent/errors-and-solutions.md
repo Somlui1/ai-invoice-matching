@@ -212,3 +212,158 @@ corpus v6.6 100 เคส + PDF 100 ไฟล์ถูกรายงานว�
 - ใช้ `git merge-tree --write-tree` เป็น dry-run มาตรฐานก่อน merge ครั้งใหญ่ (ไม่แตะ worktree, อ่าน conflict ได้จริงทั้งชื่อไฟล์และจำนวน)
 - `git stash`/snapshot อย่างเดียวไม่พอสำหรับ untracked files — เก็บ `git stash create -u` (แล้วทำ branch ชี้ผล) ควบคู่กับการคัดลอกไฟล์ออกนอก repo และ **ตรวจ mtime/ขนาดไฟล์หลัง backup** เพราะไฟล์อาจถูก editor อื่นบันทึกซ้ำระหว่างทำ (พบจริงกับ `OCR service/n8n/app/AIVA-Document-Card-Verification-v3.html`)
 - warning เรื่อง whitespace / `LF will be replaced by CRLF` (จาก `core.autocrlf=true`) ให้ตัดออกจากการวินิจฉัย; ถ้าต้องการให้เงียบและนิ่งจริงให้เพิ่ม `.gitattributes` แบบ `* text=auto eol=lf`
+
+### `ERR-20261004-001` — Python script body duplicated in one file (double `main()`)
+
+- Detected: `2026-10-04T15:13:00+07:00`
+- Context: `OCR service/new engine/tests/bbox_testv3.py` ก่อนเริ่ม batch vision-OCR
+- Symptom: ไฟล์มี 1,306 บรรทัด ทั้งที่โมดูลจริงยาว 653 บรรทัด — `grep -c "__main__"` คืน **2**, `import importlib.util` ปรากฏที่บรรทัด 31 และ 684; ถ้ารันจะประมวลผลเอกสารทั้งชุดแล้วยิง AI ซ้ำรอบสองโดยไม่มี error ใด ๆ (silent waste ของ GPU/time)
+- Root Cause: การคัดลอก/วางหรือ append ทั้งไฟล์ซ้ำลงท้ายไฟล์เดิม — ส่วนที่ซ้ำเริ่มด้วย docstring (`"""` บรรทัด 654) ซึ่ง Python มองเป็น string literal ทิ้งไป แล้วรันโค้ดสำเนที่สองต่อจากนั้น ทำให้ `main()` ถูกเรียกสองครั้ง
+- Solution: แบ่งไฟล์ที่เส้นแบ่งธรรมชาติ (หลัง `main()` บรรทัด 653) เป็น `/tmp/c1.py`, `/tmp/c2.py` แล้ว `diff` → 0 บรรทัด (byte-identical) จึงคงไว้เฉพาะซีกแรก ผล: 663 บรรทัด, `__main__` = 1, `py_compile` ผ่าน
+- Prevention: ก่อนรันสคริปต์ batch ที่มีการเรียก AI จริง ให้ `grep -c "if __name__" f` และ `wc -l f` เป็น sanity check แรก (ค่ามากกว่า 1 = มีอะไรผิดปกติ) — ตัวเลขขนาดไฟล์/จำนวนบรรทัดที่โตขึ้นสองเท่าคือสัญญาณของการวางซ้ำ; ถ้าต้องใช้ซ้ำจริงให้แยกเป็นโมดูลแล้ว import ไม่วางซ้ำในตัวไฟล์
+- Evidence: `diff <(sed -n '1,653p' bbox_testv3.py) <(sed -n '654,1306p' bbox_testv3.py)` = 0 บรรทัด; หลังแก้ `wc -l` = 663 และ `python -m py_compile` ผ่าน
+- Status: `resolved`
+
+### `ERR-20261004-002` — UnicodeEncodeError (cp874) ฆ่า Python script ที่ print ภาษาไทยบน Windows
+
+- Detected: `2026-10-04T15:15:48+07:00`
+- Context: `bbox_testv3.py` รันผ่าน git-bash บน Windows (console encoding เป็น cp874/Thai) — สคริปต์ log ภาษาไทยปนสัญลักษณ์ `·`, `✗`, `⚠`
+- Symptom: `UnicodeEncodeError: 'charmap' codec can't encode character '\xb7' in position 19` ที่ `encodings/cp874.py` → ตายตั้งแต่ `print` บรรทัดแรกก่อนเริ่มงาน batch (ยังไม่ได้เรียก AI เลย) และ log ออกเป็น mojibake
+- Root Cause: Python ใช้ encoding ของ console เป็น stdout encoding เมื่อไม่ได้ redirect แบบ UTF-8; อักขระ `·` (U+00B7) ไม่มีใน cp874 map — ต่างจาก error ฝั่ง decode เพราะนี่คือ **encode** ตอนพิมพ์
+- Solution: reconfigure stream ที่ต้นโมดูลก่อน `print` ทุกจุด `for s in (sys.stdout, sys.stderr): s.reconfigure(encoding="utf-8", errors="replace")` (ห่อ try/except `AttributeError/ValueError` กันกรณี stream ถูก redirect เป็นสิ่งที่ไม่ใช่ file) และตั้ง `PYTHONIOENCODING=utf-8` ตอนยิงจริงเพื่อความสบายใจของ log file
+- Prevention: สคริปต์ไทยทุกตัวที่พิมพ์ลง console บน Windows ต้อง set stdout encoding ที่ต้นไฟล์ ไม่ใช่แก้ด้วย env var นอกเครื่อง (คนรันคนถัดไปจะไม่ตั้ง) หรือเลี่ยงอักขระนอก cp874 ทั้งหมด; ถ้าเห็น `'charmap' codec` ให้แก้ที่ encoding ทันที อย่าไปตัดภาษาไทย/สัญลักษณ์ออก
+- Evidence: รันซ้ำหลังแก้ → log อ่านภาษาไทยถูกต้อง `Paperless: 99 ฉบับ · ต้องทำ 99 · ข้าม (ทำแล้ว) 0 · workers=2` และทำงานต่อถึงเอกสารที่ 8+ โดยไม่ error
+- Status: `resolved`
+
+### `ERR-20261004-003` — แก้ template ของ report แล้วแต่ไฟล์ `report.html` ยังเป็นแบบเก่า
+
+- Detected: `2026-10-04T16:45:00+07:00`
+- Context: แก้ `REPORT_HTML` ใน `bbox_testv3.py` (เพิ่ม overlay ชี้/คลิก bbox) ขณะที่ batch เดิมยังรันค้างอยู่
+- Symptom: แก้โค้ด template ผ่าน test แล้ว แต่เปิด `out/batch/report.html` ขึ้นมายังเป็น layout เดิม (ไม่มี overlay) ทั้งที่ process เพิ่งเขียนไฟล์สด ๆ ร้อน ๆ
+- Root Cause: 2 ปัจจัยรวมกัน — (1) Python โหลด module เข้า memory ครั้งเดียวตอนเริ่ม process การแก้ไฟล์ `.py` ระหว่างรัน **ไม่มีผล** กับ process เดิม ดังนั้น `write_report()` ครั้งสุดท้ายของรอบนั้นใช้ template เก่า (2) งานเขียนไฟล์ซ้ำหลายรอบ (เขียนทุก 5 ฉบับ) ทำให้เข้าใจว่า "เขียนล่าสุด = ต้องเป็นโค้ดใหม่"
+- Solution: รอให้ process จบแล้ว re-render ใหม่จากผลที่เก็บไว้แล้วด้วยโหมด build รายงานเท่านั้น — `python bbox_testv3.py --report-only` (สร้างจาก `docs/doc_*/doc.json`, ไม่เรียก AI) และต่อฉบับ `python bbox_test.py <id> --report-only` (สร้างจาก `page_*.json`)
+- Prevention: (1) แยก "ชั้นเก็บผล" ออกจาก "ชั้น render รายงาน" ให้ build รายงานใหม่จากผลที่เก็บไว้ได้เสมอ (โหมด `--report-only`) แล้วสอนให้เป็นขั้นตอนปิดงานทุกครั้งหลังแก้ template (2) ถ้าจะแก้โค้ดที่ process กำลังรันอยู่ ให้ถือว่าผลของรอบนั้นใช้ template เก่า และตั้งใจ re-render ตอนจบ (3) ตอน verify ผลของการแก้ UI ให้ตรวจเวลาที่เขียนไฟล์ + ตรวจว่า process ไหนเขียน
+- Evidence: หลัง `--report-only` ไฟล์ `out/batch/report.html` มี overlay 15,111 กล่อง (ครบทุกกรอบที่เก็บทั้ง 99 ฉบับ) และผ่าน harness jsdom 20/20 (ก่อนหน้าไม่ผ่านเพราะไม่มี `.bx` เลย)
+- Status: `resolved`
+
+### ERR-20261005-001 — Windows cp874 stdout UnicodeEncodeError in verification scripts
+
+- Detected: 2026-10-05T20:40:20+07:00
+- Context: รัน scripts/run_stats.py และ scripts/verify_run.py บนสภาพแวดล้อม Windows
+- Symptom: UnicodeEncodeError: 'charmap' codec can't encode character '≥' / '→'
+- Root Cause: Default encoding ของ stdout ใน Windows terminal คือ cp874 ซึ่งไม่มี mapping สำหรับ unicode สัญลักษณ์คณิตศาสตร์และลูกศร
+- Solution: ใส่ 	ry: sys.stdout.reconfigure(encoding='utf-8') except Exception: pass ที่จุดเริ่มต้นของ script และใช้ตัวอักษร ASCII เช่น >=
+- Prevention: ทุก CLI script ใน repository ต้อง reconfigure stdout เป็น UTF-8 เสมอเมื่อรันบน Windows
+- Evidence: 
+un_stats.py และ erify_run.py รันสำเร็จและ exit code 0
+- Status: 
+esolved
+
+---
+
+### ERR-20261005-002 — V-05 forced Manual Review because Table 4 and RCV-V01 use different ORG_ID spaces
+
+- Detected: 2026-10-05T22:35:00+07:00
+- Context: ตรวจว่าทำไม V-05 ให้ผล `manual_review` กับทุกเอกสารที่ไปถึง ใน 99 ใบแจ้งหนี้จริงของ System A sandbox
+- Symptom: `detail = "ORG_ID 195 สถานะ ไม่อยู่ในตารางที่ 4 หรือไม่มี Tax ID"` ทั้งที่ชื่อ/Tax ID บนใบแจ้งหนี้
+  เป็นบริษัทเดียวกับใบรับใน Oracle จริง
+- Root Cause: RCV-V01 คืน `ph.ORG_ID` จาก `PO.PO_HEADERS_ALL` ซึ่งเป็น **operating unit** id
+  (`APPS.HR_OPERATING_UNITS` = 101, 176, 195, 197, 202, 223, 243, ...) แต่ Standard v6.6 §04 ตารางที่ 4
+  ลงทะเบียนด้วย id ของ **sub-organization** (103, 175, 196, 199, 222, 224, ...) ซึ่งเป็นอีกแถวหนึ่งใน
+  `HR_ALL_ORGANIZATION_UNITS` ของบริษัทเดียวกัน — ค่าสองชุดนี้ไม่ทับกันเลยแม้แต่ค่าเดียว
+- Solution: เพิ่มแถว bridge ใน `OCR service/system-a-sandbox/system-a/config/standards/v6.6/buyer_entity.yaml`
+  ที่คีย์ = operating unit id ที่ Oracle ส่งจริง โดยคัด identity (Tax ID/ชื่อ/ที่อยู่) จากแถวตารางที่ 4 ของ
+  บริษัทเดียวกัน และจับคู่จากชื่อใน `HR_OPERATING_UNITS` แบบ 1:1 เท่านั้น; OU ที่ไม่ชัด (285 Plastics,
+  475 Bike, 555 MG, 596 AVEE, 202 ITS, 177, 292, 375, 393 และแถวที่มาตรฐานระบุ ยังไม่ทราบ) คง
+  `status: unknown` เพื่อให้ V-05 ส่ง Manual Review ต่อตามมาตรฐาน ทุกแถว bridge เก็บ
+  `table4_org_id` และ `erp_ou_name` ไว้ตรวจสอบ
+  ผลวัดจริง (`v05_predict.py`, 83 ฉบับ): V-05 `manual_review` 53 -> 0 และไม่มีเอกสารใดกลายเป็น E07
+- Prevention: เวลาเขียนทะเบียนอ้างอิงลูกค้าที่ผูกกับผลลัพธ์ SQL ต้องตรวจว่าคีย์ที่ใช้เป็น id ชุดเดียวกับที่
+  SQL คืนจริงเสมอ (probe ด้วย `SELECT DISTINCT <key>` เทียบกับ key ในไฟล์ config ก่อน) และเก็บหลักฐาน
+  cross-reference ไว้ในตัวไฟล์ config; ห้ามปิดอาการด้วยการลดเงื่อนไขของกฎ
+- Evidence: `.agent/harness/v05_predict.py`, `.agent/eval/orgid_probe.md`,
+  `SELECT organization_id, name FROM APPS.HR_OPERATING_UNITS`, PO 42052405 -> ORG_ID 195
+- Status: Resolved (workaround ใน sandbox) — **ต้องแก้ที่ต้นทาง**: มาตรฐาน §04 ต้องเพิ่มคอลัมน์
+  operating-unit id (เจ้าของ: AERP)
+
+### ERR-20261005-003 — VLM answers lose their JSON because reasoning tokens eat max_tokens
+
+- Detected: 2026-10-05T23:05:00+07:00
+- Context: ใบแจ้งหนี้ 21/99 ฉบับมี `pages_complete = false` ทำให้ V-01 ตก (E01) และเอกสารถูกกักทั้งที่อ่านออก
+- Symptom: `extra.page_errors` = `page_items: AIResponseError: no JSON object` (18 หน้า) และ
+  `truncated JSON object` (3 หน้า)
+- Root Cause: โมเดล vision ที่ gateway (`nvidia/Qwen3.8-Flash-Next-NVFP4`) เปิด reasoning เป็น default
+  เมื่อ client ไม่ได้ส่ง `chat_template_kwargs.enable_thinking`; probe หน้าจริง (DMS-20 หน้า 3) ได้
+  `completion_tokens 5819` โดยเป็น `reasoning_tokens 2577` จากโควตา `max_tokens = 8000`
+  หน้าที่ข้อความหนาแน่นกว่านั้นจะถูกตัดกลางคำตอบ ทำให้ `content` ไม่มี JSON object ที่ครบ
+  และ `pages_complete=not truncated and not any(r.error ...)` จึงเป็น false
+- Solution: ใน `src/system_a/adapters/llm/litellm_client.py` เพิ่มการกู้คำตอบตามลำดับ
+  (1) decode ตามปกติ (2) repair prompt เดิม (3) ส่งซ้ำโดยปิด reasoning
+  (4) `salvage_json_object()` เก็บเฉพาะสมาชิก JSON ที่ครบถ้วน โดยปิด `in_str` ให้ถูกต้องและปิด
+  bracket ตาม stack จริง; เพิ่ม counter `no_thinking_retries`, `decode_salvaged`
+  และใน `perception/vision_pipeline.py` หน้าที่ต้องใช้วิธี salvage จะยังถูกติดธง
+  `read.error = "page_items: truncated JSON answer, only complete members kept"`
+  เพื่อให้ `pages_complete` เป็น false เหมือนเดิม (ไม่เปลี่ยน failure เป็น pass ตอนข้อมูลยังหาย)
+- Prevention: ทุก call ที่บังคับตอบเป็น JSON ต้องกำหนดโควตา token ของ reasoning ให้ชัดเจน
+  (เปิด/ปิดเชิงเดียว ไม่ใช่ปล่อยให้ default) และต้องทดสอบด้วยหน้าเอกสารที่หนาแน่นที่สุด ไม่ใช่หน้าเดียว
+  ที่ว่าง; ห้ามแก้ด้วยการลดเงื่อนไข required field ของ V-01
+- Evidence: `.agent/harness/vlm_probe.py 20 3` (raw usage), `.agent/harness/test_salvage.py` 12/12 pass
+- Status: Resolved (unit-level); ผลต่อ V-01 ต้องยืนยันด้วยการ re-perception จริง (Tier B)
+
+### ERR-20261005-004 — WRONGLY DIAGNOSED (corrected 2026-10-06): the perception cache key does include a code fingerprint
+
+- Detected: 2026-10-05T23:35:00+07:00 · **Corrected: 2026-10-06T00:40:00+07:00**
+- Symptom ที่เจอจริง: รัน `process_pdf.py` ซ้ำหลังแก้โค้ด perception แล้วได้ผลเดิม ไม่เรียก VLM
+- **What I wrote first (wrong)**: "cache_key() ไม่ได้รวม code_version" และแนะนำให้เพิ่ม code_version เข้า key
+- **หลักฐานที่ตรวจซ้ำแล้ว (ถูกต้อง)**: `process_pdf.py` บรรทัดก่อนเรียก `cache_key()` มี
+  `opts["pipeline"] = pipe.code_version` อยู่แล้ว และ `CODE_VERSION = _code_fingerprint()`
+  (vision_pipeline.py:40-58) hash source ของ `pdf_ingest`, `coords`, `vision_pipeline` เข้าด้วยกัน
+  → **key ครอบคลุมโค้ดอ่านภาพอยู่แล้วโดยออกแบบ** คำแนะนำเดิมจึงเป็นการแก้ที่ไม่มีผลจริง
+- สาเหตุจริงของอาการ: ตอนที่รัน Tier B (22:33) การแก้ `vision_pipeline.py` ยังไม่ได้ถูกบันทึก
+  fingerprint ตอน import จึงยังเท่าเดิม (57f4096e01a8 เป็นค่าหลังแก้) ผลที่ cache ไว้จึงได้ key เดิมกับ
+  รอบ baseline และการรันที่ชี้ cache เดิมจะถูก hit ของเก่า
+- บทเรียนที่ใช้ได้จริง:
+  1. **อย่าสรุปกลไกจากบรรทัดเดียว** — ต้องอ่านจนถึงจุดที่ประกอบ options ของ key; ครั้งนี้เห็นแค่ชื่อ
+     พารามิเตอร์แล้วสรุปว่าไม่รวม code version
+  2. สิ่งที่ยังเป็นช่องว่างจริงคือ **ในไฟล์ cache ไม่มี `code_version` เก็บไว้** (อ่านค่าได้เป็น None ทุกไฟล์)
+     จึงดูไม่ออกว่า extraction ไหนเกิดจากโค้ดสถานะไหน → เวลาทดสอบการเปลี่ยน perception layer
+     ให้ใช้ `PERCEPTION_CACHE_DIR` แยกเสมอ (ทำแบบนั้นจริงใน MUT-03 และผล Tier B ยังใช้ได้)
+  3. ผลข้างเคียงที่ควรทราบ: หลังแก้ `vision_pipeline.py` fingerprint เปลี่ยนเป็น 57f4096e01a8
+     extraction ที่ cache ไว้ทั้ง 112 ชุดจะถูกรีเพอร์เซปต์เมื่อรันสดครั้งถัดไป replay harness ยังใช้ได้
+     เพราะ `.agent/harness/replay.py` เลือกไฟล์จาก `package_id` ไม่ใช้ key
+- Status: Corrected — ไม่มีการแก้โค้ด และไม่มี work-around ที่จำเป็นนอกจาก cache แยกสำหรับทดสอบ
+
+### ERR-20261005-005 — อ่าน result schema ผิดชั้น: `normalized_fields` ไม่ใช่ object ของ field
+
+- อาการ: `GET /api/overlays/{key}` พัง 500 `AttributeError: 'str' object has no attribute 'get'`
+  ทั้งที่ endpoint อื่นทำงานปกติ และผล verification ปกติดี
+- สิ่งที่เข้าใจผิด: คิดว่า `normalized_fields[name]` เป็น object ที่มี `raw`/`normalized`/`evidence_bbox`
+  แล้วใช้เป็นแหล่งเดียวของทั้งค่าและตำแหน่ง
+- ความจริงของ Contract 3.0 (ตรวจจาก `cli20_full.json` จริง ไม่ใช่จากเอกสาร):
+  - `normalized_fields` = **map name → string** (ไว้แสดงค่าอย่างเดียว)
+  - `extraction.fields[name]` = `{raw_value, normalized_value, confidence, ok, null_reason, element_id}`
+  - `extraction.lines[].cells[c]` = `{raw_value, normalized_value, ok, null_reason}` — **ไม่มี `element_id`**
+  - `extraction.signatures[k]` = `{present, confidence, kind, region:{page, bbox}}`
+  - `exceptions[]` มี `evidence_ids` (ไม่ใช่ `element_ids`) และค่าที่กฎเทียบ (`actual_value`,
+    `expected_value`, `page_no`, `related_element_ids`) อยู่ในตัว **`evidence[]`**
+  - geometry ทั้งหมดอยู่ `ocr.elements[]` (`element_id, element_type, page_no, bbox, field_name, raw_value`)
+- วิธีแก้: `build_overlays()` อ่านแยกชั้นให้ถูก — ค่าจาก `extraction.*`, ตำแหน่งจาก `ocr.elements[]`
+  โดย join ผ่าน `element_id`; exception → `evidence_ids` → `related_element_ids` → element;
+  cell ที่ไม่มี id ใช้ join key `field_name == "lines[<line_no>].<column>"` (key ระดับข้อมูล ไม่ใช่ geometry)
+- วิธีป้องกัน: fixture test ที่มีทั้ง field/cell/exception/signature และ assert ว่า "มีกรอบ/ไม่มีกรอบ"
+  ถูกต้องตาม `null_reason` — ถ้า schema เลื่อน test จะฟ้องทันที ไม่ใช่พังตอนเปิดหน้า
+
+### ERR-20261005-006 — UI อ่าน key คนละชื่อกับ API: คลิกกรอบแล้วเงียบ ไม่มี error
+
+- อาการ: overlay วาดกรอบครบ แต่กรอบของ header field / cell คลิกไม่ติด และ label ขึ้น `invoice_num=`
+  ว่างเปล่า ทั้งที่ pytest ผ่านหมด (ฝั่ง Python ถูกต้องทุกประการ)
+- สาเหตุ: `build_overlays()` เก็บ element item เป็น `id` / `text` / `conf` ขณะที่ `panels.js`
+  อ่าน `element_id` / `raw` / `confidence` → `dataset.element` ว่าง → `applySelection()` หาไม่เจอ
+- บทเรียนที่นำไปใช้ต่อ: **UI ที่ไม่มี build step ต้องมี test ที่รัน module จริง** เพราะ type checker
+  และ pytest มองไม่เห็นคำว่าพิมพ์ผิดใน JS; จึงเพิ่ม `web/test_ui_logic.mjs` (โหลด source จริงลงใน vm context
+  + DOM stub เฉพาะคำสั่งที่ใช้จริง) ซึ่งจับได้ 3 ข้อผิดพลาดในการเขียนรอบนั้นเอง
+- วิธีแก้: API ส่งทั้ง `element_id` (ชื่อหลัก) และ alias `id`/`raw`/`confidence` ที่ viewer ใช้
+  พร้อมคอมเมนต์กำกับว่าทำไมต้องมีสองชื่อ; harness assert ทั้ง label มีค่า, `.sel/.dim`, และ join สองทาง
+- วิธีป้องกัน: test เดียวกันนี้รันใน pytest (`test_browser_modules_run_against_the_api_data`,
+  skip เมื่อไม่มี node) และมี `test_frontend_only_references_ids_that_exist_in_the_markup`
+  ตรวจ id ที่ JS อ้างถึงว่ามีจริงใน `index.html`

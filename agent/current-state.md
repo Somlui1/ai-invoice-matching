@@ -1,12 +1,27 @@
 # Current State
 
-Last verified: `2026-10-03T15:50:00+07:00`
+Last verified: `2026-10-05T23:55:00+07:00`
 
 ## Repository
 - Branch: `main` — merge `origin/main` (6 commits: archive `invoice-web/` + mockup `invoice-web1`/`invoice-webV2`/`invoice-webv3` + skill) เข้ากับงาน n8n v6.6 ฝั่ง local เรียบร้อยแล้ว
 - การย้าย `invoice-web/` → `Web portal/` ที่ทำค้างไว้ใน working tree **ถูกยกเลิกตามคำสั่งผู้ใช้** เพื่อรับ layout ของ `origin/main`; สำเนาก่อนทิ้งอยู่ที่ `git\wip-backup-20261003\` และ snapshot commit `backup/wip-dirty-20261003`
 - Existing OCR service (`OCR service/n8n`) และ original HTML mockup (`Web portal/AIVA-Web-Portal-Mockup-v4.4-Release.html`) ยังคงอยู่ตามเดิม — ไม่มีการแก้ไฟล์ใน `OCR service/` ระหว่าง integrate
 - Agent records ถูกจัดเก็บบน `agent/` ตาม canonical protocol
+
+## New engine — Vision OCR bbox batch prototype (`OCR service/new engine/`)
+
+สถานะ: **รัน proof-of-use ครบทั้ง 99 ฉบับของ Paperless แล้ว** (2026-10-04, workers=2) + `report.html` แบบโต้ตอบได้
+
+- ผลรันจริงทั้งรอบ: **99/99 ฉบับ · 425 หน้า (ครบทุกหน้า) · 15,111 กรอบเก็บ · 51 กรอบตัดทิ้ง · 99 `ok` / 0 `partial` / 0 doc-level error · 5,951 s (~99 นาที, เฉลี่ย 24.7 s/หน้า)** · output `new engine/tests/out/batch/`
+- การกระจาย `doc_type` ระดับหน้า: tax_invoice 237 · purchase_order 90 · delivery_note 48 · other 18 · osp 14 · invoice 12 · tax_invoice_receipt 6 · เหตุผลที่ถูกตัด: zero_area 34, no_text 11, duplicate 6
+- **report.html โต้ตอบได้** (`CHG-20261004-002`): ชี้เมาส์ที่กรอบ/แถวตาราง → tooltip แสดง `type · label` + ข้อความเต็ม + พิกัด px/norm และไฮไลต์คู่อีกฝั่ง (sync สองทาง) · คลิก = ตรึง panel + เลื่อนไปแถวที่ตรงกัน · `Esc` ปลด · toggle ซ่อน overlay · ตรวจด้วย jsdom ผ่าน 20/20 ทั้งต่อฉบับ (32 กรอบ) และ batch (overlay 15,111 กรอบ)
+- สคริปต์หลัก: `OCR service/new engine/tests/bbox_testv3.py` (663 บรรทัด) — ดึงเอกสารจาก Paperless → เรนเดอร์ทุกหน้าที่ DPI 150 → เรียก VLM ผ่าน LiteLLM (`nvidia/Qwen3.8-Flash-Next-NVFP4`) → ตรวจ/กรอง bbox → วาดกรอบลงภาพ และสร้าง `report.html`, `summary.csv`, `viewer.html` (PDF.js overlay) ต่อฉบับ
+- Config อ่านจากไฟล์ `env` ข้างสคริปต์ (fallback เมื่อไม่มี `.env`): `LITELLM_URL`, `LITELLM_KEY`, `VLM_MODEL`, `PAPERLESS_BASE_URL`, `PAPERLESS_API_TOKEN`, `RENDER_DPI`, `VLM_MAX_TOKENS` — ค่าจริงไม่ถูกบันทึกใน agent records
+- พฤติกรรมการกรองกรอบ: ตัด text ว่าง/`-`/`unreadable`/ลายเซ็น-ตราประทับที่ไม่มีรอย, bbox พิกัดเสีย, พื้นที่ < 4 px, และซ้ำกับกรอบก่อนหน้า → ของที่ถูกตัดไม่หาย แต่เก็บใน `doc.json` → `dropped` พร้อม `drop_reason`; ตรวจจับ coord mode เอง (`pixel` / `norm1000` / `norm1`)
+- Resume native: มี `docs/doc_<id>/doc.json` แล้วจะข้าม (`--force` = ทำซ้ำทุกฉบับ, `--retry-errors` = เฉพาะที่ไม่ ok) และ `--report-only` มีทั้งสองสคริปต์สำหรับสร้างรายงานใหม่จากผลเดิมโดยไม่เรียก AI — ต้องใช้หลังแก้ template รายงาน เพราะ process ที่รันค้างอยู่ยังใช้ template ที่โหลดเข้า memory (`ERR-20261004-003`)
+- สิ่งที่ยืนยันจากการรันจริงแล้ว: ขนาดงานจริง 99 ฉบับ, ~20 s/หน้า, เอกสารบางฉบับมี 4–11 หน้า และ model ตอบ `doc_type` ต่างกันได้ในแต่ละหน้าของไฟล์เดียวกัน (เช่น delivery_note + invoice + purchase_order ในฉบับเดียว)
+- การป้องกันข้อมูล: `.gitignore` หมวด 13 (เพิ่ม 2026-10-04) ไม่ยอมให้ `new engine/tests/env` (มี API key), `new engine/tests/out/` และ `OCR service/out/` (ภาพเอกสารจริง + ผล OCR) เข้า repo — ตรวจด้วย `git check-ignore` แล้วว่า IGNORED ครบ; `new engine/` ยัง untrack และมี source พร้อม commit 42 ไฟล์
+- ข้อจำกัดปัจจุบัน: **ยังไม่มีตัวเลข accuracy** เทียบ ground truth (เป็นแค่ proof-of-use), `viewer.html` (PDF.js) มีแค่ hover ยังไม่มี click-to-pin, `report.html` โตตามจำนวนฉบับ (99 ฉบับ = 3.2 MB และโหลด DATA ทั้งก้อนตอนเปิดหน้า), `new engine/` ทั้งโฟลเดอร์ยัง untrack, ชื่อไฟล์จริง (`bbox_testv3.py`) ไม่ตรงกับชื่อในเอกสาร (`bbox_batch.py`)
 
 ## Portal versions under `Web portal/` (layout หลัง merge ตาม `origin/main`)
 - `Web portal/invoice-web-9054076/` (87 ไฟล์) — portal React + FastAPI ชุดเดิมที่ remote เป็นฝ่าย archive จาก `invoice-web/`: FastAPI modular monolith แยก `api/auth/core/domain/db/integrations/storage/workers` + React/Vite/TanStack Query, KPI overview strip และ Document detail 5 แท็บ
@@ -144,6 +159,7 @@ ode_modules/, rontend/dist/, playwright-report/, 	est-results/, *.tsbuildinfo
 - ต้องเลือก "เวอร์ชันเดียวที่เป็น canonical" ของ portal: `invoice-web-9054076` / `invoice-web1` / `invoice-webV2` / `invoice-webv3` ยังอยู่ซ้อนกัน 4 ชุด และเอกสาร contract ถูก copy ซ้ำทุกโฟลเดอร์ — ต้องเลือกก่อนว่างานพัฒนาครั้งถัดไปลงโฟลเดอร์ไหน
 - ต้องแก้ `Web portal/invoice-webv3/tools/build-domain-data.py` ให้รองรับ shape ใหม่ของ `OCR service/n8n/app/core/master_data.py` + re-generate `assets/data.js` (ตอนนี้ `--check` fail) — งานนี้แตะ `OCR service/` ได้เฉพาะ "อ่าน" ห้ามแก้
 - root `.gitignore` ปรับ pattern ให้ตาม layout ใหม่ (`Web portal/*/data/`, `!Web portal/*/examples/invoice.pdf`) และลบ path ที่ตายแล้ว (`invoice-web/...`); ยืนยันแล้วด้วย `git check-ignore` ว่า `examples/invoice.pdf` ทั้งสองสำเนาไม่ถูก ignore และ `data/` ยังถูก ignore
+- การป้องกันข้อมูล: `.gitignore` หมวด 13 (เพิ่ม 2026-10-04) ไม่ยอมให้ `new engine/tests/env` (มี API key), `new engine/tests/out/` และ `OCR service/out/` (ภาพเอกสารจริง + ผล OCR) เข้า repo — ตรวจด้วย `git check-ignore` แล้วว่า IGNORED ครบ; `new engine/` ยัง untrack และมี source พร้อม commit 42 ไฟล์
 - n8n workflow v6.6 ยัง `active: false` (ตามนโยบาย: ไม่เปิด schedule โดยไม่ได้สั่ง) และยังไม่เคยรัน end-to-end จริงกับ Paperless/LiteLLM/Portal — การยืนยัน ณ ขณะนี้เป็นแบบ static (topology + code diff) + Oracle query จริงหนึ่งคำสั่งด้วย base tables
 - N7 ยัง hardcode Authorization header (ควรย้ายไป credential `httpTemplatedCustomAuth` ตามที่ n8n แนะนำ)
 - Current release is local/integration pilot, not company-scoped production: shared API keys are workspace-wide; Entra, user/receiver RBAC and immutable user audit remain unimplemented.
@@ -154,3 +170,77 @@ ode_modules/, rontend/dist/, playwright-report/, 	est-results/, *.tsbuildinfo
 - Need sanitized real producer contract to validate upstream mapping; never relabel legacy codes as a new standard.
 - Producer ต้องเชื่อม action outbox และกำหนด SLA/retry/dead-letter ก่อนใช้ resubmit/rerun กับงานจริง; AP post ยังไม่เปิด.
 - Keep logs free of secrets and invoice payloads; read Thai files explicitly with UTF-8.
+
+## System A — Real-Data Integration & Offline Verification (OCR service/system-a-sandbox/system-a/)
+
+สถานะ: **รันและตรวจสอบบนข้อมูลจริงครบทั้ง 99 เอกสาร Paperless-ngx เรียบร้อยแล้ว** (2026-10-05) ผ่าน Acceptance Criteria AC-01 ถึง AC-14 ครบ 14/14 (100%)
+
+- **ผลการประมวลผล 99 เอกสาร (runs/2026-10-05-full/)**:
+  - เอกสารทั้งหมด: 99 ฉบับ, 424 หน้า (417 หน้าประมวลผล)
+  - สถานะ: COMPLETED 99/99 ฉบับ (MANUAL_REVIEW 71, REVIEW 14, HOLD 13, SYSTEM_ERROR 1)
+  - กฎและข้อยกเว้น: E01 99, E10 54, E13 30, E03 25, E11 11, E09 9, E05 7, E02 6, E14 2, E15 1
+  - Oracle Integration: RCV-V01 63 ฉบับ, PO-SUPPLIER 12/12 probes pass, receipt lines พบใน 63 ฉบับ (รวม 152 rows), calls/doc <= 3
+  - Line Matching: 98 ฉบับมี line table, 608 rows, 507 rows มี qty > 0, match กับใบรับ 383 rows (75.5%)
+  - BBox coverage: word bbox 100.0% (223,546 words), row/cell 98 ฉบับ, signature 93 ฉบับ, stamp 76 ฉบับ, 0 out-of-range bboxes
+- **Interactive HTML Report (reports/2026-10-05-full/)**:
+  - Offline-first: PDF.js vendor ในตัว, รองรับ deep link #doc=<id>, zoom 50%/100%/200% ตรง 0 px mismatch
+  - Interactive tabs: Summary, Rules, Evidence, OCR Fields, OCR Text, Invoice <-> Receipt, Oracle Snapshot, Raw JSON
+  - Privacy mask: ชื่อผู้รับของ (RECEIVER) ถูก mask อักษรแรกของชื่อ/นามสกุลในหน้าจอรายงาน
+
+### Core Clean Layout & Single Runner (process_pdf.py)
+- ปรับโครงสร้าง system-a ให้เหลือเฉพาะ Core Engine เพื่อลดความซับซ้อน:
+  - ย้ายไฟล์ทดสอบและผลรันเดิม (tests/, sandbox_data/, runs/, reports/, docker/, scripts/, FINDINGS.md) ไปยัง archive/ อย่างปลอดภัย
+  - สร้าง process_pdf.py: สคริปต์หลักแบบ Standalone สำหรับรับไฟล์ PDF เดี่ยว -> ทำ Perception (OCR+BBox) -> Query Oracle EBS -> Match Lines & Evaluate Rules V01-V09 -> ออกผลลัพธ์ aiva.system_a.result/3.0
+  - ทดสอบรันกับ 20.pdf จริง สำเร็จใน 33.6 วินาที (แมตช์ 12 receipt lines จาก EBS, สรุปผล recommendation เป็น MANUAL_REVIEW)
+  - อัปเดต README.md เป็นคู่มือ 1 หน้าที่กระชับและเข้าใจง่าย
+
+## System A — Evaluation Loop รอบที่ 1 (2026-10-05T23:55:00+07:00)
+
+สถานะ: **ตั้ง baseline ที่วัดซ้ำได้ + ผ่าน 3 mutation แรกโดยไม่มี regression**; ความแม่นยำรวมยังไม่ขึ้น
+เพราะ E01 ยังค้างทุกเอกสาร — คอขวดจริงอยู่ที่ชั้น Perception ไม่ใช่กฎหรือค่า tolerance
+
+- **Baseline anchor** `.agent/eval/full_r0/` (99/99, replay บน perception cache ที่ pin ไว้) ทำซ้ำ distribution
+  ของรอบสดเดิมได้ตรงเป๊ะ: AUTO_PASS 0, MANUAL_REVIEW 71 (71.7%), REVIEW 14 (14.1%), HOLD 13 (13.1%),
+  SYSTEM_ERROR 1 และ V-01 fail 99/99
+- **Mutation ที่ยอมรับ (commit ทับ `291bd76`):**
+  - `4d80ffc` ตารางลูกค้า V-05: key ที่ RCV-V01 ส่งจริงเป็น operating unit ไม่ใช่ sub-organization
+    → `manual_review` 53 → 0 และไม่มี E07 เท็จ (วัด offline 83 ฉบับ + ยืนยันสดบน `full_r1` 23 ฉบับแรก)
+  - `9ab2e9c` หน่วยนับ: เพิ่มเฉพาะคำพ้องภายในกลุ่ม (X-06) → E10 70 → 68, E10 ใหม่ 0
+  - `64152ea` JSONคำตอบ vision ถูกตัดเพราะ reasoning token กิน `max_tokens` → re-ask แบบปิด thinking +
+    salvage; Tier B บน DMS-20: `pages_complete` false → true, เส้นบิล 12 → 6 (ตารางซ้ำถูกตัด),
+    max severity High → Medium, E13 (High) 6 รายการ + E11 3 รายการหายไป
+- **Regression gate ล่าสุด (`full_r1` กำลังรัน 23/99):** comparable 23, improved 1 (DMS-25
+  MANUAL_REVIEW → REVIEW), **REGRESSED 0**; V-05หลุดจาก manual_review 9/23 (DMS-21 ผ่าน)
+- **ตัวเลขที่ชี้ทางรอบถัดไป**: จาก 608 เส้นบิลของ baseline หน่วยนับใช้ไม่ได้ **66.7%**
+  (NOT_PRESENT 238 + LOW_CONFIDENCE 168) → ต้องแก้ prompt ตารางหน่วยนับ + เพิ่มผู้อ่านคนที่สอง
+- **ข้อจำกัด/งานค้างเจ้าของ:**
+  - ตารางที่ 4 ของมาตรฐาน §04 ต้องลงคีย์ฝั่ง operating unit ให้ครบ (AERP) — OU ที่กำกวม (Plastics, Bike,
+    MG, AVEE, ITS, หน่วย test/consolidation) คง `status: unknown` = Manual Review ตามมาตรฐาน
+    และ `XLE_*` ของระบบทะเบียนลูกค้าอ่านไม่ได้ด้วยสิทธิ์ read-only ปัจจุบัน จึงสร้างตารางเพิ่มเองไม่ได้
+  - perception cache: key ครอบคลุม fingerprint โค้ดอ่านภาพอยู่แล้ว (`opts["pipeline"] = pipe.code_version`
+    + `_code_fingerprint()` hash source ของ `pdf_ingest`, `coords`, `vision_pipeline`) แต่ตัวไฟล์ cache
+    ไม่ได้บันทึกว่าเกิดจาก code version ไหน → เวลาทดสอบการแก้ perception ต้องใช้
+    `PERCEPTION_CACHE_DIR` แยกเสมอ และหลังแก้ `vision_pipeline.py` (fingerprint = 57f4096e01a8)
+    extraction ที่ cache ไว้ 112 ชุดจะถูกรีเพอร์เซปต์เมื่อรันสดครั้งถัดไป (ดู ERR-20261005-004 ฉบับแก้ไข)
+  - การอ่านเอกสารมีความไม่แน่นอน: `process_pdf.py` รอบสดเรียก matcher ซ้ำทุกครั้งที่ 30–60 วินาที
+    การวัดที่เปรียบเทียบได้จึงใช้ replay จาก perception cache + คำนวณ V-05/V-07 ใหม่จากข้อมูลเดิม
+
+## System A — Web Testing Portal (`OCR service/system-a-sandbox/system-a/web/`, 2026-10-05T23:55:00+07:00)
+
+สถานะ: **ครบทั้ง 5 phase ของ `TASK_WEB_TEST_PORTAL.md` · commit `2d87f6e` · pytest 24/24 + UI logic 25/25**
+
+- เป็น **consumer ของ CLI เท่านั้น**: การรันทุกครั้งที่ portal คือ subprocess ของ `system-a/process_pdf.py`
+  (ไม่ import `system_a` เพื่อตัดสินใจ) → `src/system_a/**`, `config/**` และ output contract ไม่ถูกแตะ
+  ตรวจแล้ว `git show --name-only 2d87f6e` ไม่มีไฟล์ core เลย
+- ยืนยันความเท่าเทียมกับ CLI ด้วย `integrity.payload_sha256`: DMS-20 sandbox ผ่าน portal = ผ่าน CLI
+  ทุกตัวอักษร (1.0s เท่ากัน — perception cache hit)
+- bbox ทั้งหมด resolve จาก contract เท่านั้น: ค่าจาก `extraction.*`, ตำแหน่งจาก `ocr.elements[]`
+  ผ่าน `element_id`, exception ผ่าน `evidence[].related_element_ids`, cell ที่ไม่มี id join ด้วย
+  `field_name = lines[<n>].<column>`; `coordinate_system` อ่านจากผลจริง ไม่เคย assume
+- render หลัก = raster ที่ server เรนเดอร์ด้วย PyMuPDF (lib เดียวกับ perception จึงตรงกันกับภาพที่ model เห็น);
+  PDF.js 4.10.38 vendor ไว้ same-origin เป็น vector mode และ fallback กลับ raster อัตโนมัติ
+- วิธีเปิด: `system-a> run_portal.bat` หรือ `python web\serve.py --port 8080` — interpreter ของ engine
+  ถูกเลือกด้วยการ "ลอง import" (yaml/pydantic/pymupdf) ไม่ใช่เดา path; override ด้วย `WEB_ENGINE_PYTHON`
+- ข้อจำกัดที่รู้อยู่: `--quick` ของ CLI ไม่ใช่โหมดเร็ว (it disables crops+table ⇒ perception คนละชุด,
+  cache key คนละตัว, verdict ต่างกันได้) UI จึงแสดงเป็น "คนละการรัน"; ยังไม่มีการคลิกทดสอบบน browser จริง
+- Record ประกอบ: session `2026-10-05-004`, `CHG-20261005-004`, `ERR-20261005-005/006`, DEC-013..015

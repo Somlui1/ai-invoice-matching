@@ -187,3 +187,104 @@
 - พิสูจน์ว่าไม่แตะ `OCR service/`: `git diff --name-only <merge-base> origin/main -- "OCR service"` คืน 0 ไฟล์ และ working tree ของโฟลเดอร์นี้ยัง dirty เท่าเดิม 41 รายการ (15 แก้ไข + 26 untracked) — ใช้ venv ของ n8n รัน test อย่างเดียว ไม่ได้เขียนไฟล์ในโฟลเดอร์
 - พบของใหม่ที่ต้องตาม: `python tools/build-domain-data.py --check` = rc 1 (`master_data.py shape changed; update this generator`) แปลว่า `assets/data.js` ของ mockup v3 ล้าสมัยต่อ `master_data.py`/`rules.py` ที่แก้ไว้ใน working tree ฝั่งเรา
 - หมายเหตุ protocol: `agent/sessions/` ปี `2026-10-03` มี sequence 001–004 ซ้ำกันระหว่างสองผู้เขียน (ชื่อไฟล์ไม่ชนกันแต่ ID ซ้ำ) งานรอบนี้จึงใช้ `2026-10-03-005` และรอบถัดไปให้เริ่มที่ 006; ยังไม่ push รอคำสั่งผู้ใช้
+
+## 2026-10-04T15:22:00+07:00 — TASK-20261004-001: ปลดล็อก `bbox_testv3.py` แล้วเริ่ม batch vision-OCR 99 ฉบับ (workers=2)
+
+- ผู้ใช้สั่งเริ่มรัน `bbox_batch.py --workers 2` แต่ไฟล์จริงชื่อ `bbox_testv3.py` (docstring เขียนชื่อไฟล์ผิดไว้) → ก่อนยิง AI ตรวจสภาพไฟล์ก่อน พบ blocker 3 ข้อที่ซ่อนอยู่ ซึ่งล้วนทำให้รันไม่จบหรือเสียเวลาฟรี
+- Blocker ที่พบจริง: (1) ทั้งไฟล์ถูกเขียนซ้ำเป็นสองสำเนา byte-identical → `main()` ถูกเรียก 2 รอบ (2) สคริปต์อ่าน `.env` แต่โฟลเดอร์มีแค่ `env` → `SystemExit` เรื่อง token (3) console cp874 ทำให้ `print` บรรทัดแรกที่มี `·` crash ด้วย `UnicodeEncodeError` (เจอจาก log จริง ไม่ใช่การคาดเดา)
+- หลักที่ยึด: แตะเฉพาะ "ชั้นรัน" ไม่แตะ logic OCR/coord/filter/report เพื่อไม่ให้ผล batch ที่กำลังจะเทียบกับการรันก่อนหน้าเพี้ยน; ไม่สร้างไฟล์ `.env` ใหม่ (ลดสำเนา secret); แก้ที่ต้นเหตุในโค้ดแทนการใช้ `PYTHONIOENCODING` ชั่วคราว เพราะจะกลับมาพังเมื่อผู้ใช้รันเองใน PowerShell/cmd
+- วิธีพิสูจน์สำเนาซ้ำก่อนลบ: `sed -n '1,653p'` / `sed -n '654,1306p'` แล้ว `diff` ได้ 0 บรรทัด จึงแน่ใจว่าการตัดออกไม่ทำให้โค้ดส่วนใดหาย
+- เริ่ม batch จาก `OCR service/new engine/tests/`: `PYTHONIOENCODING=utf-8 python -u bbox_testv3.py --workers 2 > run_v3.log 2>&1 &` → Paperless มี **99 ฉบับ** (ยืนยันจาก `/api/documents/` count) ต้องทำ 99 (fresh, ยังไม่มีผลเก่า) workers=2
+- ผล interim ณ เวลาบันทึก: 8 ฉบับแรก `ok` ทั้งหมด ไม่มี error/partial · ~20 s/หน้า · มีเอกสารยาว 11 หน้า (`doc 27`) ทำให้ ETA 99 ฉบับอยู่ราว 45–70 นาที · output ลง `new engine/tests/out/batch/` (`report.html` + `summary.csv` เขียนทุก 5 ฉบับ, ต่ละฉบับมี `original.pdf`/`page_N.jpg`/`doc.json`/`viewer.html`)
+- หมายเหตุการทำงาน: `nohup` + `&` ใน git-bash บน Windows ทำให้ harness รายงาน "background command completed exit code 0" ตอนที่ shell wrapper ออก ขณะที่ process Python ยังรันต่อ — ต้องยืนยันด้วย `ps -W` + mtime ของ log ไม่ใช่เชื่อ exit code
+
+## 2026-10-04T16:56:00+07:00 — TASK-20261004-001 (ต่อ): report bbox แบบโต้ตอบ + ปิด batch 99 ฉบับ
+
+- ผู้ใช้เปิด `out/doc_99/report.html` แล้วบอกว่าจะดูข้อมูลของกรอบได้ต้องชี้/คลิก → ชี้ให้ชัดว่า "ภาพมีกรอบเผาอยู่ในไฟล์ + ตารางคนละที่" คือช่องว่างของ workflow ตรวจงาน OCR
+- เลือก overlay ที่คำนวณจาก `bbox_norm` ที่มีอยู่ในผลเดิม (ไม่เรียก AI ใหม่ ไม่แก้ `filter_items`) เพราะงานนี้คือชั้น UI ไม่ใช่ชั้น engine และทำให้สร้าง report ใหม่จากผลเก่าได้ฟรี (`--report-only`)
+- ทำให้ทั้งสอง report มีพฤติกรรมเหมือนกัน: `bbox_test.py` (ต่อฉบับ) และ `bbox_testv3.py` (batch รวม) → ชี้ = tooltip + ไฮไลต์คู่ box↔แถว, คลิก = ตรึง panel + scroll ไปแถว, Esc/คลิกซ้ำ = ปลด, toggle ซ่อนกรอบ
+- ทดสอบแบบ DOM จริงด้วย jsdom (ไม่มี browser/headless ในเครื่อง): harness ตรวจ 20 ข้อ ทั้ง tooltip เปิด/ปิด, ข้อมูลตรงกรอบ, sync สองทาง, ตรึง/ปลด, toggle → ผ่าน 20/20 ทั้ง `out/doc_99/report.html` (32 กรอบ) และ `out/batch/report.html` (15,111 กรอบ) · harness เจาะเจอ `scrollIntoView` ไม่มีใน jsdom จึงใส่ guard ให้ปลอดภัยกับ renderer ที่ไม่รองรับ
+- ผล batch รอบแรก (`--workers 2`, 15:15:54→16:55:51): **99/99 ฉบับ · 425 หน้า · 14,991 กรอบที่เก็บ · ตัดทิ้ง 51 · 98 `ok` / 1 `partial` · 0 doc-level error** ใช้เวลา 5,951 s (~99 นาที, เฉลี่ย 24.7 s/หน้า, max 191.6 s) · doc_type ต่อหน้า: tax_invoice 236, purchase_order 90, delivery_note 48, other 18, osp 14, invoice 12, tax_invoice_receipt 6, unknown 1 · เหตุผลที่ตัด: zero_area 34, no_text 11, duplicate 6 · ประเภทกรอบ: header 3,772, other 2,771, customer 1,827, supplier 1,599, total 1,496, signature 1,363, line 1,218, table 539
+- เคส fail เดียว: `doc 27 p9/11` model ตอบไม่มี JSON (`no JSON / no items`) → รัน `--retry-errors --workers 1` ซ่อมฉบับนั้นฉบับเดียว (11 หน้า, 210 s) **ผลหลังซ่อม: 99 `ok` / 0 `partial` · 0 page error · 15,111 กรอบที่เก็บ · ไม่มี unknown เหลือ** — ตัวเลขที่อ้างอิงใน current-state/changelog ใช้ค่าหลังก่อน
+- 17:05 — ตรวจ `.gitignore` ก่อนมีใคร commit `new engine/`: เจอความเสี่ยงจริง 2 จุด → `tests/env` (มี API key) และ `out/**` (ภาพเอกสารจริง + ผล OCR) **ไม่ถูก ignore** เพราะ pattern เดิมมีแต่ `.env`/`*.env` จึงเพิ่มหมวด 13 ใน `.gitignore` ครอบคลุม 3 path → ตรวจซ้ำด้วย `git check-ignore` (IGNORED ครบ) และ `git status -uall` เหลือ 42 ไฟล์ source เท่านั้น (`CHG-20261004-003`) · ยังไม่ได้ commit อะไรทั้งสิ้น
+
+## 2026-10-05
+- 20:38 — ผู้ใช้ขอให้ตรวจสอบงานที่ดำเนินการไปแล้วใน system-a และดำเนินการต่อ
+- 20:40 — ตรวจสอบ 
+uns/iteration_log.md, 
+uns/2026-10-05-full/, 
+eports/2026-10-05-full/, และ erify_report.json พบว่าการรัน batch 99 เอกสารและการสร้างรายงานเสร็จสิ้นแล้ว แต่มีรายการตกค้างใน iteration_log.md คือการนำข้อค้นพบ DIAGNOSE ใส่ใน FINDINGS.md และการรัน 
+un_stats.py เพื่อเติม Numbers appendix
+- 20:43 — พบ UnicodeEncodeError บน Windows cp874 console เมื่อรัน 
+un_stats.py และ erify_run.py ทำการแก้ไขด้วย sys.stdout.reconfigure(encoding='utf-8') และเปลี่ยน ≥ เป็น >=
+- 20:44 — รัน 
+un_stats.py --run-id 2026-10-05-full สำเร็จ ได้สถิติจริงครบถ้วน อัปเดต FINDINGS.md (เพิ่มข้อ 3.7, 3.8, O-09, O-10, และ Numbers appendix)
+- 20:45 — คัดลอกเอกสารส่งมอบ (FINDINGS.md, iteration_log.md, sql_registry.md) เข้า 
+uns/2026-10-05-full/ และอัปเดต 
+uns/LATEST เป็น 2026-10-05-full
+- 20:47 — รัน python scripts/verify_run.py --run-id 2026-10-05-full ผลคือผ่าน **14/14 Acceptance Criteria (100%)**
+- 20:48 — บันทึก Canonical Records ใน gent/ ครบถ้วนตาม AGENTS.md
+
+- 21:01 — ผู้ใช้ต้องการให้ลบไฟล์ test และไฟล์ที่ไม่จำเป็นออก ให้เหลือเฉพาะ Core Engine ที่รับ PDF แล้วแปลงเป็น final result เพื่อลดความสับสน
+- 21:03 — สอบถามผู้ใช้เรื่องขอบเขตการจัดเก็บไฟล์ runs/ และ reports/ ผู้ใช้เลือกให้ย้ายไฟล์ทั้งหมดที่ไม่ใช่ Core เข้าสู่โฟลเดอร์สำรอง archive/
+- 21:05 — สร้างโฟลเดอร์ archive/ และย้าย tests/, sandbox_data/, runs/, reports/, docker/, scripts/, src/system_a/sandbox/ และ FINDINGS.md เข้าไปเก็บรักษาไว้อย่างปลอดภัย
+- 21:06 — พัฒนาสคริปต์ process_pdf.py ที่ root ของ system-a/ รองรับการรับไฟล์ PDF เดี่ยว สกัดข้อความด้วย Perception, ค้นหาใบรับจาก Oracle EBS, รัน Rules V-01..V-09, Line Matching และบันทึกผลลัพธ์ result-3.0
+- 21:11 — ทดสอบรัน process_pdf.py กับไฟล์ตัวอย่าง 20.pdf จริง สำเร็จใน 33.6 วินาที ได้ผลสรุปและ JSON สัญญา 3.0 ถูกต้องครบถ้วน
+- 21:12 — ปรับปรุง README.md ให้เป็นคู่มือกระชับ เข้าใจง่าย และบันทึก Canonical Records ครบถ้วน
+
+- 21:16 — บันทึกไฟล์ตัวอย่าง Final Payload ของทั้ง 2 ระบบ (OCR_rule vs System A) ไว้ที่ system-a/payload_examples/
+- 21:44 — เริ่มงานตาม `task.md`: อ่าน `.agent/*`, สำรวจ codebase และ Standard v6.6 ฉบับจริง (§03/§04/§05-§08)
+- 21:57 — สร้าง rollback anchor: สำเนา config+src 85 ไฟล์ลง `.agent/baseline/` และ git commit `291bd76`
+  (เดิม `system-a/config` และ `system-a/src` ไม่ถูก track ทำให้คำสั่ง rollback ของ task.md ไม่มีผล)
+- 22:00 — สร้าง harness การวัด (replay บน perception cache ที่ pin ไว้) และพิสูจน์ความเที่ยงด้วยการรัน
+  `process_pdf.py --dms-id 20` จริง (42.4s, ใช้ cache) เทียบระดับ exception code แล้วตรงกันทุก code
+- 21:58–23:20 — รัน baseline 99 ฉบับ `full_r0` ใน background เป็น regression anchor
+- 22:05 — สแกน V-01 ทั้ง 99 ฉบับแบบไม่ใช้ LLM: ตก 95 ฉบับ; ไม่มี cell หน่วยนับ 238 บรรทัด;
+  `customer_name` conf ต่ำ 86/99, `customer_address` 82/99; `pages_complete=false` 21/99
+- 22:25 — query ERP หาหลักฐาน ORG_ID: ยืนยันว่า RCV-V01 คืน operating unit id (101/176/195) แต่ตารางที่ 4
+  ของมาตรฐานใช้ sub-org id (103/175/196) ซึ่งไม่ทับกันเลย → ต้นเหตุที่ V-05 เป็น Manual Review 100%
+- 22:35 — MUT-01 เขียน `buyer_entity.yaml` ใหม่ (28 แถวมาตรฐาน + 12 bridge + 14 unknown ตามที่มาตรฐานสั่ง)
+  and ปฏิเสธการใช้ข้อมูลใบแจ้งหนี้มาสร้างทะเบียนลูกค้า (วนเวียน ทำให้ V-05 ไม่มีความหมาย)
+- 22:40 — MUT-02 เขียน `uom_groups.yaml` ใหม่จากคลังคำหน่วยนับจริง 32 รูปแบบของ 99 ฉบับ; ตรวจ pairwise
+  ว่าไม่มีการ map ข้ามกลุ่ม (X-06) และวัดผลด้วย `uom_diff.py`: E10 70 -> 68, E10 ใหม่ 0
+- 22:45 — วัดผล MUT-01 ด้วย `v05_predict.py` (83 ฉบับ): V-05 `manual_review` 53 -> 0, ไม่เกิด E07เท็จเลย
+- 23:05 — probe gateway ที่หน้า 3 ของ DMS-20 (หน้าที่ page_items เคยพัง) พบ `reasoning_tokens 2577`
+  จาก `completion_tokens 5819` และ `max_tokens 8000` → MUT-03 แก้ JSON decode recovery ใน
+  `litellm_client.py` + ติดธงหน้าที่ salvage ใน `vision_pipeline.py`; unit test `test_salvage.py` ผ่าน 12/12
+- 23:10 — เปิดรัน Tier B (`process_pdf.py --dms-id 20` re-perception ลง cache แยก) เพื่อวัดผล MUT-03 จริง
+- 23:15 — ตั้ง `full_r1` ให้รันต่ออัตโนมัติเมื่อ `full_r0` จบ (regression gate ของ MUT-01/MUT-02)
+- 23:33 — Tier B สำเร็จ (รัน perception ใหม่ลง cache แยก): หน้าที่ 3 ของ DMS-20 ที่เคย `no JSON object`
+  อ่านได้ใน 40 วินาที `pages_complete` false → true และ rules ตัดตารางซ้ำออก (เส้นบิล 12 → 6)
+  ผลรวมเอกสาร: max severity **High → Medium**, E11/E13 หาย 9 รายการ, V-05 หลุด false hold
+- 23:40 — นับสถานะ cell หน่วยนับทั้ง 608 เส้นของ baseline: `NOT_PRESENT` 238 (39.1%),
+  `LOW_CONFIDENCE` 168 (27.6%), ใช้ได้ 202 (33.2%) → แก้ backlog TASK-V01-00 ให้แยกอสมติสองข้อออกจากกัน
+- 23:45 — (บันทึกนี้ถูกแก้วันที่ 2026-10-06) สรุปผิดว่า `cache_key()` ไม่รวม `code_version` — จริง ๆ
+  `process_pdf.py` ส่ง `opts["pipeline"] = pipe.code_version` เข้า key และ `_code_fingerprint()` hash
+  source ของ pdf_ingest/coords/vision_pipeline อยู่แล้ว สิ่งที่เหลือเป็นช่องว่างจริงคือไฟล์ cache ไม่ได้เก็บ
+  code_version ไว้ จึงต้องทดสอบ perception ด้วย `PERCEPTION_CACHE_DIR` แยก (ERR-20261005-004 ฉบับแก้ไข)
+  รันซ้ำดูเหมือนไม่มีผล; บันทึกวิธีทดสอบที่ปลอดภัย (cache แยก) ไว้ใน recovery/todo
+- 23:50 — แก้ tooling ของตัวเอง 2 จุดที่วัดผิด: fleet report แสดง group หน่วยนับจาก config ปัจจุบัน
+  (ทำให้สับสนระหว่างรอบกับ config ที่แก้ไข) → อ่านค่ากลับจากรายงานของแต่ละรอบ, และ diff นับเอกสาร
+  ที่ยังไม่ได้รันเป็น "improved/regressed" → นับแยกเป็น not-in-both
+- 23:52 — Regression gate ชั่วคราวบน `full_r1` 23 ฉบับแรก: comparable 23, improved 1 (DMS-25
+  MANUAL_REVIEW → REVIEW), **REGRESSED 0**; V-05 เปลี่ยน 9/23 จาก manual_review (DMS-21 → pass)
+- 23:54 — commit mutation แยกสามครั้ง `4d80ffc`, `9ab2e9c`, `64152ea` ทับ anchor `291bd76`
+- 00:15 — บานปลายที่ควรบันทึก: `full_r1` 53 ฉบับ พบ `MANUAL_REVIEW -> HOLD` 2 ฉบับ (DMS-22, DMS-45)
+  ตรวจแล้วไม่ใช่ accuracy loss — `recommend()` ให้ manual_review จากกฎมาก่อน severity ตอน V-06/V-05
+  ตอบ manual_review ทุกฉบับ จึงบัง High finding (E03/E09/E13) ไว้ พอเอาตัวบังออก เอกสารกลับเป็น HOLD
+  ตาม Table 8 ที่ถูกต้อง ปฏิเสธการใส่ manual_review เท็จกลับเพื่อให้ตัวเลขสวย และแก้ fleet_report
+  ให้พิมพ์จำนวนกฎที่ตอบ manual_review ประกอบทุก regression
+
+- 23:55 — ปิดงาน Web Testing Portal ครบ 5 phase + commit `2d87f6e`; พิสูจน์ความเป็น consumer ด้วย
+  การรัน DMS-20 ผ่าน portal แล้วเทียบ `integrity.payload_sha256` กับ CLI → ตรงกัน (`sha256:399a3584…3dbf`)
+- 23:56 — เจอและแก้บั๊ก schema 2 ชั้นที่ทำให้ overlay พัง/คลิกไม่ติด: (ก) `normalized_fields` เป็น
+  name→string ไม่ใช่ object (ของจริงอยู่ `extraction.fields` + geometry ต้องข้ามไปอ่าน `ocr.elements`
+  ผ่าน `element_id` / `evidence[].related_element_ids`) (ข) cell ไม่มี `element_id` จึง join ผ่าน
+  `field_name = lines[<n>].<column>` และ (ค) API ใช้ key `id`/`raw_value` ขณะที่ viewer อ่าน
+  `element_id`/`raw` → field/cell box คลิกไม่ติดเงียบๆ ใน browser
+- 23:57 — สร้าง `web/test_ui_logic.mjs` รัน JS module จริงกับ DOM ปลอม เพราะ UI ไม่มี build step;
+  จับได้ 3 ข้อพลาดจริง (label "undefined", กล่องไม่ถูก `.sel`, การคำนวณ pixel/point ผิดสูตรทดสอบเอง)
+- 23:58 — ย้าย PDF.js จาก CDN มา vendor ใน repo (pdfjs-dist 4.10.38) + เพิ่ม test ห้ามมี CDN link
+  ใน index/viewer; แก้ viewer ให้ worker ชี้ไฟล์ `.mjs` ตรงๆ (v4 ใช้ workerSrc เป็น path ไฟล์)
+- 23:59 — ยืนยันผลบนข้อมูลจริง: DMS-20 fields มีกรอบ 12/13, cells 30/30, exception boxes 5;
+  DMS-36 cells 8/10 ซึ่ง 2 cell ที่ไม่มีกรอบคือ `NOT_PRESENT` (ไม่มีที่ให้ชี้ — เป็นผลถูกต้อง)

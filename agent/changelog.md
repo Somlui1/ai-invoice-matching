@@ -180,3 +180,97 @@ ode_modules/, rontend/dist/, playwright-report/, 	est-results/, *.tsbuildinfo
 - ขอบเขตของรอบนี้: `OCR service/` ไม่ถูกแตะเลย — ยืนยันว่า `origin/main` ไม่มี diff ในโฟลเดอร์นี้ (0 ไฟล์) และ working tree ฝั่ง local คงเดิมทั้ง 15 แก้ไข + 26 untracked
 - ผลตรวจ: OCR service `python -m pytest -q` = 235 passed / 9 deselected · portal backend (`invoice-web1`) 15 passed · mockup v3 smoke test ผ่าน 46 การตรวจ · conflict มีไฟล์เดียวคือ `agent/current-state.md` ซึ่ง merge ด้วยมือ
 - ข้อจำกัดคงค้าง: ยังไม่คัดเลือกเวอร์ชัน canonical ของ portal (4 ชุดซ้อนกัน + เอกสารซ้ำทุกชุด); `Web portal/invoice-webv3/tools/build-domain-data.py --check` fail (`master_data.py shape changed`) ต้องแก้ generator แล้ว re-generate `assets/data.js`; `Web portal/data/` (sqlite runtime เก่า) ยังค้างบน disk แบบ untracked; branch ยังนำหน้า remote 3 commits (ยังไม่ push)
+
+## 2026-10-04
+
+### Fixed — `CHG-20261004-001` (OCR service/new engine — ทำให้ `bbox_testv3.py` รัน batch ได้จริง)
+- Timestamp: 2026-10-04T15:22:00+07:00
+- Task: `TASK-20261004-001` · Session: `2026-10-04-001` · Errors: `ERR-20261004-001`, `ERR-20261004-002`
+- ไฟล์: `OCR service/new engine/tests/bbox_testv3.py` (72,786 → 36,995 bytes, 1,306 → 663 บรรทัด) — **ไม่แตะ logic OCR/coord/report แต่อย่างใด**
+- ตัดเนื้อหาที่ถูกเขียนซ้ำเป็นสองสำเนาออก: บรรทัด 654–1306 ซ้ำกับ 1–653 แบบ byte-identical (`diff` สองซีก = 0 บรรทัด) ทำให้มี `if __name__ == "__main__": main()` **2 จุด** → หนึ่งการรันเคยยิง AI ซ้ำทั้งชุด ผลหลังแก้ `grep -c __main__` = 1
+- `load_dotenv()` เพิ่ม fallback อ่านไฟล์ `env` ข้างสคริปต์ เมื่อไม่มี `.env` (ทำแบบเดียวกับ `bbox_test.py` ที่มี fallback นี้อยู่แล้ว) — โฟลเดอร์ `tests/` มีไฟล์ชื่อ `env` เท่านั้น เดิมจึง `SystemExit: ยังไม่ได้ตั้งค่า LITELLM_KEY` ทั้งที่ config ครบ; **จงใจไม่สร้าง `.env` ใหม่** เพื่อไม่เพิ่มสำเนา secret บน disk
+- เพิ่ม `sys.stdout/stderr.reconfigure(encoding="utf-8", errors="replace")` ที่ต้นโมดูล: console Windows เครื่องนี้เป็น cp874 ทำให้ `print()` บรรทัดแรกที่มี `·`/`✗`/`⚠` และภาษาไทย crash ด้วย `UnicodeEncodeError` ก่อนเริ่มงาน batch
+- docstring: เปลี่ยนตัวอย่างคำสั่งจาก `bbox_batch.py` (ชื่อที่ไม่มีไฟล์จริง) เป็น `bbox_testv3.py` และเพิ่มตัวเลือก `--retry-errors` ที่มีอยู่ใน argparse จริง
+- ผลตรวจ: `python -m py_compile` ผ่าน · โหลด env ครบทุกคีย์ (ตรวจเฉพาะชื่อคีย์ ไม่พิมพ์ค่า) · `python bbox_testv3.py --workers 2` เริ่ม batch จริง เห็นผลต่อหน้า (`doc 15/19/22/25/26/27` status `ok`, kept 18–50 กรอบ/หน้า, drop=0)
+
+### Added — `CHG-20261004-002` (OCR service/new engine — report bbox แบบโต้ตอบ: ชี้/คลิกกรอบแล้วเห็นข้อมูล)
+- Timestamp: 2026-10-04T16:56:00+07:00
+- Task: `TASK-20261004-001` · Session: `2026-10-04-002` · ผู้ใช้Request: ให้ `out/doc_99/report.html` แสดงข้อมูลเมื่อชี้/คลิก bbox
+- ปัญหาเดิม: ภาพใน report วาดกรอบด้วย PIL (เผาในไฟล์ภาพ) แต่ HTML เป็น ภาพ + ตารางแยกกัน → ตรวจว่ากรอบไหนคือแถวไหนต้องกะตาเอง
+- เพิ่ม overlay layer บนภาพทุกภาพ (position: absolute คำนวณจาก `bbox_norm` เดิมที่มีอยู่ในผล OCR — ไม่เรียก AI ซ้ำ):
+  - **ชี้เมาส์** ที่กรอบ (หรือแถวตาราง) → tooltip สีตามประเภท แสดง `type · label`, ข้อความเต็มของกรอบ, และพิกัด `px [...] · norm [...]` + ไฮไลต์คู่ของมันอีกฝั่ง (box ↔ แถวตาราง, สองทาง)
+  - **คลิก** → ตรึงข้อมูลลง panel มุมขวาล่าง (คลิกซ้ำที่เดิมหรือกด `Esc` เพื่อปลด) และเลื่อนไปยังแถวตารางที่ตรงกัน
+  - checkbox **กรอบโต้ตอบ** สำหรับซ่อน overlay ทั้งหมด (กลับมาคลิกที่ภาพเพื่อเปิดไฟล์ภาพเต็มเหมือนเดิม)
+- ไฟล์ที่แก้: `OCR service/new engine/tests/bbox_test.py` (report ต่อฉบับ + เพิ่ม `--report-only` ให้สร้าง report จาก `page_*.json` เดิมโดยไม่ต้องเรียก AI/เน็ต และคงชื่อเดิมจาก `<h1>`) และ `OCR service/new engine/tests/bbox_testv3.py` (report รวมของ batch — `write_report` ส่ง `bbox_norm`/`bbox_px` เข้า DATA ด้วย)
+- ผลข้างเคียงต่อ contract เล็กน้อย: `report.html` ของ batch มี field เพิ่มใน `DATA.pages[].kept` (`bbox_norm`, `bbox_px`) → ขนาดไฟล์โตขึ้น (~3.2 MB ที่ 87 ฉบับ → 99 ฉบับ) และต้องใช้ `--report-only` เพื่อ re-render report ของรอบเก่าที่ใช้ template เดิม
+- ผลตรวจจริง (DOM-level ด้วย jsdom, harness: `C:\Users\wajeepradit.p\bbox-verify\test-interact.js`): `out/doc_99/report.html` ผ่าน **20/20** (32 กรอบ) และ `out/batch/report.html` ผ่าน **20/20** (overlay 15,111 กรอบ) — ครอบคลุม tooltip เปิด/ปิด, ข้อมูลเปลี่ยนตามกรอบ, sync สองทาง box↔แถว, ตรึง/ปลดด้วย Esc, และ toggle ซ่อนกรอบ
+
+### Security/Housekeeping — `CHG-20261004-003` (gitignore: กัน secret `env` + ภาพ/ผล OCR เข้า repo)
+- Timestamp: 2026-10-04T17:05:00+07:00
+- Task: `TASK-20261004-001` · Session: `2026-10-04-002` · Trigger: ตรวจ `.gitignore` ก่อนมีใคร commit `new engine/`
+- สิ่งที่พบ (ก่อนแก้): `git check-ignore` ตอบ **NOT ignored** กับ
+  `OCR service/new engine/tests/env` (มี `LITELLM_KEY`, `PAPERLESS_API_TOKEN`) และกับทุกไฟล์ใต้ `out/`
+  — pattern เดิมมีแต่ `.env`, `*.env`, `*.token` ซึ่งไม่ครอบไฟล์ชื่อ `env` (ไม่มีจุดนำหน้า) ส่วน `out/batch/` เก็บภาพที่เรนเดอร์จากเอกสารจริง + ผล OCR (ข้อมูลส่วนบุคคล/การเงิน) และ `report.html` 3.8 MB
+  (`run_v3.log` ถูก ignore อยู่แล้วด้วย `*.log` บรรทัด 251)
+- แก้: เพิ่มหมวด **13. Vision OCR Engine Test Artifacts & Local Config** ใน `.gitignore` (ท้ายไฟล์) 3 รายการ:
+  `OCR service/new engine/tests/env`, `OCR service/new engine/tests/out/`, `OCR service/out/`
+- ผลตรวจจริง: ทั้ง 3 path ขึ้น `IGNORED` และ `git status --untracked-files=all -- "OCR service/new engine"` เหลือ 42 ไฟล์ (เฉพาะ source/docs — ไม่มี env/out หลุดมา) · `git ls-files "OCR service/out"` = 0 และไม่มีไฟล์ `env`/`*.log` ถูก track มาก่อน จึงไม่ต้อง `git rm --cached`
+- หมายเหตุ: ไม่มีการ commit/เพิ่มไฟล์ใด ๆ ในรอบนี้ (ผู้ใช้ยังไม่ได้สั่ง) และไม่ได้แตะการแก้ไขค้างเดิมใน `OCR service/n8n/`
+
+### CHG-20261005-001 — System A Real-Data Integration, Batch Verification & Windows Compatibility
+- วันที่: 2026-10-05T20:47:00+07:00
+- ประเภท: feature, fix, verification
+- ไฟล์ที่เปลี่ยน:
+  - OCR service/system-a-sandbox/system-a/scripts/run_stats.py (fix stdout utf-8 encoding, replace ≥ with >=)
+  - OCR service/system-a-sandbox/system-a/scripts/verify_run.py (fix stdout utf-8 encoding for Windows cp874)
+  - OCR service/system-a-sandbox/system-a/FINDINGS.md (add extraction findings 3.7-3.8, open issues O-09-O-10, Numbers appendix)
+  - OCR service/system-a-sandbox/system-a/runs/2026-10-05-full/ (sync delivery files: FINDINGS.md, iteration_log.md, sql_registry.md)
+  - OCR service/system-a-sandbox/system-a/runs/LATEST (update to 2026-10-05-full)
+- สรุป: ตรวจสอบและดำเนินงานต่อเนื่องจนสมบูรณ์ครบถ้วนตามข้อกำหนด AGENT_TASK §9 และ §10 โดยแก้ปัญหา encoding บน Windows console ทำให้ 
+un_stats.py และ erify_run.py รันผ่านครบ 14/14 Acceptance Criteria
+
+### `CHG-20261005-002` — Streamline System A to Core Engine and add process_pdf.py
+- วันที่: `2026-10-05T21:12:00+07:00`
+- ประเภท: refactor, feature, documentation
+- ไฟล์ที่เปลี่ยน:
+  - สร้าง `OCR service/system-a-sandbox/system-a/process_pdf.py` (Standalone PDF -> Result 3.0 runner)
+  - ปรับปรุง `OCR service/system-a-sandbox/system-a/README.md` (Quick start, architecture & usage)
+  - ย้ายไปยัง `OCR service/system-a-sandbox/system-a/archive/`: `tests/`, `sandbox_data/`, `runs/`, `reports/`, `docker/`, `scripts/`, `src/system_a/sandbox/`, `FINDINGS.md`
+- สรุป: จัดระเบียบโปรเจกต์แยกส่วนประกอบทดสอบและ artifacts เดิมเข้า `archive/` ทำให้โครงสร้างหลักเหลือเฉพาะ Core Engine และมีสคริปต์ `process_pdf.py` ที่ใช้งานง่ายเพียงคำสั่งเดียว
+
+### `CHG-20261005-003` — Evaluation Loop Iteration 1: measurement harness + buyer registry, UOM groups, JSON decode recovery
+- วันที่: `2026-10-05T23:20:00+07:00`
+- ประเภท: fix, config, tooling, verification
+- ไฟล์ที่เปลี่ยน:
+  - สร้าง `OCR service/system-a-sandbox/.agent/harness/`: `replay.py`, `step1_scan.py`, `fleet_report.py`, `uom_diff.py`, `v05_predict.py`, `oracle_probe.py`, `vlm_probe.py`, `test_salvage.py`, `wait_and_run.sh`
+  - เขียนใหม่ `OCR service/system-a-sandbox/system-a/config/standards/v6.6/buyer_entity.yaml` (ตารางที่ 4 ครบ 28 แถวตามมาตรฐาน + แถว bridge ฝั่ง operating-unit id พร้อม audit field)
+  - เขียนใหม่ `OCR service/system-a-sandbox/system-a/config/standards/v6.6/uom_groups.yaml` (กลุ่มคำพ้อง SET/BOX/PACK/ROLL/LOT/MTR/FRAME/CAN/DRUM + ตัว, อัน, EA, EACH)
+  - แก้ `OCR service/system-a-sandbox/system-a/src/system_a/adapters/llm/litellm_client.py` (ปิด reasoning เมื่อ decode ไม่สำเร็จ + salvage JSON ที่ถูกตัด + counter ใหม่)
+  - แก้ `OCR service/system-a-sandbox/system-a/src/system_a/perception/vision_pipeline.py` (ติดธงหน้าที่กู้ข้อมูลแบบ salvage ว่ายังไม่ครบ)
+  - ปรับ `OCR service/system-a-sandbox/.agent/{state.json,progress.md,todo.md,decisions.md,recovery.md}`
+- สรุป: ตั้ง baseline จริงของ 99 ใบแจ้งหนี้ (`full_r0`, AUTO_PASS 0) และพิสูจน์ว่าคอขวดคือ V-01/E01 ไม่ใช่
+  backlog ตั้งต้น; วินิจฉัยพบสาเหตุจริง 3 เรื่อง (ไม่มี cell หน่วยนับ 238 บรรทัด, reader เดียวบน header,
+  JSONคำตอบ vision โดน reasoning กินโควตา) และแก้ตารางอ้างอิงลูกค้าที่ V-05 ไม่เคยผ่านเลยเพราะ ORG_ID
+  คนละชุดกับ SQL — ผลวัด: V-05 `manual_review` 53 -> 0, E10 70 -> 68 โดยไม่มี E10 ใหม่, ไม่มี regression
+- โน้มเทียบ: ห้ามตีความว่าความแม่นยำรวมขึ้น — AUTO_PASS ยัง 0 จนกว่าจะแก้ perception layer (E01)
+
+### `CHG-20261005-004` — Web Testing Portal (System A) — Phase 1–5 ครบ, core ไม่ถูกแตะ
+
+- วันที่: `2026-10-05T23:55:00+07:00`
+- ประเภท: tooling (เพิ่ม portal สำหรับทดสอบ/ดีบัก System A), test
+- ไฟล์ที่เปลี่ยน (commit `2d87f6e`, 20 ไฟล์ +3,673 บรรทัด — **ไม่มี `src/system_a/**` และ `config/**` เลย**):
+  - เพิ่ม `system-a/web/{engine.py,catalog.py,app.py,serve.py,run_portal.bat,README.md}`
+  - เพิ่ม `system-a/web/static/{index.html,styles.css,js/{api,viewer,bbox-overlay,interaction,panels,app}.js}`
+  - เพิ่ม `system-a/web/static/vendor/pdfjs/` (pdfjs-dist 4.10.38, Apache-2.0, same-origin)
+  - เพิ่ม `system-a/web/test_portal.py` (24 test) และ `system-a/web/test_ui_logic.mjs` (25 checks)
+  - เพิ่ม `.gitignore` หมวด 7 กันผลรันของ portal (`system-a/web/results/`, `system-a/.cache/`)
+- พฤติกรรมที่เพิ่ม:
+  - เลือก/ค้นหาเอกสารจาก Paperless (99 ฉบับ, แบ่งหน้า, badge แสดง verdict ที่มีอยู่บน disk)
+  - รัน verification ผ่าน portal แล้วเห็น step จริงของ CLI + stdout แบบ streaming (SSE), cancel ได้,
+    กันรันซ้ำเอกสารเดิม (409) และจำกัดจำนวนรันพร้อมกัน (`WEB_MAX_CONCURRENT` default 2)
+  - แสดงภาพหน้า PDF พร้อมกรอบ bbox จาก `element_id` ของ contract, toggle ได้ 5 layer,
+    และ cross-highlight สองทาง (คลิกค่า → ไปกรอบ / คลิกกรอบ → ไปแถว) ผูกกันด้วย `element_id` เท่านั้น
+  - upload PDF ที่ไม่มีใน Paperless เพื่อทดสอบได้ (`--pdf-file`)
+- ผลทดสอบ: pytest 24/24 (offline ทั้งหมด, faked subprocess) · UI logic 25/25 ·
+  **เทียบ CLI จริงบน DMS-20 sandbox: `integrity.payload_sha256` ตรงกันทุกตัวอักษร** (portal 1.0s = CLI 1.0s)
+- โน้มเทียบ: portal เป็น *consumer* ของ `process_pdf.py` เท่านั้น ไม่ได้เพิ่ม/เปลี่ยนตรรกะการตัดสินใจใด ๆ
