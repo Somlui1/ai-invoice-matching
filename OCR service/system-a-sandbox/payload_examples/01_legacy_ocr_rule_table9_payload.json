@@ -1,0 +1,144 @@
+{
+  "success": true,
+  "status": "COMPLETED",
+  "message": "Verification completed in 3.42s (Mode: M1)",
+  "execution_time_seconds": 3.42,
+  "data": {
+    "standard_version": "6.6",
+    "schema_version": "1.5",
+    "doc_id": 20,
+    "validation_round": 1,
+    "timestamp": "2026-10-05T08:52:29.574Z",
+    "decision": {
+      "status": "Manual Review",
+      "assigned_to": "accounting",
+      "halted_by": null,
+      "manual_review": true
+    },
+    "invoice_summary": {
+      "invoice_num": "26/2691",
+      "po_number": "42052405",
+      "release_num": null,
+      "supplier_name": "บริษัท ไทยเวิร์ธ จำกัด",
+      "supplier_tax_id": "0105537063173",
+      "customer_name": "บริษัท อาปิโก ไฮเทค ทูลลิ่ง จำกัด",
+      "customer_tax_id": "0145548001557",
+      "address_matched": "head_office_th",
+      "intercompany": false,
+      "sub_total": 49215.0,
+      "vat": 3445.05,
+      "grand_total": 52660.05,
+      "po_type": "Purchase Order"
+    },
+    "rules": [
+      {
+        "rule_id": "V-01",
+        "result": "PASS",
+        "code": null,
+        "severity": null,
+        "details": "All required fields extracted"
+      },
+      {
+        "rule_id": "V-02",
+        "result": "PASS",
+        "code": null,
+        "severity": null,
+        "details": "Lines subtotal math check passed"
+      },
+      {
+        "rule_id": "V-03",
+        "result": "PASS",
+        "code": null,
+        "severity": null,
+        "details": "Lines subtotal = 49,215.00, VAT = 3,445.05, Grand Total = 52,660.05"
+      },
+      {
+        "rule_id": "V-04",
+        "result": "PASS",
+        "code": null,
+        "severity": null,
+        "details": "Found 12 receipt lines in Oracle EBS for PO 42052405"
+      },
+      {
+        "rule_id": "V-05",
+        "result": "MANUAL",
+        "code": "E28",
+        "severity": "Medium",
+        "details": "Entity name matched but address requires manual verification"
+      },
+      {
+        "rule_id": "V-06",
+        "result": "PASS",
+        "code": null,
+        "severity": null,
+        "details": "Receipt lines open and approved"
+      },
+      {
+        "rule_id": "V-07",
+        "result": "PASS",
+        "code": null,
+        "severity": null,
+        "details": "All lines matched with Oracle receipts"
+      },
+      {
+        "rule_id": "V-08",
+        "result": "PASS",
+        "code": null,
+        "severity": null,
+        "details": "Quantities within tolerance"
+      },
+      {
+        "rule_id": "V-09",
+        "result": "PASS",
+        "code": null,
+        "severity": null,
+        "details": "invoice 49,215.00 = receipt 49,215.00"
+      }
+    ],
+    "exceptions": [
+      {
+        "code": "E28",
+        "severity": "Medium",
+        "rule_id": "V-05",
+        "message": "ที่อยู่ลูกค้าไม่ตรงกับฐานข้อมูล Master Data (Table 4)"
+      }
+    ],
+    "dms": {
+      "doc_id": "20",
+      "pages": 3,
+      "uploaded_by": "paperless_service"
+    },
+    "access": {
+      "company": "บริษัท อาปิโก",
+      "receiver": "SOMSAK JAIDEE",
+      "owner_source": "receipt"
+    },
+    "receiver": "SOMSAK JAIDEE",
+    "oracle_data": {
+      "queried": true,
+      "po_number": "42052405",
+      "count": 12,
+      "receipts": [
+        {
+          "PO_NUMBER": "42052405",
+          "RECEIPT_NUM": "50220043196",
+          "LINE_NUM": 1,
+          "ITEM_NUMBER": "TW-00124",
+          "ITEM_DESCRIPTION": "CUTTING TOOL INSERT DNMG",
+          "QUANTITY_RECEIVED": 10.0,
+          "UNIT_MEAS_LOOKUP_CODE": "PCS",
+          "UNIT_PRICE": 1250.0,
+          "LINE_TOTAL": 12500.0,
+          "RECEIVER": "SOMSAK JAIDEE"
+        }
+      ]
+    }
+  },
+  "paperless_update": {
+    "add_tags": [12],
+    "custom_fields": {
+      "Matching Status": "Manual Review",
+      "Receipt Num": "50220043196"
+    }
+  }
+}

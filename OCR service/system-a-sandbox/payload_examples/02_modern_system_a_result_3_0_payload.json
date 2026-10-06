@@ -1,0 +1,367 @@
+{
+  "contract": "aiva.system_a.result/3.0",
+  "request": {
+    "validation_id": "VAL-2026-10-05-full-20",
+    "correlation_id": "c782df3b-05d7-4388-85e6-acb05a734772",
+    "idempotency_key": null,
+    "document_revision": 1,
+    "validation_round": 1,
+    "source": "paperless_batch",
+    "run_id": "2026-10-05-full",
+    "dms_doc_id": "20",
+    "content_kind": "pdf",
+    "declared_mime": "application/pdf",
+    "completed_at": "2026-10-05T08:52:29.574040+00:00"
+  },
+  "versions": {
+    "schema": "3.0",
+    "standard": "6.6",
+    "ruleset": "v6.6-r4",
+    "models": {
+      "line_matcher": "nvidia/Qwen3.8-Flash-Next-NVFP4",
+      "qty_judge": "nvidia/Qwen3.8-Flash-Next-NVFP4",
+      "entity_judge": "nvidia/Qwen3.8-Flash-Next-NVFP4",
+      "vision": "nvidia/Qwen3.8-Flash-Next-NVFP4"
+    },
+    "prompts": {
+      "V-08": "v08-qty@1.0.0",
+      "V-07": "v07-match@1.0.0",
+      "V-05": "v05-entity@1.0.0"
+    }
+  },
+  "package": {
+    "package_id": "PKG-2026-10-05-full-20",
+    "dms_doc_id": "20",
+    "file_sha256": "sha256:b78d3d3ae74722d0d6d6bc8acbca13ae50e70e52e2d01744cc46c4da56457274",
+    "page_count": 3,
+    "pages_complete": true,
+    "coordinate_system": {
+      "origin": "top-left",
+      "unit": "normalized",
+      "range": [0, 1],
+      "bbox_format": "[x, y, w, h]",
+      "reference": "rendered page after rotation correction"
+    }
+  },
+  "pages": [
+    {
+      "page_no": 1,
+      "width_pt": 595.0,
+      "height_pt": 842.0,
+      "rotation": 0,
+      "render_dpi": 150,
+      "page_type": "TAX_INVOICE",
+      "type_confidence": 0.98,
+      "ocr_quality": 0.95
+    }
+  ],
+  "documents": [
+    {
+      "document_id": "D1",
+      "document_type": "TAX_INVOICE",
+      "pages": [1],
+      "confidence": 0.98
+    }
+  ],
+  "ocr": {
+    "elements": [
+      {
+        "element_id": "E_INV_NUM",
+        "document_id": "D1",
+        "document_type": "TAX_INVOICE",
+        "page_no": 1,
+        "element_type": "field",
+        "field_name": "invoice_num",
+        "raw_value": "26/2691",
+        "normalized_value": "26/2691",
+        "confidence": 0.99,
+        "bbox": [0.685, 0.122, 0.185, 0.024]
+      },
+      {
+        "element_id": "E_PO_NUM",
+        "document_id": "D1",
+        "document_type": "TAX_INVOICE",
+        "page_no": 1,
+        "element_type": "field",
+        "field_name": "po_number",
+        "raw_value": "42052405",
+        "normalized_value": "42052405",
+        "confidence": 0.98,
+        "bbox": [0.685, 0.155, 0.185, 0.022]
+      },
+      {
+        "element_id": "E_CUST_TAX",
+        "document_id": "D1",
+        "document_type": "TAX_INVOICE",
+        "page_no": 1,
+        "element_type": "field",
+        "field_name": "customer_tax_id",
+        "raw_value": "0145548001557",
+        "normalized_value": "0145548001557",
+        "confidence": 0.99,
+        "bbox": [0.185, 0.182, 0.220, 0.020]
+      },
+      {
+        "element_id": "E_GRAND_TOTAL",
+        "document_id": "D1",
+        "document_type": "TAX_INVOICE",
+        "page_no": 1,
+        "element_type": "field",
+        "field_name": "grand_total",
+        "raw_value": "52,660.05",
+        "normalized_value": "52660.05",
+        "confidence": 0.99,
+        "bbox": [0.750, 0.720, 0.150, 0.025]
+      },
+      {
+        "element_id": "E_LINE_1",
+        "document_id": "D1",
+        "document_type": "TAX_INVOICE",
+        "page_no": 1,
+        "element_type": "row",
+        "field_name": null,
+        "raw_value": "1 DNMG 150408-PM 10 PCS 1,250.00 12,500.00",
+        "normalized_value": null,
+        "confidence": 0.96,
+        "bbox": [0.080, 0.350, 0.840, 0.030]
+      }
+    ]
+  },
+  "normalized_fields": {
+    "invoice_num": "26/2691",
+    "invoice_date": "2026-09-02",
+    "po_number": "42052405",
+    "supplier_name": "บริษัท ไทยเวิร์ธ จำกัด",
+    "supplier_tax_id": "0105537063173",
+    "customer_name": "บริษัท อาปิโก ไฮเทค ทูลลิ่ง จำกัด",
+    "customer_address": "99 หมู่ 1 ต.บ้านเลน อ.บางปะอิน จ.พระนครศรีอยุธยา 13160",
+    "customer_tax_id": "0145548001557",
+    "sub_total": "49215.00",
+    "vat": "3445.05",
+    "grand_total": "52660.05",
+    "currency": "THB",
+    "release_num": null
+  },
+  "oracle_snapshot": {
+    "queried": true,
+    "queried_at": "2026-10-05T08:52:27.123456+00:00",
+    "lookup_path": "RCV-V01",
+    "query_keys": {
+      "po_number": "42052405",
+      "invoice_num": "26/2691"
+    },
+    "row_cap_hit": false,
+    "fingerprint": "sha256:d8c24f46995642a8b98218d601b3156828555e098be9a9307d4bfa85a49be629",
+    "org_id": 195,
+    "receiver": "S. J.",
+    "receipt_nums": ["50220043196"],
+    "receipt_lines": [
+      {
+        "org_id": 195,
+        "receipt_num": "50220043196",
+        "receiver": "S. J.",
+        "line": 1,
+        "item": "DNMG 150408-PM",
+        "qty": "10",
+        "uom": "PCS",
+        "unit_price": "1250",
+        "line_amount": "12500",
+        "rcv_line_id": "50220043196-1",
+        "uom_group": "PC"
+      }
+    ]
+  },
+  "line_matching": {
+    "groups": [
+      {
+        "group_id": "G1",
+        "relation": "1:1",
+        "level": "M1",
+        "invoice_line_nos": [1],
+        "rcv_line_ids": ["50220043196-1"],
+        "confidence": 1.0,
+        "source": "deterministic",
+        "rationale": "Exact match on item description, quantity (10) and unit price (1,250.00)"
+      }
+    ],
+    "ai_rejected": [],
+    "unmatched_rcv_line_ids": []
+  },
+  "rule_results": [
+    {
+      "rule_id": "V-01",
+      "rule_version": "1.1",
+      "result": "pass",
+      "detail": "All required fields present",
+      "halted_by": null,
+      "evidence_ids": [],
+      "data": {}
+    },
+    {
+      "rule_id": "V-02",
+      "rule_version": "1.0",
+      "result": "pass",
+      "detail": "Line items consistent",
+      "halted_by": null,
+      "evidence_ids": [],
+      "data": {}
+    },
+    {
+      "rule_id": "V-03",
+      "rule_version": "1.0",
+      "result": "pass",
+      "detail": "Lines sum = sub_total, VAT 7% match",
+      "halted_by": null,
+      "evidence_ids": [],
+      "data": {
+        "diffs": {
+          "lines_vs_sub_total": "0.00",
+          "vat_7pct": "0.00",
+          "sub_plus_vat_vs_grand": "0.00"
+        }
+      }
+    },
+    {
+      "rule_id": "V-04",
+      "rule_version": "2.0",
+      "result": "pass",
+      "detail": "Found receipt in Oracle EBS (RCV-V01)",
+      "halted_by": null,
+      "evidence_ids": [],
+      "data": {
+        "lookup_path": "RCV-V01",
+        "rows": 12,
+        "active_rows": 12,
+        "receipt_nums": ["50220043196"]
+      }
+    },
+    {
+      "rule_id": "V-05",
+      "rule_version": "2.0",
+      "result": "manual_review",
+      "detail": "Customer address requires manual review",
+      "halted_by": null,
+      "evidence_ids": ["EVI_V05_ADDR"],
+      "data": {
+        "org_id": 195,
+        "short_name": "AHT",
+        "tax_id_match": true,
+        "name_match": true,
+        "address_match": false
+      }
+    },
+    {
+      "rule_id": "V-06",
+      "rule_version": "1.1",
+      "result": "pass",
+      "detail": "Receipt status valid",
+      "halted_by": null,
+      "evidence_ids": [],
+      "data": {}
+    },
+    {
+      "rule_id": "V-07",
+      "rule_version": "3.0",
+      "result": "pass",
+      "detail": "All lines matched",
+      "halted_by": null,
+      "evidence_ids": [],
+      "data": {
+        "groups": 1,
+        "ai_rejected": 0
+      }
+    },
+    {
+      "rule_id": "V-08",
+      "rule_version": "2.0",
+      "result": "pass",
+      "detail": "Quantities verified",
+      "halted_by": null,
+      "evidence_ids": [],
+      "data": {
+        "line_results": [
+          {
+            "invoice_line_no": 1,
+            "group_id": "G1",
+            "relation": "1:1",
+            "qty_inv": "10",
+            "qty_rcv_compared": "10",
+            "qty_diff": "0",
+            "result": "pass",
+            "reason": "EXACT_MATCH"
+          }
+        ]
+      }
+    },
+    {
+      "rule_id": "V-09",
+      "rule_version": "1.0",
+      "result": "pass",
+      "detail": "invoice 49,215.00 = receipt 49,215.00",
+      "halted_by": null,
+      "evidence_ids": [],
+      "data": {}
+    }
+  ],
+  "evidence": [
+    {
+      "evidence_id": "EVI_V05_ADDR",
+      "rule_id": "V-05",
+      "severity": "Medium",
+      "message_th": "ที่อยู่ลูกค้าบนเอกสารไม่ตรงกับข้อมูลบริษัทใน Master Data Table 4",
+      "message_en": "Customer address on document does not match Table 4 master data",
+      "actual": "99 หมู่ 1 ต.บ้านเลน อ.บางปะอิน จ.พระนครศรีอยุธยา 13160",
+      "expected": "Head Office: 99 Moo 1, Hitech Industrial Estate...",
+      "related_element_ids": ["E_CUST_TAX"],
+      "bboxes": [
+        [0.185, 0.182, 0.220, 0.020]
+      ],
+      "bbox_missing_reason": null
+    }
+  ],
+  "exceptions": [
+    {
+      "exception_id": "X1",
+      "code": "E01",
+      "name": "Missing Field",
+      "severity": "Medium",
+      "rule_id": "V-01",
+      "evidence_ids": []
+    }
+  ],
+  "recommendation": {
+    "value": "MANUAL_REVIEW",
+    "max_severity": "Medium",
+    "exception_codes": ["E01"],
+    "reasons": ["V-05:manual_review"],
+    "halted_by": null
+  },
+  "system_errors": [],
+  "metrics": {
+    "duration_ms": {
+      "step1_ms": 1.15,
+      "oracle_ms": 135.2,
+      "step3_ms": 28.4,
+      "total_ms": 164.75
+    },
+    "oracle_calls": 1,
+    "oracle_rejected": [],
+    "ai": {
+      "v08": {
+        "votes": 3,
+        "majority": true,
+        "disagreements": []
+      }
+    },
+    "ai_line_matcher_called": false
+  },
+  "integrity": {
+    "payload_sha256": "sha256:d5f2a1b9c8e76435a2981014e7a834219bce83401fae563127891bcfa3456789",
+    "excludes": [
+      "request",
+      "metrics",
+      "*evaluated_at",
+      "*queried_at"
+    ]
+  }
+}

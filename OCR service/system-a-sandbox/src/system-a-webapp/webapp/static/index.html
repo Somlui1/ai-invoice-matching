@@ -1,0 +1,72 @@
+<!doctype html><meta charset=utf-8><title>AIVA System A — test portal</title>
+<style>
+body{margin:0;font-family:Tahoma,sans-serif;font-size:13px}
+#top{position:sticky;top:0;z-index:5;background:#eee;border-bottom:1px solid #bbb;padding:6px 10px;display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+#wrap{display:flex}
+#side{width:260px;flex:none;height:calc(100vh - 42px);overflow:auto;border-right:1px solid #ccc;position:sticky;top:42px}
+#side div{padding:3px 8px;cursor:pointer;border-bottom:1px solid #eee;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#side div:hover{background:#f3f3f3} #side div.cur{background:#dbe9ff}
+#main{flex:1;padding:10px;min-width:0}
+.doc{border:1px solid #bbb;margin-bottom:18px} .doc>h2{margin:0;padding:6px 8px;background:#f4f4f4;font-size:15px}
+.pg{display:flex;gap:10px;padding:8px;border-top:1px dashed #ccc;align-items:flex-start}
+.imgbox{position:relative;width:50%;flex:none}
+.imgbox img{width:100%;display:block;border:1px solid #ccc}
+.bx{position:absolute;box-sizing:border-box;border:1px solid transparent;cursor:pointer}
+.bx.hot{border-width:3px;background:rgba(255,220,0,.30);z-index:3}
+.bx.sel{border-width:3px;border-style:dashed;background:rgba(20,120,255,.20);z-index:4}
+tr.hot{background:#fff8d5} tr.sel{background:#dbe9ff}
+#tip{position:fixed;z-index:50;display:none;max-width:460px;background:#111;color:#fff;font-size:12px;line-height:1.4;padding:6px 8px;border-radius:4px;pointer-events:none;white-space:pre-wrap}
+#pin{position:fixed;right:12px;bottom:12px;z-index:40;display:none;max-width:420px;background:#fff;border:2px solid #333;font-size:12px;line-height:1.4;padding:7px 26px 7px 9px;border-radius:5px;box-shadow:0 2px 10px #0006;white-space:pre-wrap}
+#unc{position:absolute;right:6px;top:4px;color:#666;font-weight:bold}
+.no-ov .bx{display:none}
+.pg .info{flex:1;min-width:0}
+table{border-collapse:collapse;width:100%;font-size:12px} td,th{border:1px solid #ddd;padding:2px 5px;vertical-align:top;text-align:left}
+th{background:#fafafa} .dr td{color:#999;text-decoration:line-through}
+.ok{color:#2a2} .partial{color:#d80} .error{color:#c00} .lg span{color:#fff;padding:1px 6px;margin-right:3px}
+.sw{display:inline-block;width:10px;height:10px;margin-right:4px}
+.hide-tbl .info table{display:none}
+/* --- added for the workflow (new selectors only; nothing above is redefined) --- */
+.imgbox img{height:auto;aspect-ratio:auto 1240/1754}
+.sec{margin:8px 0 3px} .idle{color:#aaa} tr[data-ref]{cursor:pointer} tr[data-ref]:hover{background:#fff8d5}
+details pre{font-size:11px;margin:3px 0;max-height:260px;overflow:auto;border:1px solid #ddd;padding:4px}
+/* --- the workbench: ซ้าย = รายการ, กลาง = เอกสาร, ขวา = ผล --- */
+.wb{border:1px solid #999;margin:0 0 14px}
+.wbh{padding:5px 8px;background:#f4f4f4;border-bottom:1px solid #ccc;display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:14px}
+.wbt{font-weight:bold;max-width:44%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.wbm{display:flex;align-items:flex-start}
+.pages{flex:1;min-width:0;padding:6px 8px}
+.pages .imgbox{width:100%}
+.pages .imgbox img{aspect-ratio:auto}
+.pages .pg{display:block;padding:4px 0 12px;border-top:1px dashed #ddd}
+.cap{font-size:12px;color:#444;margin:0 0 4px}
+.panel{width:452px;flex:none;box-sizing:border-box;border-left:1px solid #ccc;padding:6px 9px;height:calc(100vh - 52px);overflow:auto;position:sticky;top:44px}
+.psl{font-size:12px;color:#555;margin:0 0 4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.run{font-weight:bold;padding:2px 12px}
+.pill{font-size:12px;border:1px solid #bbb;background:#fff;padding:0 6px;border-radius:9px;white-space:nowrap}
+.case{font-size:11px;color:#0a6;cursor:pointer}
+.src{font-size:12px;color:#555} .src b{color:#111}
+.err{color:#c00;font-size:12px;margin:4px 0}
+.ph{color:#888;font-size:12px;padding:18px 6px}
+.ocrh{font-size:12px;color:#333;margin:6px 0 2px;font-weight:bold}
+.hide-tbl .panel table.rt{display:table} .hide-tbl .panel .ocrsec{display:none}
+</style>
+<div id=top>
+ <b>AIVA System A</b>
+ <span id=stat></span>
+ <button id=run class=run>Process</button><span id=pst style="color:#555"></span>
+ <label>สถานะ <select id=fs><option value="">ทั้งหมด</option><option>ok</option><option>partial</option><option>error</option></select></label>
+ <label>ประเภท <select id=ft><option value="">ทั้งหมด</option></select></label>
+ <input id=q placeholder="ค้น id / ชื่อ / ข้อความ" size=18>
+ <label><input type=checkbox id=ov checked> <b>แสดง bbox</b></label>
+ <label><input type=checkbox id=tb checked> ตาราง</label>
+ <label><input type=checkbox id=dp> ที่ตัดทิ้ง</label>
+ <button id=rf title="อ่านรายการเอกสารจากแหล่งข้อมูลใหม่">รีเฟรชรายการ</button>
+ <button id=clr title="ลบ case ทั้งหมดที่เก็บไว้ใน browser นี้">ล้าง case</button>
+ <span id=src class=src></span>
+ <button id=prev>◀</button><button id=next>▶</button>
+ <span style="color:#555">ชี้กรอบ/แถว = ดูข้อความ · คลิก = ตรึงข้อมูล + ไปแถวนั้น · Esc = ปิด</span>
+ <span class=lg><span style='background:#d62728'>header</span><span style='background:#ff7f0e'>supplier</span><span style='background:#9467bd'>customer</span><span style='background:#7f7f7f'>table</span><span style='background:#1f77b4'>line</span><span style='background:#2ca02c'>total</span><span style='background:#bcbd22'>payment</span><span style='background:#e377c2'>signature</span><span style='background:#8c564b'>stamp</span><span style='background:#17becf'>other</span></span>
+</div>
+<div id=wrap><div id=side></div><div id=main></div></div>
+<div id=tip></div><div id=pin></div>
+<script src="/static/app.js"></script>

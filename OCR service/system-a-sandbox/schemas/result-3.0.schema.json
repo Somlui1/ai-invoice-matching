@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "aiva.system_a.result/3.0",
+  "type": "object",
+  "required": ["contract","request","versions","package","pages","documents","ocr","extraction","normalized_fields",
+               "oracle_snapshot","line_matching","rule_results","evidence","exceptions","recommendation","metrics","integrity"],
+  "not": {"anyOf": [{"required": ["workflow"]},{"required": ["allowed_actions"]},{"required": ["assigned_to"]},
+                    {"required": ["approved"]},{"required": ["ap_status"]},{"required": ["duplicate_status"]},{"required": ["history"]}]},
+  "properties": {
+    "contract": {"const": "aiva.system_a.result/3.0"},
+    "request": {"type": "object", "required": ["validation_id","correlation_id","validation_round","document_revision","completed_at"]},
+    "versions": {"type": "object", "required": ["schema","standard","ruleset","models","prompts"]},
+    "package": {"type": "object", "required": ["package_id","dms_doc_id","file_sha256","page_count","coordinate_system"]},
+    "ocr": {"type": "object", "required": ["elements"], "properties": {"elements": {"type": "array", "items": {
+      "type": "object",
+      "required": ["element_id","document_id","document_type","page_no","element_type","field_name","raw_value",
+                   "normalized_value","confidence","bbox","source_reference"],
+      "properties": {"element_type": {"enum": ["page","section","table","row","cell","field","word","signature","stamp"]},
+                     "bbox": {"anyOf": [{"type": "null"}, {"type": "array", "minItems": 4, "maxItems": 4,
+                                                           "items": {"type": "number", "minimum": 0, "maximum": 1}}]}}}}}},
+    "rule_results": {"type": "array", "minItems": 9, "maxItems": 9, "items": {
+      "type": "object", "required": ["rule_id","rule_version","result","halted_by","evidence_ids"],
+      "properties": {"rule_id": {"enum": ["V-01","V-02","V-03","V-04","V-05","V-06","V-07","V-08","V-09"]},
+                     "result": {"enum": ["pass","fail","not_evaluated","manual_review"]}}}},
+    "evidence": {"type": "array", "items": {"type": "object",
+      "required": ["rule_id","rule_version","result","exception_code","severity","actual_value","expected_value",
+                   "source_document","page_no","related_element_ids","bboxes","halted_by","evaluated_at"],
+      "properties": {"exception_code": {"pattern": "^E(0[1-9]|1[0-5])$"},
+                     "severity": {"enum": ["Low","Medium","High"]}}}},
+    "exceptions": {"type": "array", "items": {"type": "object", "required": ["exception_id","code","severity","rule_id","evidence_ids"],
+      "properties": {"code": {"pattern": "^E(0[1-9]|1[0-5])$"}}}},
+    "recommendation": {"type": "object", "required": ["value","max_severity","exception_codes"],
+      "properties": {"value": {"enum": ["AUTO_PASS","REVIEW","HOLD","MANUAL_REVIEW","SYSTEM_ERROR"]}}},
+    "integrity": {"type": "object", "required": ["payload_sha256"]}
+  }
+}
