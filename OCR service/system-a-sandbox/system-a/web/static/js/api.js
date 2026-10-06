@@ -2,10 +2,23 @@
    Oracle or LiteLLM directly. */
 'use strict';
 
+/* FastAPI answers every failure as {"detail": "<one readable sentence>"}.  Show that sentence and
+   keep the status code in front of it, so a toast reads "404 DMS-9 is not in Paperless-ngx" instead
+   of a JSON envelope the operator has to decode. */
+async function failure(r) {
+  const body = (await r.text().catch(() => '')).slice(0, 300);
+  let msg = body;
+  try {
+    const detail = JSON.parse(body).detail;
+    if (typeof detail === 'string' && detail) msg = detail;
+  } catch (_) { /* not JSON (a proxy error page, an empty body) — keep the raw text */ }
+  return new Error(`${r.status} ${msg || r.statusText || 'no message from the portal'}`);
+}
+
 const API = {
   async get(path) {
     const r = await fetch(path, { headers: { Accept: 'application/json' } });
-    if (!r.ok) throw new Error(`${r.status} ${(await r.text()).slice(0, 300)}`);
+    if (!r.ok) throw await failure(r);
     return r.json();
   },
 
@@ -15,7 +28,7 @@ const API = {
       headers: { 'Content-Type': 'application/json' },
       body: body ? JSON.stringify(body) : undefined,
     });
-    if (!r.ok) throw new Error(`${r.status} ${(await r.text()).slice(0, 300)}`);
+    if (!r.ok) throw await failure(r);
     return r.status === 204 ? null : r.json();
   },
 
@@ -23,7 +36,7 @@ const API = {
     const fd = new FormData();
     fd.append('file', file, file.name);
     const r = await fetch('/api/upload', { method: 'POST', body: fd });
-    if (!r.ok) throw new Error(`${r.status} ${(await r.text()).slice(0, 300)}`);
+    if (!r.ok) throw await failure(r);
     return r.json();
   },
 
@@ -35,7 +48,7 @@ const API = {
     const done = (async () => {
       const r = await fetch(path, { method: 'POST', signal: ctrl.signal,
                                     headers: { Accept: 'text/event-stream' } });
-      if (!r.ok) throw new Error(`${r.status} ${(await r.text()).slice(0, 300)}`);
+      if (!r.ok) throw await failure(r);
       const reader = r.body.getReader();
       const dec = new TextDecoder('utf-8');
       let buf = '';

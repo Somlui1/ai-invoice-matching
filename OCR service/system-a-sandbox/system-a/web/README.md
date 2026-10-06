@@ -79,7 +79,7 @@ Uploads: drop a PDF on the left to test a document that is not in Paperless. Upl
 | `GET /api/documents/{id}/pdf`, `/page/{n}.png?dpi=`, `/meta` | download (cached), server raster, metadata incl. tags |
 | `POST /api/upload`, `GET /api/uploads`, `GET /api/uploads/{key}/…` | local PDF testing |
 | `POST /api/verify/{id}?mode=&quick=` | SSE stream: `step`, `log`, `heartbeat`, `done`, `result` |
-| `POST /api/verify/upload/{key}` | same for an uploaded file |
+| `POST /api/verify/upload?key=…&mode=&quick=` | same, for a file staged through `POST /api/upload` |
 | `GET /api/runs`, `/api/runs/{key}`, `POST /api/runs/{key}/cancel` | active run status / cancel |
 | `GET /api/results`, `/api/results/{key}` | stored engine output |
 | `GET /api/overlays/{key}` | the whole bbox plane for one verification |
@@ -109,6 +109,21 @@ Page images are rasterised **server-side with PyMuPDF** (the same library percep
 the page's `/Rotate`), so a box aligns with the pixels the model was shown. PDF.js stays available
 in the UI as a vector/text-rendering mode.
 
+## Failure messages
+
+Paperless-ngx is an outside dependency, so its three ordinary failure shapes are answered with
+different statuses and one readable sentence each — the browser shows that sentence in the toast:
+
+| situation | status | what the operator reads |
+|---|---|---|
+| id is stale, or the document was deleted after the list was fetched | `404` | `DMS-<id> is not in Paperless-ngx` |
+| bad or revoked token | `502` | `Paperless-ngx rejected this token - check PAPERLESS_API_TOKEN` |
+| server not configured on this machine | `503` | `Paperless-ngx is not configured on this machine` |
+| anything else from Paperless (timeout, 5xx) | `502` | `cannot fetch DMS-<id>: …` |
+
+A page image that fails still asks the endpoint once, so the viewer reports the reason instead of
+showing a broken image.
+
 ## Where things are written
 
 | path | contents |
@@ -123,18 +138,29 @@ in the UI as a vector/text-rendering mode.
 ```bat
 cd system-a
 python -m pytest web\test_portal.py -q
+node web\test_ui_logic.mjs <fixture.json>      # the browser modules against a real contract result
 ```
 
-23 tests, all offline: the engine subprocess is faked and every path is redirected to a temp dir.
+31 tests, all offline: the engine subprocess is faked and every path is redirected to a temp dir.
 They assert the portal is a pure CLI consumer (the argv handed to `process_pdf.py`), the step
 markers match the CLI's real stdout lines, contract→overlay joins (field/cell/exception/signature),
 the coordinate system is passed through untouched, duplicate-run and concurrency refusal, upload
-and raster behaviour, dependency-outage behaviour, and UI/DOM id consistency.
+and raster behaviour (including that `/api/verify/upload` is not swallowed by `/api/verify/{id}`),
+dependency-outage behaviour, readable Paperless statuses, and UI/DOM id consistency.
+`test_ui_logic.mjs` (also run from pytest when `node` is present) loads the real module sources over
+a stub DOM and asserts the failure paths reach the operator, not only the happy path.
+
+Against a portal that is actually running, `python web\check_live.py [--base http://127.0.0.1:8080]`
+covers what only a live server can answer — every asset the page references, the catalog, one real
+sandbox verification through the engine subprocess, overlay geometry, uploads, and the failure paths
+a user can reach (77 checks).  pytest additionally runs it against a closed port to prove it reports
+readable FAIL lines instead of a traceback.
 
 ## Troubleshooting
 
 | symptom | cause / fix |
 |---|---|
+| `404 DMS-<id> is not in Paperless-ngx` | the id is stale or the document was deleted after the list was fetched — reload the list |
 | run dies with `ModuleNotFoundError: yaml` | engine interpreter lacks deps → set `WEB_ENGINE_PYTHON` |
 | `409 … already has a verification running` | same document twice; cancel it first |
 | first run very slow, next one ~1 s | normal: perception cache hit (`/api/health` → `perception_cache`) |

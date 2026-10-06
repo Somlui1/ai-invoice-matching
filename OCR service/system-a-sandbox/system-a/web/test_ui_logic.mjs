@@ -82,6 +82,7 @@ class El {
 }
 
 const registry = new Map();
+const toasts = [];                // what the operator would actually see
 const document = {
   getElementById: (id) => { if (!registry.has(id)) registry.set(id, new El('div', id)); return registry.get(id); },
   createElement: (tag) => new El(tag),
@@ -94,7 +95,7 @@ const document = {
 
 const sandbox = {
   document, console,
-  toast: () => {},                    // app.js provides the real one in the browser
+  toast: (msg, isErr) => { toasts.push({ msg: String(msg), err: !!isErr }); },   // app.js provides the real one
   window: { addEventListener() {}, devicePixelRatio: 1, innerWidth: 1600, matchMedia: () => ({ matches: false }) },
   navigator: { clipboard: { writeText: async () => {} } },
   fetch: async () => ({ ok: true, status: 200, json: async () => ({}), text: async () => '', body: null }),
@@ -114,8 +115,7 @@ const src = MODULES.map(f => `\n/* ==== ${f} ==== */\n` + fs.readFileSync(path.j
   + '\nglobalThis.__portal = { API, Viewer, Overlay, Linker, Panels };\n';
 vm.createContext(sandbox);
 vm.runInContext(src, sandbox, { filename: 'portal-modules.js' });
-const { Overlay, Viewer, Linker, Panels } = sandbox.__portal;
-
+const { API, Overlay, Viewer, Linker, Panels } = sandbox.__portal;
 /* ------------------------------------------------------------------ assertions */
 let failures = 0;
 const check = (name, cond, extra = '') => {
@@ -210,6 +210,25 @@ try {
 
   Linker.clear();
   check('clear empties the selection', Overlay.selectedIds.length === 0);
+
+  /* ---- failure paths: an error the operator cannot read is the bug this portal exists to avoid */
+  const realFetch = sandbox.fetch;
+  sandbox.fetch = async () => ({
+    ok: false, status: 404, statusText: 'Not Found', json: async () => ({}),
+    text: async () => '{"detail":"DMS-9 is not in Paperless-ngx"}',
+  });
+  let apiErr = null;
+  try { await API.get('/api/documents/9/meta'); } catch (e) { apiErr = e.message; }
+  check('API client shows the portal sentence rather than the JSON envelope',
+        !!apiErr && /not in Paperless-ngx/.test(apiErr) && !/"detail"/.test(apiErr), apiErr);
+
+  toasts.length = 0;
+  registry.get('page-img').fire('error');
+  await new Promise(r => setTimeout(r, 10));
+  check('a page that will not render says why',
+        toasts.some(t => t.err && /not rendered/.test(t.msg) && /not in Paperless/.test(t.msg)),
+        JSON.stringify(toasts));
+  sandbox.fetch = realFetch;
 } catch (err) {
   failures++;
   console.log('  FAIL threw: ' + (err && err.stack || err));

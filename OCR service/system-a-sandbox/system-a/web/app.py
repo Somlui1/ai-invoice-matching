@@ -86,7 +86,8 @@ def document_meta(doc_id: int) -> dict:
     try:
         meta = catalog.pdf_meta(catalog.pdf_for(doc_id))
     except Exception as e:
-        _die(502, f"cannot open DMS-{doc_id}: {type(e).__name__}: {str(e)[:200]}")
+        code, msg = _upstream_error(e, doc_id)
+        _die(code, msg)
     try:
         meta["paperless"] = catalog.document(doc_id)
     except Exception:
@@ -99,7 +100,8 @@ def document_pdf(doc_id: int) -> Response:
     try:
         path = catalog.pdf_for(doc_id)
     except Exception as e:
-        _die(502, f"cannot fetch DMS-{doc_id}: {type(e).__name__}: {str(e)[:200]}")
+        code, msg = _upstream_error(e, doc_id)
+        _die(code, msg)
     return FileResponse(str(path), media_type="application/pdf", filename=f"DMS-{doc_id}.pdf")
 
 
@@ -110,13 +112,31 @@ def document_page(doc_id: int, page_no: int, dpi: int = Query(150)) -> Response:
     except IndexError as e:
         _die(404, str(e))
     except Exception as e:
-        _die(502, f"page render failed: {type(e).__name__}: {str(e)[:200]}")
+        code, msg = _upstream_error(e, doc_id)
+        _die(code, msg if code != 502 else f"page render failed: {msg[:200]}")
     return _png(png)
 
 
 def _png(png: bytes) -> Response:
     return Response(content=png, media_type="image/png",
                     headers={"Cache-Control": "public, max-age=3600"})
+
+
+def _upstream_error(e: Exception, doc_id: int) -> tuple[int, str]:
+    """Turn a Paperless-ngx failure into the status the browser should show.
+
+    A document that is not in Paperless is an ordinary user situation (a stale id, or a document
+    deleted after the list was fetched), so it must read as 'not found' rather than as a portal
+    crash.  PAPERLESS_TRANSPORT is what the reader labels a 404, so the code is matched in text.
+    """
+    msg = str(e)
+    if "404" in msg:
+        return 404, f"DMS-{doc_id} is not in Paperless-ngx"
+    if "PAPERLESS_AUTH" in msg:
+        return 502, f"Paperless-ngx rejected this token - check PAPERLESS_API_TOKEN ({msg[:120]})"
+    if "not configured" in msg:
+        return 503, "Paperless-ngx is not configured on this machine"
+    return 502, f"cannot fetch DMS-{doc_id}: {type(e).__name__}: {msg[:200]}"
 
 
 # --------------------------------------------------------------------------- uploads
@@ -203,17 +223,17 @@ def _events_response(run) -> StreamingResponse:
                              headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"})
 
 
-@app.post("/api/verify/{doc_id}")
-def verify(doc_id: int, request: Request, mode: str = Query("production"),
-           quick: bool = Query(False), stream: bool = Query(True)) -> Response:
-    """Run System A on a Paperless document.  mode=sandbox uses canned fixtures, never real AI/ERP."""
-    if mode not in ("production", "sandbox"):
-        _die(400, "mode must be production or sandbox")
-    if engine.free_disk_bytes() // (1024 * 1024) < 100:
-        _die(507, "less than 100 MB free for result files")
-    key = f"DMS-{doc_id}"
+# ORDER MATTERS: Starlette answers the first route whose path pattern matches, and
+# '/api/verify/{doc_id}' also matches the literal 'upload'.  Registering the upload route first is
+# what keeps 'verify an uploaded PDF' working at all - see test_upload_route_is_not_shadowed.
+@app.post("/api/verify/upload")
+def verify_upload(request: Request, key: str = Query(...), mode: str = Query("production"),
+                  quick: bool = Query(False), stream: bool = Query(True)) -> Response:
+    path = engine.find_upload(key)
+    if not path:
+        _die(404, f"no upload stored under key {key}")
     try:
-        run = engine.REGISTRY.start(key=key, dms_id=doc_id, mode=mode, quick=quick, label=f"DMS-{doc_id}")
+        run = engine.REGISTRY.start(key=key, pdf_path=path, mode=mode, quick=quick, label=key)
     except engine.BusyError as e:
         _die(409, str(e))
     except Exception as e:
@@ -228,14 +248,17 @@ def verify(doc_id: int, request: Request, mode: str = Query("production"),
     return _events_response(run)
 
 
-@app.post("/api/verify/upload")
-def verify_upload(request: Request, key: str = Query(...), mode: str = Query("production"),
-                  quick: bool = Query(False), stream: bool = Query(True)) -> Response:
-    path = engine.find_upload(key)
-    if not path:
-        _die(404, f"no upload stored under key {key}")
+@app.post("/api/verify/{doc_id}")
+def verify(doc_id: int, request: Request, mode: str = Query("production"),
+           quick: bool = Query(False), stream: bool = Query(True)) -> Response:
+    """Run System A on a Paperless document.  mode=sandbox uses canned fixtures, never real AI/ERP."""
+    if mode not in ("production", "sandbox"):
+        _die(400, "mode must be production or sandbox")
+    if engine.free_disk_bytes() // (1024 * 1024) < 100:
+        _die(507, "less than 100 MB free for result files")
+    key = f"DMS-{doc_id}"
     try:
-        run = engine.REGISTRY.start(key=key, pdf_path=path, mode=mode, quick=quick, label=key)
+        run = engine.REGISTRY.start(key=key, dms_id=doc_id, mode=mode, quick=quick, label=f"DMS-{doc_id}")
     except engine.BusyError as e:
         _die(409, str(e))
     except Exception as e:

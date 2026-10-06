@@ -52,9 +52,31 @@ const Viewer = (() => {
     const pm = (metaPages || []).find(p => p.page_no === pageNo);
     if (pm) pagePt = { width_pt: pm.width_pt, height_pt: pm.height_pt };
     rotating = (mode === 'vector') ? renderVector() : renderRaster();
-    try { await rotating; } catch (e) { console.warn('page render failed', e); }
+    try {
+      await rotating;
+    } catch (e) {
+      // vector failures never reach an <img>, so they would vanish into the console
+      toast(`page ${pageNo} could not be rendered: ${e.message}`, true);
+    }
     rotating = null;
     layout();
+  }
+
+  /* A failed <img> carries no status, so ask the endpoint once.  The portal answers a document that
+     has left Paperless-ngx with a sentence, and the operator sees that instead of a broken image. */
+  function reportRasterFailure(url, page) {
+    fetch(url, { headers: { Accept: 'application/json' } })
+      .then(async (r) => {
+        if (r.ok) {   // the endpoint is fine, the <img> just did not draw — say that, not binary garbage
+          toast(`page ${page} is served fine but the browser did not draw it — reload the page`, true);
+          return;
+        }
+        const body = await r.text().catch(() => '');
+        let msg = body;
+        try { const d = JSON.parse(body).detail; if (typeof d === 'string' && d) msg = d; } catch (_) { /* html or empty */ }
+        toast(`page ${page} not rendered: ${msg.slice(0, 200) || r.status}`, true);
+      })
+      .catch(() => toast(`page ${page} not rendered (the raster request itself failed)`, true));
   }
 
   function renderRaster() {
@@ -64,7 +86,11 @@ const Viewer = (() => {
     return new Promise(res => {
       const ok = () => { el.img.removeEventListener('load', ok); pagePt.display_px = [el.img.naturalWidth, el.img.naturalHeight]; res(); };
       el.img.addEventListener('load', ok, { once: true });
-      el.img.addEventListener('error', () => { el.img.removeEventListener('load', ok); res(); }, { once: true });
+      el.img.addEventListener('error', () => {
+        el.img.removeEventListener('load', ok);
+        reportRasterFailure(pageUrl(pageNo, dpi), pageNo);
+        res();
+      }, { once: true });
       if (el.img.complete && el.img.naturalWidth) ok();
     });
   }

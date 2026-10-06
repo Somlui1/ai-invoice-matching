@@ -352,6 +352,74 @@ def test_upload_rejects_non_pdf(client):
     assert r.status_code == 415
 
 
+def test_uploaded_pdf_can_be_verified(client, home, monkeypatch):
+    """Regression: '/api/verify/upload' must not be swallowed by '/api/verify/{doc_id}'.
+
+    Starlette answers the first route whose pattern matches, and '{doc_id}' also matches the literal
+    'upload'.  With the parameterised route registered first, the browser gets a 422 int-parsing
+    error and the upload feature is dead while every other endpoint looks healthy.
+    """
+    pdf = make_pdf(home["downloads"] / "sample-src.pdf", pages=1)
+    up = client.post("/api/upload", files={"file": ("sample.pdf", pdf.read_bytes(), "application/pdf")})
+    key = up.json()["key"]
+
+    def fake_start(self, *, dms_id=None, pdf_path=None):
+        assert pdf_path is not None and dms_id is None, "an upload must reach the engine as a path"
+        out = engine.RESULTS_DIR / f"{self.key}.json"
+        out.write_text(json.dumps(CONTRACT_RESULT), encoding="utf-8")
+        self.result_path, self.exit_code = out, 0
+        self._emit({"type": "log", "line": "Processing 'sample.pdf'", "level": "info"})
+        self._emit({"type": "done", "exit_code": 0, "elapsed_s": 0.1, "ok": True, "error": None})
+        self._emit(None)
+
+    monkeypatch.setattr(engine.EngineRun, "start", fake_start)
+    r = client.post(f"/api/verify/upload?key={key}&mode=sandbox")
+    assert r.status_code == 200, f"{r.status_code}: {r.text[:120]}"      # 422 => route order is wrong
+    assert "text/event-stream" in r.headers["content-type"]
+    assert '"recommendation"' in r.text
+    assert client.get(f"/api/overlays/{key}").status_code == 200
+
+
+def test_document_that_left_paperless_reads_as_not_found(client, monkeypatch):
+    """A stale or deleted document id must not surface as a portal crash."""
+    def boom(doc_id):
+        raise RuntimeError("PAPERLESS_TRANSPORT: HTTPStatusError: Client error '404 Not Found' for "
+                           "url 'http://dms/api/documents/999999/download/'")
+
+    monkeypatch.setattr(catalog, "pdf_for", boom)
+    for path in ("/api/documents/999999/page/1.png", "/api/documents/999999/pdf",
+                 "/api/documents/999999/meta"):
+        r = client.get(path)
+        assert r.status_code == 404, (path, r.status_code, r.text[:90])
+        assert "not in Paperless" in r.json()["detail"]
+
+
+def test_paperless_outage_is_not_reported_as_not_found(client, monkeypatch):
+    def down(doc_id):
+        raise RuntimeError("PAPERLESS_TRANSPORT: ConnectTimeout: no detail")
+
+    monkeypatch.setattr(catalog, "pdf_for", down)
+    r = client.get("/api/documents/114/pdf")
+    assert r.status_code == 502 and "cannot fetch" in r.json()["detail"]
+
+
+def test_paperless_auth_and_missing_config_are_told_apart(client, monkeypatch):
+    """Both strings are real shapes from src/system_a/adapters/paperless/reader.py."""
+    def bad_token(doc_id):
+        raise RuntimeError("PAPERLESS_AUTH: HTTP 401 — check PAPERLESS_API_TOKEN")
+
+    monkeypatch.setattr(catalog, "pdf_for", bad_token)
+    r = client.get("/api/documents/114/pdf")
+    assert r.status_code == 502 and "PAPERLESS_API_TOKEN" in r.json()["detail"], r.json()
+
+    def unconfigured(doc_id):
+        raise RuntimeError("Paperless-ngx is not configured (PAPERLESS_BASE_URL / PAPERLESS_API_TOKEN)")
+
+    monkeypatch.setattr(catalog, "pdf_for", unconfigured)
+    r = client.get("/api/documents/114/pdf")
+    assert r.status_code == 503 and "not configured" in r.json()["detail"], r.json()
+
+
 def test_document_page_render_is_cached(client, home):
     pdf = make_pdf(engine.DOWNLOADS_DIR / "DMS-9002.pdf", pages=1)
     monkey_cache = home["pages"]
@@ -443,6 +511,23 @@ def test_browser_modules_run_against_the_api_data(home):
                           capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=180)
     assert proc.returncode == 0, proc.stdout + proc.stderr
     assert "all checks passed" in proc.stdout, proc.stdout
+
+
+def test_live_checker_fails_as_lines_when_the_portal_is_down():
+    """web/check_live.py is used by a person, against a live server, usually when something is wrong.
+
+    It cannot be driven from the offline suite (it needs a real server), which once let a plain
+    NameError sit in it — invisible until someone tried to run it.  Pointed at a closed port it must
+    still execute and answer with readable FAIL lines: that walks most of the module in ~1 s and
+    turns "the checker itself is broken" into a normal test failure.
+    """
+    import subprocess
+    proc = subprocess.run([sys.executable, str(WEB_DIR / "check_live.py"), "--base", "http://127.0.0.1:9"],
+                          capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=180)
+    out = proc.stdout + proc.stderr
+    assert proc.returncode != 0, "a checker that reports success against a dead portal is useless"
+    assert "Traceback" not in out and "NameError" not in out, out[-400:]
+    assert "not answerable from this machine" in out, out[-400:]
 
 
 def test_pdfjs_is_vendored_not_loaded_from_a_cdn(client):
