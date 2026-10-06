@@ -388,3 +388,41 @@ esolved
   จึงยกไปรวมกับงานแก้ perception รอบถัดไป (DEC-016) เพื่อจ่ายค่า cache หนึ่งครั้ง
 - วิธีป้องกัน: test assert ว่า output ปกติของ CLI ทั้งหมดยังเป็น `info` และ `_pump` ส่ง log ที่ไม่มี
   escape ออกมาจริง
+
+### ERR-20261006-001 — `/api/verify/{doc_id}` กลืน `/api/verify/upload` ทำให้อัปโหลดใช้ได้แต่ Verify ตายเงียบๆ
+
+- อาการ: อัปโหลด PDF ผ่าน portal สำเร็จ (`POST /api/upload` คืน key, ภาพหน้า PDF ก็เปิดได้) แต่กด Verify
+  แล้วได้ `422 Input should be a valid integer, unable to parse string as an integer` — endpoint อื่น
+  ปกติหมด จึงไม่มีสัญญาณว่าสาเหตุมาจาก "ลำดับการ register route"
+- สาเหตุ: Starlette ตอบ route แรกที่ **pattern** ตรงกัน ไม่ได้เทียบกับความเฉพาะเจาะจงของ path
+  `@app.post("/api/verify/{doc_id}")` ซึ่งเขียนไว้ก่อน จึง match literal `upload` ด้วย
+  parameter type (`int`) ทำให้ request ของ upload ตกไปที่ handler ผิดตัว
+- วิธีแก้: ย้าย `@app.post("/api/verify/upload")` ขึ้นไป **ก่อน** route ที่มี `{doc_id}` และใส่คอมเมนต์
+  หน้าบรรทัดว่า "ORDER MATTERS" เพราะคนอ่าน code review ทีหลังไม่มีทางรู้จากตัวโค้ดอย่างเดียว
+- วิธีป้องกัน: `test_uploaded_pdf_can_be_verified` ทำของจริงทั้งเส้น (อัปโหลด PDF ปลอม →
+  `POST /api/verify/upload?key=...` → assert 200 + SSE มี contract) โดย assert 422 ไว้ทางอ้อม
+  — ถ้าสลับลำดับ route อีก test นี้แดงทันที; และ `check_live.py` มี check "uploaded PDF verifies end to end"
+  ที่รันบน portal จริง
+- บทเรียน: framework แบบ "first match wins" ต้องมี test ที่ชน literal path ที่ซ้ำกับ parameter name
+  เสมอ เพราะระบบตรวจ type fail ล่าช้า (ตอน parse) ไม่ใช่ตอนหา route
+
+### ERR-20261006-002 — สคริปต์ "ตรวจ live" ที่ไม่เคยถูกรัน: NameError, json.loads ตาย, และเงื่อนไขที่ไม่มีทางเป็นจริง
+
+- อาการ: เปิด portal จริงแล้วรัน `web/check_live.py` → `NameError: name 'Path' is not defined`
+  ที่บรรทัดรายงาน health (ไฟล์ import แค่ `pathlib`) ทั้งที่ไฟล์ถูกเขียนและ "ทดสอบแล้ว" ในรอบก่อน
+  เมื่ออ่านต่อจึงพบว่าอีก 2 จุดก็ผิดแบบเดียวกัน: (ก) `json.loads(body)` 12 จุดจะโยน exception ทันทีที่
+  body ไม่ใช่ JSON (portal กำลัง restart หรือ proxy ตอบ HTML) ทำให้ checker ตายแทนที่จะรายงาน FAIL
+  (ข) `check("uploaded PDF verifies end to end", any(e.get("ok") for e in ev if "done" in e))` — event
+  ที่ engine ส่งคือ `{"type": "done", "ok": ...}` ไม่มี key ชื่อ `done` ดังนั้น `any(...)` เป็น False เสมอ
+  **check นี้ไม่มีวันเขียว** ไม่ว่าจะรันถูกหรือผิด
+- สาเหตุ: `check_live.py` ไม่ได้อยู่ใน offline suite (ต้องอาศัย server ที่รันอยู่) และไม่ใช่ไฟล์ที่ถูก
+  `git add` มาก่อน จึงไม่มีใครรันมันหลังเขียนจบ — tool ที่มนุษย์ใช้ตอนระบบมีปัญหา คือไฟล์เดียวที่
+  ไม่มีใครทดสอบตอนระบบปกติ
+- วิธีแก้: `pathlib.Path`, `jload()` (body ที่ parse ไม่ได้ = คำตอบประเภทหนึ่ง คืน `{}`),
+  ABORT พร้อมข้อความเมื่อ `/api/documents` คืนเอกสาร 0 ฉบับ (ไม่งั้นจะมี 40 FAIL ปลอมมาบังสาเหตุจริง),
+  และแก้ตัวกรอง event เป็น `e.get("type") == "done"` พร้อมแสดง `exit_code` ในรายละเอียด
+- วิธีป้องกัน: pytest 1 ตัว (`test_live_checker_fails_as_lines_when_the_portal_is_down`) รัน checker จริง
+  ชน `http://127.0.0.1:9` — connection refused ทำให้ get/post ทุกตัวคืนค่า error แต่โค้ดทั้งก้อนยังถูกรัน
+  จึงจับ NameError/AttributeError ได้ใน ~1 วินาที โดย assert ว่า "ไม่มี Traceback" + มีข้อความ ABORT
+- หลักปฏิบัติที่ดึงได้: ถ้าจะเขียน script สำหรับ "ตรวจระบบที่กำลังพัง" ต้องมีโหมดที่รันมันตอนระบบ **ไม่อยู่**
+  ด้วย มิฉะนั้นจะรู้คำตอบตอนสาย และ tool ที่ใช้ตรวจงานต้องถูก commit พร้อมงาน ไม่ใช่ค้างไว้ใน working tree

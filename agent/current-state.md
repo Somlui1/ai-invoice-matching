@@ -225,9 +225,9 @@ ode_modules/, rontend/dist/, playwright-report/, 	est-results/, *.tsbuildinfo
   - การอ่านเอกสารมีความไม่แน่นอน: `process_pdf.py` รอบสดเรียก matcher ซ้ำทุกครั้งที่ 30–60 วินาที
     การวัดที่เปรียบเทียบได้จึงใช้ replay จาก perception cache + คำนวณ V-05/V-07 ใหม่จากข้อมูลเดิม
 
-## System A — Web Testing Portal (`OCR service/system-a-sandbox/system-a/web/`, 2026-10-05T23:55:00+07:00)
+## System A — Web Testing Portal (`OCR service/system-a-sandbox/system-a/web/`, อัปเดตล่าสุด 2026-10-06T08:25:00+07:00)
 
-สถานะ: **ครบทั้ง 5 phase ของ `TASK_WEB_TEST_PORTAL.md` · commit `2d87f6e` · pytest 24/24 + UI logic 25/25**
+สถานะ: **ครบทั้ง 5 phase ของ `TASK_WEB_TEST_PORTAL.md` · commit `5a058e0` · pytest 31/31 + UI logic 27/27 + live checker 77/77**
 
 - เป็น **consumer ของ CLI เท่านั้น**: การรันทุกครั้งที่ portal คือ subprocess ของ `system-a/process_pdf.py`
   (ไม่ import `system_a` เพื่อตัดสินใจ) → `src/system_a/**`, `config/**` และ output contract ไม่ถูกแตะ
@@ -243,4 +243,13 @@ ode_modules/, rontend/dist/, playwright-report/, 	est-results/, *.tsbuildinfo
   ถูกเลือกด้วยการ "ลอง import" (yaml/pydantic/pymupdf) ไม่ใช่เดา path; override ด้วย `WEB_ENGINE_PYTHON`
 - ข้อจำกัดที่รู้อยู่: `--quick` ของ CLI ไม่ใช่โหมดเร็ว (it disables crops+table ⇒ perception คนละชุด,
   cache key คนละตัว, verdict ต่างกันได้) UI จึงแสดงเป็น "คนละการรัน"; ยังไม่มีการคลิกทดสอบบน browser จริง
-- Record ประกอบ: session `2026-10-05-004`, `CHG-20261005-004`, `ERR-20261005-005/006`, DEC-013..015
+- **ลำดับ route มีผล**: `/api/verify/upload` ต้อง register ก่อน `/api/verify/{doc_id}` ไม่งั้น Starlette
+  ตอบ literal "upload" เป็น doc_id → อัปโหลดได้แต่ verify ตายด้วย 422 (มี regression test ปิดทางกลับ)
+- ความล้มเหลวของ Paperless-ngx ถูกแปลเป็นสถานะที่ browser ควรเห็น + ประโยคอธิบาย 1 ประโยค:
+  `404` id เก่า/ถูกลบ, `502` token ถูกปฏิเสธ (`PAPERLESS_AUTH`), `503` ไม่ได้ตั้งค่า DMS, `502` transport;
+  ฝั่ง UI แสดง `detail` ของ FastAPI ตรงๆ และภาพที่โหลดไม่ออกจะถาม endpoint กลับไปหาสาเหตุ
+- ตัวตรวจแบบเดินจริง `python web\check_live.py` (77 checks: asset ทุกไฟล์ที่ page เรียก, catalog,
+  verification จริง 1 ฉบับผ่าน subprocess, geometry, upload, และ failure path) ถูกรวมเข้า repo พร้อม
+  pytest ที่บังคับให้มันรันได้ตอน portal ไม่อยู่ (ชน port ที่ปิด → ต้องได้ FAIL lines ไม่มี traceback)
+- Record ประกอบ: session `2026-10-05-004` + `2026-10-06-001`, `CHG-20261005-004/005`, `CHG-20261006-001`,
+  `ERR-20261005-005/006`, `ERR-20261006-001/002`, DEC-013..015

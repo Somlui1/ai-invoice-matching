@@ -271,3 +271,47 @@ Started: `2026-10-05T20:40:00+07:00` · Finished: `2026-10-05T23:55:00+07:00` ·
       origin bottom-left (ทดสอบทั้ง 3 แบบใน `test_ui_logic.mjs`)
 - [x] test suite offline: pytest 24/24 + browser-module 25 checks
 - [ ] คลิกทดสอบบน browser จริงโดยผู้ใช้ (logic ผ่านหมดแล้ว แต่ layout/CSS ยังไม่ได้สายตาคน)
+
+---
+
+## TASK-20261006-001: ปิดงาน portal ที่ค้าง — เส้นทาง upload, การอ่าน error จาก DMS, และตัวตรวจ live
+
+Started: `2026-10-06T07:30:00+07:00` · Finished: `2026-10-06T08:25:00+07:00` · Status: **DONE** (`5a058e0`)
+
+### Goal
+งาน portal รอบก่อนถูกทิ้งไว้ใน working tree (ยังไม่ commit) โดยแก้ไปครึ่งทาง: ต้องทำให้จบ ปิด
+regression ทั้งสองเคส และพิสูจน์ด้วย portal ที่รันอยู่จริง — โดยไม่แตะ `src/system_a/**` และ `config/**`
+
+### Plan
+1. ตรวจโค้ด/test ที่ค้างอยู่ → ผ่าน pytest 29 แล้วทำต่อ
+2. ทำให้ error จาก Paperless "อ่านออก" ถึงตาผู้ใช้ (backend สถานะ + ประโยค, frontend แสดง `detail`,
+   viewer ไม่ให้ภาพที่โหลดไม่ออกจบแบบเงียบ)
+3. เปิด portal จริง + รัน `web/check_live.py` เพื่อยืนยันบนของจริง
+4. แก้สิ่งที่ checker เปิดโปงออก แล้วเพิ่ม test กันถอยหลัง + บันทึก canonical records
+
+### Acceptance criteria → ผลจริง
+- [x] อัปโหลด PDF แล้วกด Verify ได้จริง (เดิม 422 เพราะ route `{doc_id}` กลืน `upload`) —
+      offline test + live check "uploaded PDF verifies end to end" (HTTP 200 + `done` exit 0)
+- [x] เอกสารที่ไม่มีใน Paperless แล้ว = `404` พร้อมข้อความ "DMS-<id> is not in Paperless-ngx"
+      ทุก endpoint ที่แตะเอกสาร (meta/pdf/page png); token ผิด = `502`, ไม่ได้ตั้งค่า DMS = `503`
+- [x] ข้อความ failure ไปถึงตาผู้ใช้: toast แสดง `detail` ไม่ใช่ JSON envelope, ภาพที่โหลดไม่ออก
+      จะถาม endpoint กลับเพื่อหาสาเหตุ (และแยกกรณี "endpoint ให้ภาพได้ แต่ browser ไม่วาด")
+- [x] `web/check_live.py` ถูก commit (รอบก่อนเขียนไว้แต่ไม่เคย `git add`) และ **เขียวจริง**: 77/77
+      บน portal ที่รันอยู่ (รวม sandbox verification ของ DMS-114: perception cache hit, exit 0, REVIEW)
+- [x] ตัวตรวจเองต้องพังอย่างอ่านได้: pytest รัน checker ชน port ที่ปิด → FAIL lines + ABORT, ไม่มี traceback
+- [x] ไม่แตะ core — `git diff --cached --name-only` มีแต่ไฟล์ใต้ `system-a/web/`
+- [ ] การคลิกทดสอบโดยคนจริงบน browser ยังไม่เกิด (logic/DOM ถูก harness ครอบแล้ว)
+
+### Result
+- pytest **31/31** (เพิ่ม 5), browser modules **27/27** (เพิ่ม 2 ที่ครอบ failure path),
+  live checker **77/77**
+- ของที่ได้ฟรีจากการเปิดโปงของ checker: NameError ที่ทำให้งาน "ทดสอบบน live" ของรอบก่อนไม่เคยเกิดขึ้นจริง,
+  `json.loads` 12 จุดที่ไม่ทนต่อ body ที่ไม่ใช่ JSON, และ check ที่เขียนกรอง SSE ผิด key จึงไม่มีวันเขียว
+- หลักปฏิบัติใหม่ (ERR-20261006-002): script ที่เขียนไว้ "ตรวจระบบที่กำลังพัง" ต้องถูกรันตอนระบบไม่อยู่ด้วย
+  และ tool ที่ใช้ตรวจงานต้อง commit พร้อมงาน
+
+### Next (ยังไม่เริ่ม)
+- กลับเข้า TASK-V01-00 ใน `.agent/todo.md`: บังคับให้ `vision_table_rows` คืนคอลัมน์หน่วยนับ
+  (เป้าหมาย 238 NOT_PRESENT cells) — ตอนนี้ดูผลลัพธ์ line-by-line บน portal ได้แล้ว
+- ก่อนแก้ perception ให้ย้าย `import fitz` → `pymupdf` ไปด้วยในครั้งเดียว เพื่อจ่ายค่า perception cache
+  หนึ่งครั้ง (DEC-016)

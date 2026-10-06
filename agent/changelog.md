@@ -292,3 +292,34 @@ un_stats.py และ erify_run.py รันผ่านครบ 14/14 Accepta
   - UI แสดง warn สีเหลือง / error สีแดง และมี tooltip อธิบาย — ไม่มีการซ่อนข้อความใด ๆ
 - ผลทดสอบ: pytest 26/26 (เพิ่ม 2) · รันจริง `/api/verify/20` sandbox: 39 events, บรรทัด fitz เป็น
   `level=warn` + hint, error 0 บรรทัด, ไม่มี escape คงเหลือ, exit 0
+
+## 2026-10-06
+
+### Fixed — `CHG-20261006-001` — Portal: เส้นทางการ upload ไม่ถูก route อื่นกลืน, error จาก Paperless อ่านออก, และตัวตรวจ live ที่ไม่เคยผ่าน
+
+- Timestamp: `2026-10-06T08:25:00+07:00`
+- Task: `TASK-20261006-001` · Session: `2026-10-06-001` · Commit: `5a058e0`
+- ประเภท: bug fix (portal), tooling, test — **ไม่แตะ `src/system_a/**` และ `config/**`** (ตรวจด้วย `git diff --cached --name-only`)
+- ไฟล์ที่เปลี่ยน (ทั้งหมดอยู่ใต้ `system-a/web/`): `app.py`, `static/js/api.js`, `static/js/viewer.js`,
+  `test_portal.py`, `test_ui_logic.mjs`, `README.md` และ `check_live.py` (ถูก **commit ครั้งแรก** — ไฟล์นี้
+  ถูกเขียนไว้รอบก่อนแต่ไม่เคยถูก `git add` จึงหายไปถ้า clone ใหม่)
+- สิ่งที่แก้:
+  1. **route shadowing**: `POST /api/verify/{doc_id}` ถูก register ก่อน `POST /api/verify/upload` และ
+     Starlette ตอบ route แรกที่ pattern ตรงกัน คำว่า `upload` จึงถูกแปลงเป็น `doc_id` → อัปโหลด PDF สำเร็จ
+     แต่กด Verify แล้วได้ 422 int-parse โดย endpoint อื่นปกติทั้งหมด ย้าย literal route ขึ้นก่อน +
+     regression test (`test_uploaded_pdf_can_be_verified`)
+  2. **error จาก Paperless-ngx**: เดิมทุกความผิดพลาดของ DMS กลายเป็น 502 "cannot fetch" เหมือนกันหมด
+     ทำให้เอกสารที่ถูกลบไปแล้วยังหน้าจอเหมือน portal พัง → `_upstream_error()` ตอบ `404` (id เก่า/ถูกลบ),
+     `502` (token ถูกปฏิเสธ — pattern `PAPERLESS_AUTH` จาก reader จริง), `503` (ไม่ได้ตั้งค่า DMS),
+     `502` (transport) พร้อมประโยคอธิบาย 1 ประโยคต่อกรณี; `api.js` แสดง `detail` ของ FastAPI แทน JSON
+     envelope; viewer ที่ภาพไม่ออกจะถาม endpoint อีกครั้งเพื่อดูสาเหตุ (และแยกกรณี "endpoint ให้ภาพได้
+     แต่ browser ไม่วาด") — ไม่มีข้อความใดถูกซ่อน
+  3. **`web/check_live.py` ไม่มีทางผ่านมาก่อน**: NameError (`Path` ไม่ถูก import) ทำให้จบตั้งแต่ตรวจ health,
+     `json.loads(body)` 12 จุดตายทันทีที่ body ไม่ใช่ JSON (portal กำลัง restart / proxy ตอบ HTML),
+     และเงื่อนไขของ "uploaded PDF verifies end to end" กรอง SSE ด้วย key ที่ไม่มีอยู่ (`"done" in e`)
+     → แก้เป็น `e.get("type") == "done"`, เพิ่ม `jload()` + ABORT ที่อ่านได้เมื่อ catalog ว่าง
+- ผลตรวจจริง: pytest **31/31** · browser modules (stub DOM) **27/27** · **live checker 77/77** บน portal ที่รันอยู่
+  รวม `uploaded PDF verifies end to end` (HTTP 200 + `done` event, perception cache hit) และ
+  `a stale document id explains itself` → `404 {"detail":"DMS-999999 is not in Paperless-ngx"}`
+  · pytest ใหม่ 1 ตัวรัน checker ชน port ที่ปิด → ได้ FAIL lines ไม่มี traceback
+- ข้อจำกัดคงเดิม: ยังไม่มีการคลิกทดสอบโดยคนจริงบน browser (harness ครอบคลุม logic/DOM ไม่ใช่การจัดวาง CSS)

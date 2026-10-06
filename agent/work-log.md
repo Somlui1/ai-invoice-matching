@@ -295,3 +295,23 @@ uns/LATEST เป็น 2026-10-05-full
 - 23:59 — บันทึกไว้ว่าทำไมไม่แก้ `import fitz` ใน `pdf_ingest.py`: `_code_fingerprint()` อ่าน source bytes
   ของ pdf_ingest/coords/vision_pipeline มาทำ key — แก้ 1 บรรทัด = cache extraction 112 ชุดใช้ไม่ได้
   และต้อง re-perceive ~425 หน้า (~3 ชม. ของ VLM) จึงยกไปทำพร้อมงาน perception รอบถัดไป (DEC-016)
+
+## 2026-10-06
+
+- 07:30 — ต่อจากงาน portal ที่ค้างใน working tree (ยังไม่ commit): route `/api/verify/upload` ถูก
+  `/api/verify/{doc_id}` กลืน และ error ของ Paperless ตอบ 502 หมดทุกกรณี → ตรวจว่าโค้ด+test ที่เขียนไว้
+  ผ่าน (pytest 29) แล้วทำต่อให้จบรอบ
+- 07:55 — เพิ่ม test ยืนยันว่า upload ที่อัปโหลดแล้ว verify ได้จริง (422 = route ผิดลำดับ) และ 404 ของ
+  เอกสารที่หลุดจาก Paperless ต้องไม่อ่านเป็น portal พัง; รวมเคส token ถูกปฏิเสธ (502) กับไม่ได้ตั้งค่า DMS (503)
+- 08:00 — เปลี่ยนฝั่ง UI ให้ error อ่านได้จริง: `api.js` ดึง `detail` ของ FastAPI มาแสดง (จากเดิม `404 {"detail":...}`),
+  `viewer.js` ไม่ยอมให้ภาพที่โหลดไม่ออกจบแบบเงียบๆ — จะถาม endpoint กลับไปหาสาเหตุ และถ้า endpoint ยังให้ภาพได้
+  จะบอกตรงๆ ว่า "browser ไม่วาด" ไม่ใช่บอกสาเหตุปลอม
+- 08:05 — เปิด portal จริง (port 8080) เพื่อตรวจด้วย `web/check_live.py` → **checker ตายด้วย NameError (`Path`)**
+  ที่บรรทัด health สรุปได้ว่าไฟล์นี้ไม่เคยถูกรันหลังเขียนจบ (และเป็นไฟล์ที่ยังไม่ถูก `git add` ด้วย)
+- 08:08 — แก้ checker: `pathlib.Path`, `jload()` (body ที่ไม่ใช่ JSON = คำตอบ ไม่ใช่ crash), ABORT เมื่อ
+  catalog ว่าง, และแก้เงื่อนไข check ของ upload ที่กรอง SSE ผิด key → ไม่เคยมีทางเขียว
+- 08:10 — เพิ่ม pytest 1 ตัวรัน checker กับ port ที่ปิด (9) เพื่อบังคับให้ส่วนที่เหลือของไฟล์ถูกรันจริง
+  ใน offline suite: ต้องได้ FAIL lines + ข้อความ ABORT ไม่มี traceback
+- 08:12 — ผลสุดท้าย: pytest **31/31**, browser modules **27/27**, **live checker 77/77** บน portal จริง
+  (upload → verify ผ่าน end-to-end, 404 อ่านได้, sandbox run ของ DMS-114 exit 0) → commit `5a058e0`
+- 08:15 — ปิด server ที่เปิดทดสอบ และบันทึก ERR-20261006-001/002 (route shadowing + "tool ที่ไม่มีใครรัน = ยังไม่ถูกทดสอบ")
