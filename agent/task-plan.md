@@ -364,3 +364,15 @@ regression ทั้งสองเคส และพิสูจน์ด้�
 ### Next
 - รอ user เลือก: จ่าย cache reset ซื้อชุด 5 ข้อ / ทำแค่ (3)+(4)+(5) which are deterministic / หรือส่ง
   คำถามมาตรฐาน 2 ข้อให้ owner ก่อน (V-01 รับหน่วยจากหัวคอลัมน์ได้ไหม + ควร block ไหมเมื่อเอกสารไม่พิมพ์หน่วย)
+
+## TASK-20261006-003: ตอบว่า portal "ใช้งานได้หรือยัง" ด้วยหลักฐานสามชั้น และปิดช่องที่ panel พูดความจริงไม่หมด — DONE
+
+- **Status**: DONE 2026-10-06T08:51:00+07:00 · commit `d5ad5c3` (5 ไฟล์ ใต้ `system-a/web/` เท่านั้น)
+- **เป้าหมาย**: ไม่ตอบจากบันทึกเก่า แต่ตรวจสามชั้น (pytest / server จริง + live checker / browser modules
+  กับ fixture จาก API จริงหลายเอกสาร) แล้วแก้สิ่งที่เจอจริง
+- **Acceptance**: (1) ทุกชั้นผ่านบนข้อมูลหลาย shape ไม่ใช่เอกสารเดียว (2) exception panel ต้องแสดงตัวเลข
+  ที่ทำให้กฎ fail (3) ไม่แตะ `src/system_a/**` และ `config/**`
+- **Result**: pytest **32/32** · live **77/77** · UI logic ผ่าน **5/5** เอกสาร (DMS-20/25/36/99/114)
+  · overlay `E03.diffs = {sub_plus_vat_vs_grand: 3445.05}` · false failures 8 รายการจาก harness เก่าหายไป
+- **Records**: `CHG-20261006-003`, `ERR-20261006-004`, DEC-021, session `2026-10-06-003`
+- **Next (ค้าง, ไม่บล็อก)**: คลิกทดสอบ layout/CSS โดยคนบน browser จริง · vector PDF.js mode

@@ -225,9 +225,9 @@ ode_modules/, rontend/dist/, playwright-report/, 	est-results/, *.tsbuildinfo
   - การอ่านเอกสารมีความไม่แน่นอน: `process_pdf.py` รอบสดเรียก matcher ซ้ำทุกครั้งที่ 30–60 วินาที
     การวัดที่เปรียบเทียบได้จึงใช้ replay จาก perception cache + คำนวณ V-05/V-07 ใหม่จากข้อมูลเดิม
 
-## System A — Web Testing Portal (`OCR service/system-a-sandbox/system-a/web/`, อัปเดตล่าสุด 2026-10-06T08:25:00+07:00)
+## System A — Web Testing Portal (`OCR service/system-a-sandbox/system-a/web/`, อัปเดตล่าสุด 2026-10-06T08:51:00+07:00)
 
-สถานะ: **ครบทั้ง 5 phase ของ `TASK_WEB_TEST_PORTAL.md` · commit `5a058e0` · pytest 31/31 + UI logic 27/27 + live checker 77/77**
+สถานะ: **ครบทั้ง 5 phase ของ `TASK_WEB_TEST_PORTAL.md` · commit `d5ad5c3` · pytest 32/32 + UI logic ผ่านบนเอกสารจริง 5 ฉบับ + live checker 77/77 → "ใช้งานได้"**
 
 - เป็น **consumer ของ CLI เท่านั้น**: การรันทุกครั้งที่ portal คือ subprocess ของ `system-a/process_pdf.py`
   (ไม่ import `system_a` เพื่อตัดสินใจ) → `src/system_a/**`, `config/**` และ output contract ไม่ถูกแตะ
@@ -251,8 +251,16 @@ ode_modules/, rontend/dist/, playwright-report/, 	est-results/, *.tsbuildinfo
 - ตัวตรวจแบบเดินจริง `python web\check_live.py` (77 checks: asset ทุกไฟล์ที่ page เรียก, catalog,
   verification จริง 1 ฉบับผ่าน subprocess, geometry, upload, และ failure path) ถูกรวมเข้า repo พร้อม
   pytest ที่บังคับให้มันรันได้ตอน portal ไม่อยู่ (ชน port ที่ปิด → ต้องได้ FAIL lines ไม่มี traceback)
-- Record ประกอบ: session `2026-10-05-004` + `2026-10-06-001`, `CHG-20261005-004/005`, `CHG-20261006-001`,
-  `ERR-20261005-005/006`, `ERR-20261006-001/002`, DEC-013..015
+- **Exception panel บอกตัวเลขที่พังจริง**: overlay เพิ่ม `exceptions[].diffs` = เฉพาะค่าที่ไม่ใช่ศูนย์จาก
+  `rule_results[].data.diffs` แล้ว panel แสดงค่านั้นเมื่อคู่ actual/expected "เงียบ" (DMS-20 E03 เดิมขึ้น
+  `49215.00` เทียบ `49215.00` ทั้งที่ Total Mismatch มาจาก `sub_plus_vat_vs_grand = 3445.05`) —
+  ทำฝั่ง portal เท่านั้น ไม่แก้ contract (DEC-013)
+- `test_ui_logic.mjs` **derive ความคาดหวังจาก payload** ที่ถูกทดสอบ ไม่ใช่ hardcode ค่าของเอกสารใด
+  เอกสารหนึ่ง (เดิม hardcode `E01`/`26/2691`/`PCS`/`595×842` → DMS-20/25/36/99 ให้ 8 false failures)
+  ตอนนี้รันผ่านบน 5 เอกสารที่ต่างกันเชิงโครงสร้าง: DMS-25/DMS-99 (หน้า 1 เป็นใบปะหน้า field ทั้ง 12 ตัวอยู่
+  หน้า 2) และ DMS-36 (หน้า landscape 842×595)
+- Record ประกอบ: session `2026-10-05-004` + `2026-10-06-001` + `2026-10-06-003`, `CHG-20261005-004/005`,
+  `CHG-20261006-001/003`, `ERR-20261005-005/006`, `ERR-20261006-001/002/004`, DEC-013..015, DEC-021
 
 ## System A — ราคาของงาน perception ที่วัดได้จริง (2026-10-06T08:32:00+07:00)
 

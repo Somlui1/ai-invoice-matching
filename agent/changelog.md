@@ -346,3 +346,19 @@ un_stats.py และ erify_run.py รันผ่านครบ 14/14 Accepta
   - หลักฐาน: `.agent/eval/uom_probe_r0.json`, `.agent/eval/consensus_probe_r0.json`,
     `.agent/harness/uom_probe.py`, `.agent/harness/consensus_probe.py`,
     session `2026-10-06-002-uom-before-cache-reset.md`, DEC-019/020
+- **CHG-20261006-003** (2026-10-06T08:51:00+07:00) — portal ตอบคำถาม "ใช้งานได้หรือยัง" ด้วยหลักฐาน + แก้
+  สองข้อบกพร่องที่เจอตอนตรวจ (commit `d5ad5c3`)
+  - คำตอบที่วัดได้: pytest **32/32** · UI logic ผ่านบนเอกสารจริง **5/5 ฉบับ** · live checker **77/77**
+    (portal ยังไม่รวมการคลิกทดสอบโดยคนบน browser — harness ครอบคลุม logic/DOM ไม่ใช่ CSS layout)
+  - **exception panel ไม่บอกตัวเลขที่พัง**: DMS-20 มี E03 "Total Mismatch" ที่ overlay แสดง
+    `actual = 49215.00 / expected = 49215.00` (ค่าเท่ากัน!) เพราะค่าสองตัวนี้มาจาก `evidence[]` ซึ่งเป็น
+    *คู่ที่ตรงกัน* ส่วนผลต่างจริงอยู่ที่ `rule_results[V-03].data.diffs.sub_plus_vat_vs_grand = 3445.05`
+    → `build_overlays()` เพิ่ม `exceptions[].diffs` (กรองเฉพาะ non-zero) และ panels.js แสดงคอลัมน์
+    "What differs" เมื่อคู่ actual/expected พูดอะไรไม่ได้ — ทำฝั่ง portal ไม่แตะ contract (DEC-013)
+  - **harness ผูกกับเอกสารเดียว**: `test_ui_logic.mjs` hardcode `E01` / `26/2691` / `NOT_PRESENT` /
+    `PCS` / `V-01` / `/REVIEW/` และ `595×842` → พอชี้ไปที่เอกสารอื่นจริงจะได้ **false failures 8 รายการ**
+    (DMS-25/99 field ทั้ง 12 ตัวอยู่หน้า 2 เพราะหน้า 1 เป็นใบปะหน้า, DMS-36 เป็น landscape 842×595)
+    → rewrite ให้เลือกหน้า/field/cell/exception และ dims จาก payload ที่ถูกทดสอบ แล้วจึงพบว่า E03 คือ
+    ของที่ต้องแก้ตัวจริงตัวเดียว
+  - pytest ใหม่ 1 ตัว: `test_an_exception_carries_the_sum_that_actually_differs` (ยืนยัน diffs กรองศูนย์
+    + ค่าเดิมของ rule ที่ไม่มี diffs ไม่เปลี่ยน)

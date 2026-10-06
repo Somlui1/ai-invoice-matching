@@ -345,3 +345,14 @@ uns/LATEST เป็น 2026-10-05-full
   (prompt: ห้ามเอา caption มาปนในค่า field / prompt: อ่านหน่วยนับจากหัวคอลัมน์พร้อม provenance +
   `NO_UOM_PRINTED` เมื่อไม่มีพิมพ์จริง / code: เทียบ "รันของคำใน box" + pad / code: cap words ต่อหน้า)
   ไม่ใช่ "บังคับ UOM" อย่างเดียว เพดานที่วัดได้คือ **V-01 ผ่าน ~11–13/99 ไม่ใช่ 99**
+- 08:38 — user ถามว่า web portal ใช้งานได้หรือยัง → รันหลักฐานจริงครบ 3 ชั้น: pytest 31/31, server จริง +
+  `check_live.py` **77/77**, แล้วชี้ UI logic harness ไปที่ fixture ที่ build จาก API จริงของ DMS-20 → **fail 3 รายการ**
+- 08:44 — แยกสาเหตุได้ 2 กลุ่ม: (1) harness hardcode ค่าของเอกสารเดียว (`E01`,`26/2691`,`PCS`,`595×842`)
+  ซึ่ง DMS-25/99 ย้าย field ไปหน้า 2 และ DMS-36 เป็น landscape → false failures 8 รายการ (2) ของจริง 1 ตัว:
+  exception panel ของ E03 แสดง `49215.00` เทียบ `49215.00` ทั้งที่กฎ fail
+- 08:47 — ของที่ต้องแก้ตัวจริง: ค่า `actual/expected` ของ overlay มาจาก `evidence[]` = *คู่ที่ตรงกัน* ส่วนผลต่าง
+  อยู่ใน `rule_results[].data.diffs` (`sub_plus_vat_vs_grand = 3445.05`) → เพิ่ม `exceptions[].diffs`
+  (non-zero เท่านั้น) ฝั่ง portal + panel "What differs" โดยไม่แตะ contract
+- 08:50 — rewrite harness ให้ derive ความคาดหวังจาก payload (เลือกหน้าที่มี field+exception, dims จาก
+  `pages[]`, label เทียบจากหัวค่าเพราะ label ตัดทอน by design) → ผ่านครบ **5/5 เอกสาร** (DMS-20/25/36/99/114)
+- 08:51 — สรุป: pytest **32/32**, live **77/77**, UI **5/5** — portal ใช้งานได้ และ commit `d5ad5c3`
