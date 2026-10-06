@@ -367,3 +367,24 @@ esolved
 - วิธีป้องกัน: test เดียวกันนี้รันใน pytest (`test_browser_modules_run_against_the_api_data`,
   skip เมื่อไม่มี node) และมี `test_frontend_only_references_ids_that_exist_in_the_markup`
   ตรวจ id ที่ JS อ้างถึงว่ามีจริงใน `index.html`
+
+### ERR-20261005-007 — ข้อความ warning ของ library ใน log ของ engine ถูกอ่านผิดว่าเป็นความล้มเหลว
+
+- อาการ: ผู้ใช้รัน verification ผ่าน portal สำเร็จ (exit 0, 0.9 s) แต่ในช่อง engine log มีบรรทัด
+  `warning: The `fitz` API is deprecated and will be removed in future. Use `import pymupdf` instead.`
+  ซึ่งหน้าตาเหมือน error — และป้ายผล `[ MANUAL_REVIEW ]` แสดงเป็นอักษรกากบาท เพราะ ANSI escape
+  ถูกพิมพ์ออกมาตอนอ่านผ่าน pipe
+- สาเหตุ: `engine.py` ใช้ `stderr=subprocess.STDOUT` (จำเป็นเพื่อให้เห็น traceback ของ engine) จึง
+  รับข้อความของทุก library มาใน stream เดียวกับ step line โดยไม่มีการแยกระดับ; และ `process_pdf.py`
+  ใส่สีแบบไม่ดู `isatty()`
+- วิธีแก้ (ทำเฉพาะฝั่ง portal): `strip_ansi()` ทุกบรรทัด + `classify()` ให้ `info`/`warn`/`error`
+  พร้อม `hint` ต่อ message ที่ไม่ใช่ความผิด → UI ทาเหลือง/แดง + tooltip, ไม่ซ่อนข้อความ
+  pattern ของ error จงใจแคบ (`[ERROR]`, `Traceback (most recent call last)`, `(?<![A-Za-z_])ERROR(?![A-Za-z_])`,
+  `CRITICAL`) เพราะ output ปกติของ CLI มีคำว่า "Exceptions / Findings" และ `[ SYSTEM_ERROR ]` อยู่แล้ว
+  ซึ่งถ้า match หยาบเกินไปจะกลายเป็น error บังคับทุกครั้งที่รันสำเร็จ
+- สิ่งที่ไม่แก้และทำไม: การเปลี่ยน `import fitz` → `import pymupdf` ใน `src/system_a/perception/pdf_ingest.py`
+  ทำได้ในทาง syntax แต่ `_code_fingerprint()` อ่าน source bytes ของ pdf_ingest/coords/vision_pipeline
+  มาทำ perception cache key → แก้แล้ว cache 112 ชุดตกรุ่น ต้อง re-perceive ~425 หน้า (≈3 ชม.)
+  จึงยกไปรวมกับงานแก้ perception รอบถัดไป (DEC-016) เพื่อจ่ายค่า cache หนึ่งครั้ง
+- วิธีป้องกัน: test assert ว่า output ปกติของ CLI ทั้งหมดยังเป็น `info` และ `_pump` ส่ง log ที่ไม่มี
+  escape ออกมาจริง

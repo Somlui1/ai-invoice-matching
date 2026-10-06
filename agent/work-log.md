@@ -288,3 +288,10 @@ uns/LATEST เป็น 2026-10-05-full
   ใน index/viewer; แก้ viewer ให้ worker ชี้ไฟล์ `.mjs` ตรงๆ (v4 ใช้ workerSrc เป็น path ไฟล์)
 - 23:59 — ยืนยันผลบนข้อมูลจริง: DMS-20 fields มีกรอบ 12/13, cells 30/30, exception boxes 5;
   DMS-36 cells 8/10 ซึ่ง 2 cell ที่ไม่มีกรอบคือ `NOT_PRESENT` (ไม่มีที่ให้ชี้ — เป็นผลถูกต้อง)
+
+- 23:59 — ผู้ใช้รัน verification ผ่าน portal แล้วเห็น `warning: The fitz API is deprecated` ชวนให้เข้าใจว่าพัง
+  → แก้ที่ portal ไม่ใช่ core: `strip_ansi()` + `classify()` (info/warn/error + tooltip) commit `fec7451`
+  ทดสอบ 26/26 และยืนยันบน SSE จริง (warn + hint, error 0)
+- 23:59 — บันทึกไว้ว่าทำไมไม่แก้ `import fitz` ใน `pdf_ingest.py`: `_code_fingerprint()` อ่าน source bytes
+  ของ pdf_ingest/coords/vision_pipeline มาทำ key — แก้ 1 บรรทัด = cache extraction 112 ชุดใช้ไม่ได้
+  และต้อง re-perceive ~425 หน้า (~3 ชม. ของ VLM) จึงยกไปทำพร้อมงาน perception รอบถัดไป (DEC-016)

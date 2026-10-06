@@ -274,3 +274,21 @@ un_stats.py และ erify_run.py รันผ่านครบ 14/14 Accepta
 - ผลทดสอบ: pytest 24/24 (offline ทั้งหมด, faked subprocess) · UI logic 25/25 ·
   **เทียบ CLI จริงบน DMS-20 sandbox: `integrity.payload_sha256` ตรงกันทุกตัวอักษร** (portal 1.0s = CLI 1.0s)
 - โน้มเทียบ: portal เป็น *consumer* ของ `process_pdf.py` เท่านั้น ไม่ได้เพิ่ม/เปลี่ยนตรรกะการตัดสินใจใด ๆ
+
+### `CHG-20261005-005` — Portal:ติดป้ายระดับให้บรรทัดใน engine log และลบสี ANSI ของ CLI
+
+- วันที่: `2026-10-05T23:59:00+07:00`
+- ประเภท: tooling (portal), test
+- ไฟล์ที่เปลี่ยน (commit `fec7451`): `system-a/web/engine.py`, `static/js/app.js`, `static/styles.css`,
+  `test_portal.py`, `README.md` — ไม่แตะ `src/system_a/**` และ `config/**`
+- พฤติกรรมที่เปลี่ยน: stderr ของ engine รวมเข้ากับ stdout ทำให้ข้อความของ library ไหลมาในช่อง log
+  เดียวกับ step — ข้อความ `warning: The fitz API is deprecated ...` ของ PyMuPDF จึงดูเหมือนความล้มเหลว
+  ทั้งที่รันจบใน 0.9 s; และ `process_pdf.py` พิมพ์ ANSI colour แบบไม่ condition อ่านผ่าน pipe จึงเป็น
+  อักขระแปลก ๆ
+  - `strip_ansi()` ตัดสีออกทุกบรรทัดที่ดักได้
+  - `classify()` ติดป้าย `info`/`warn`/`error` + แนบคำอธิบายของข้อความที่ไม่ใช่ความผิด
+    (จงใจให้ pattern แคบ: "--- Exceptions / Findings ---" และป้าย `[ SYSTEM_ERROR ]` ซึ่งเป็น output
+    ปกติต้องเป็น info; ของจริงคือ `[ERROR]` หรือ traceback)
+  - UI แสดง warn สีเหลือง / error สีแดง และมี tooltip อธิบาย — ไม่มีการซ่อนข้อความใด ๆ
+- ผลทดสอบ: pytest 26/26 (เพิ่ม 2) · รันจริง `/api/verify/20` sandbox: 39 events, บรรทัด fitz เป็น
+  `level=warn` + hint, error 0 บรรทัด, ไม่มี escape คงเหลือ, exit 0
