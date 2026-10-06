@@ -401,6 +401,23 @@ def build_overlays(result: dict) -> dict:
 
     # 4. exceptions: an exception cites evidence_ids; each evidence cites element_ids; boxes come from those
     evid = {e.get("evidence_id"): e for e in result.get("evidence") or []}
+    # The evidence pair is often the sum that *matched* (DMS-20's E03 reads "49215.00 vs 49215.00") while
+    # the sums that differ live in rule_results[].data.diffs. Carry those too, or the operator is shown
+    # two identical numbers for a rule that failed.
+    rule_data = {(r.get("rule_id") or "").upper(): (r.get("data") or {})
+                 for r in result.get("rule_results") or []}
+
+    def differing_sums(rule_id: str) -> dict:
+        out = {}
+        for key, val in ((rule_data.get(rule_id) or {}).get("diffs") or {}).items():
+            try:
+                if abs(float(str(val).replace(",", ""))) <= 1e-9:
+                    continue
+            except (TypeError, ValueError):
+                pass
+            out[key] = val
+        return out
+
     excs: list[dict] = []
     for x in result.get("exceptions") or []:
         eids: list[str] = []
@@ -416,10 +433,12 @@ def build_overlays(result: dict) -> dict:
                     boxes.append({"element_id": eid, "page": it["page"], "bbox": it["bbox"],
                                   "text": it.get("text") or it.get("raw")})
         first = evid.get((x.get("evidence_ids") or [None])[0]) or {}
+        rid = (x.get("rule_id") or "").upper()
         excs.append({"code": x.get("code"), "exception_id": x.get("exception_id"), "name": x.get("name"),
-                     "severity": x.get("severity"), "rule_id": (x.get("rule_id") or "").upper(),
+                     "severity": x.get("severity"), "rule_id": rid,
                      "detail": first.get("detail"), "actual_value": first.get("actual_value"),
-                     "expected_value": first.get("expected_value"), "pages": first.get("page_no") or [],
+                     "expected_value": first.get("expected_value"),
+                     "diffs": differing_sums(rid), "pages": first.get("page_no") or [],
                      "evidence_ids": x.get("evidence_ids") or [], "element_ids": eids, "boxes": boxes})
 
     sigs: dict[str, dict] = {}

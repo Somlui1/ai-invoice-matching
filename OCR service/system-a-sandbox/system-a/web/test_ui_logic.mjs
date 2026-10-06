@@ -134,18 +134,51 @@ try {
   await Viewer.open({ kind: 'dms', id: 'DMS-9001' }, overlays.pages.length, overlays.page_meta);
   // app.js loads a result first (that is what fills Panels' view of the overlays)
   Panels.showResult('DMS-9001', result, overlays);
-  const boxes = Panels.boxesFor(1);
-  check('boxes assembled for page 1', boxes.length > 0, `n=${boxes.length}`);
-  check('a header field box exists for invoice_num',
-        boxes.some(b => b.layer === 'header_fields' && b.element_id === 'D1-f-invoice_num'));
+  /* Expectations come out of the payload under test, never out of one favourite document: the same
+   * harness has to stay honest for every result the portal can serve (it used to hardcode E01,
+   * "26/2691", "PCS" and 595x842, so DMS-25/36/99 produced eight false failures). */
+  const frag = (s) => String(s ?? '').trim().slice(0, 12).replace(/[&<>"]/g, '');
+  const fieldEntries = Object.entries(overlays.fields || {});
+  /* Work on the page that carries the invoice, not page 1: on DMS-25 / DMS-99 page 1 is a cover sheet
+   * and every field, cell and exception box sits on page 2. */
+  const tally = new Map();
+  for (const [, f] of fieldEntries) {
+    if (!f || !f.page) continue;
+    const withExc = (overlays.exceptions || []).some(e => (e.boxes || []).some(b => b.page === f.page));
+    tally.set(f.page, (tally.get(f.page) || 0) + 1 + (withExc ? 10 : 0));
+  }
+  const PAGE = [...tally.entries()].sort((a, b) => b[1] - a[1])[0][0];
+  await Viewer.showPage(PAGE);
+  const dim = overlays.pages.find(p => p.page_no === PAGE) || overlays.pages[0];
+  const boxes = Panels.boxesFor(PAGE);
+  const pageField = fieldEntries.find(([, f]) => f && f.page === PAGE);
+  const okField = fieldEntries.find(([, f]) => f.ok && f.raw);
+  const badField = fieldEntries.find(([, f]) => !f.ok);
+  const pageLine = (overlays.lines || []).find(l => l.page === PAGE && Object.keys(l.cells || {}).length);
+  const cellEntry = pageLine && Object.entries(pageLine.cells).find(([, c]) => c && c.raw && c.element_id);
+  const excHere = (overlays.exceptions || []).find(e => (e.boxes || []).some(b => b.page === PAGE))
+                  || (overlays.exceptions || [])[0];
+  const excRule = ((result.rule_results || []).find(r => excHere && r.rule_id === excHere.rule_id)) || {};
+  const badDiffs = Object.entries(((excRule.data || {}).diffs) || {})
+    .filter(([, v]) => Math.abs(parseFloat(String(v).replace(/,/g, '')) || 0) > 1e-9);
+
+  check(`boxes assembled for the invoice page (${PAGE})`, boxes.length > 0, `n=${boxes.length}`);
+  check(`a header field box exists (${pageField[0]})`,
+        boxes.some(b => b.layer === 'header_fields' && b.element_id === pageField[1].element_id),
+        JSON.stringify(boxes.filter(b => b.layer === 'header_fields').map(b => b.element_id).slice(0, 6)));
+  // labels are truncated on purpose, so compare against the start of the value, not a token from it
   check('field label carries the raw value (not undefined)',
-        boxes.some(b => b.element_id === 'D1-f-invoice_num' && /26\/2691/.test(b.label || '')),
-        JSON.stringify(boxes.find(b => b.element_id === 'D1-f-invoice_num')?.label));
-  check('cell label carries the raw value',
-        boxes.some(b => b.element_id === 'D1-L1-uom' && /PCS/.test(b.label || '')),
-        JSON.stringify(boxes.find(b => b.element_id === 'D1-L1-uom')?.label));
+        boxes.some(b => b.element_id === pageField[1].element_id && (b.label || '').includes(frag(pageField[1].raw))),
+        JSON.stringify(boxes.find(b => b.element_id === pageField[1].element_id)?.label));
+  if (cellEntry) {
+    check('cell label carries the raw value',
+          boxes.some(b => b.element_id === cellEntry[1].element_id && (b.label || '').includes(frag(cellEntry[1].raw))),
+          JSON.stringify(boxes.find(b => b.element_id === cellEntry[1].element_id)?.label));
+  }
   check('an exception box exists and is labelled with its code',
-        boxes.some(b => b.layer === 'exceptions' && /^E01/.test(b.label || '')));
+        excHere ? boxes.some(b => b.layer === 'exceptions' && new RegExp('^' + excHere.code).test(b.label || ''))
+                : boxes.every(b => b.layer !== 'exceptions'),
+        JSON.stringify(boxes.filter(b => b.layer === 'exceptions').map(b => b.label)));
   check('words are on the ocr_words layer (off by default)',
         boxes.some(b => b.layer === 'ocr_words') && Overlay.layerOn('ocr_words') === false);
 
@@ -155,24 +188,43 @@ try {
   check('only enabled layers draw boxes', drawn === expect, `${drawn} drawn vs ${expect} enabled`);
   check('no box is drawn at a NaN position',
         boxes.every(b => { const r = Overlay.toCss(b.bbox); return r && Number.isFinite(r.left) && Number.isFinite(r.top); }));
-  check('rules panel shows rule id and result', /V-01/.test(registry.get('tab-rules').text) && /fail/i.test(registry.get('tab-rules').text));
+  const ruleText = registry.get('tab-rules').text;
+  check('rules panel shows every rule id and its result',
+        (result.rule_results || []).every(r => ruleText.includes(r.rule_id))
+        && (result.rule_results || []).every(r => new RegExp(r.result, 'i').test(ruleText)),
+        ruleText.slice(0, 140));
   const excText = registry.get('tab-exceptions').text;
-  check('exception panel shows code and the values the rule compared',
-        /E01/.test(excText) && /customer_tax_id/.test(excText), excText.slice(0, 160));
+  // an exception whose actual/expected the contract left null must still say what failed:
+  // for V-03 the number that differs lives in rule_results[].data.diffs
+  const wantExcValues = !excHere ? '' : (badDiffs.length ? badDiffs[0][0]
+    : (excHere.actual_value != null ? frag(excHere.actual_value)
+       : excHere.expected_value != null ? frag(excHere.expected_value)
+       : 'no values recorded'));
+  check('exception panel shows code and the values that actually differ',
+        excText.includes(excHere.code) && excText.includes(wantExcValues), excText.slice(0, 160));
+  check('a failed total check is never shown as two identical numbers',
+        !badDiffs.length || !/read [^v]*vs /.test(excText) || excText.includes(badDiffs[0][0]),
+        excText.slice(0, 160));
   const fieldText = registry.get('tab-fields').text;
-  check('field panel shows raw value and null reason',
-        /invoice_num/.test(fieldText) && /26\/2691/.test(fieldText) && /NOT_PRESENT/.test(fieldText),
+  check('field panel shows the value read, or the reason it was not',
+        (!okField || fieldText.includes(frag(okField[1].raw)))
+        && (!badField || fieldText.includes('unread')
+            && (!badField[1].null_reason || fieldText.includes(badField[1].null_reason))),
         fieldText.slice(0, 200));
   const lineText = registry.get('tab-lines').text;
-  check('line panel shows cell value and UOM group', /PCS/.test(lineText), lineText.slice(0, 200));
-  check('verdict card shows the recommendation', /REVIEW/.test(registry.get('verdict-card').text));
+  check('line panel shows cell value' + (pageLine && pageLine.uom_group ? ' and UOM group' : ''),
+        !cellEntry || lineText.includes(frag(cellEntry[1].raw))
+        && (!pageLine.uom_group || lineText.includes(String(pageLine.uom_group))), lineText.slice(0, 200));
+  check('verdict card shows the recommendation',
+        registry.get('verdict-card').text.includes(result.recommendation.value),
+        registry.get('verdict-card').text.slice(0, 120));
   check('raw JSON panel filled', registry.get('jsonbox').text.length > 50);
   check('cross-highlight registry bound element ids to rows', Linker.registrySize >= 4, `size=${Linker.registrySize}`);
 
-  const rows = Linker.focusBox({ element_id: 'D1-f-invoice_num' });
+  const rows = Linker.focusBox({ element_id: pageField[1].element_id });
   check('clicking a box finds its row (BBoxToField)', rows >= 1, `rows=${rows}`);
-  check('the clicked element is selected on the overlay', Overlay.selectedIds.includes('D1-f-invoice_num'),
-        JSON.stringify(Overlay.selectedIds));
+  check('the clicked element is selected on the overlay',
+        Overlay.selectedIds.includes(pageField[1].element_id), JSON.stringify(Overlay.selectedIds));
   const selBoxes = registry.get('overlay').querySelectorAll('.bbox.sel');
   const dimBoxes = registry.get('overlay').querySelectorAll('.bbox.dim');
   // the same element can be drawn on two layers (a field that is also exception evidence), so the
@@ -182,8 +234,10 @@ try {
         && selBoxes.every(d => Overlay.selectedIds.includes(d.dataset.element)),
         `sel=${selBoxes.length} dim=${dimBoxes.length}`);
 
-  await Linker.focusField({ page: 1, elements: ['D1-L1-uom'], label: 'uom' });
-  check('clicking a cell selects its box (FieldToBBox)', Overlay.selectedIds.includes('D1-L1-uom'));
+  if (cellEntry) {
+    await Linker.focusField({ page: PAGE, elements: [cellEntry[1].element_id], label: cellEntry[0] });
+    check('clicking a cell selects its box (FieldToBBox)', Overlay.selectedIds.includes(cellEntry[1].element_id));
+  }
 
   const tl = Overlay.toCss([0.5, 0.25, 0.1, 0.05]);
   check('[x,y,w,h] normalised top-left converts correctly',
@@ -192,10 +246,12 @@ try {
 
   Overlay.setContract({ origin: 'bottom-left', unit: 'point', range: [0, 1], bbox_format: '[x1, y1, x2, y2]' });
   const bl = Overlay.toCss([50, 200, 100, 240]);   // PDF points, corner pair, origin bottom-left
+  // the page under test may be landscape (DMS-36 is 842x595), so the maths follows the payload
+  const W = dim.width_pt, H = dim.height_pt;
   check('point + corner + bottom-left converts correctly',
-        Math.abs(bl.left - (50 / 595) * 900) < 1 && Math.abs(bl.width - (50 / 595) * 900) < 1
-        && Math.abs(bl.top - (700 - (240 / 842) * 700)) < 1 && Math.abs(bl.height - (40 / 842) * 700) < 1,
-        JSON.stringify(bl));
+        Math.abs(bl.left - (50 / W) * 900) < 1 && Math.abs(bl.width - (50 / W) * 900) < 1
+        && Math.abs(bl.top - (700 - (240 / H) * 700)) < 1 && Math.abs(bl.height - (40 / H) * 700) < 1,
+        JSON.stringify(bl) + ` page ${W}x${H}`);
   Overlay.setContract({ origin: 'top-left', unit: 'pixel', range: [0, 1], bbox_format: '[x, y, w, h]' });
   const px = Overlay.toCss([150, 300, 60, 40]);    // pixels of the source raster (900x1275 here)
   check('pixel unit scales by the displayed raster',

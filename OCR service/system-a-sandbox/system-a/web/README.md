@@ -141,14 +141,22 @@ python -m pytest web\test_portal.py -q
 node web\test_ui_logic.mjs <fixture.json>      # the browser modules against a real contract result
 ```
 
-31 tests, all offline: the engine subprocess is faked and every path is redirected to a temp dir.
+32 tests, all offline: the engine subprocess is faked and every path is redirected to a temp dir.
 They assert the portal is a pure CLI consumer (the argv handed to `process_pdf.py`), the step
 markers match the CLI's real stdout lines, contract→overlay joins (field/cell/exception/signature),
 the coordinate system is passed through untouched, duplicate-run and concurrency refusal, upload
 and raster behaviour (including that `/api/verify/upload` is not swallowed by `/api/verify/{id}`),
 dependency-outage behaviour, readable Paperless statuses, and UI/DOM id consistency.
 `test_ui_logic.mjs` (also run from pytest when `node` is present) loads the real module sources over
-a stub DOM and asserts the failure paths reach the operator, not only the happy path.
+a stub DOM and asserts the failure paths reach the operator, not only the happy path.  Its
+expectations are read out of the payload it is given — never hard-coded to one document — so the same
+run is valid for a 5-page invoice, a document whose first page is a cover sheet (DMS-25, DMS-99) and a
+landscape page (DMS-36): `node web\test_ui_logic.mjs .cache\fixture_DMS-25.json`.
+
+An exception panel has to name the number that failed.  The evidence pair is sometimes the sum that
+*matched* (DMS-20's E03 shows `49215.00` against `49215.00` for a Total Mismatch), so the overlay also
+carries `exceptions[].diffs` — the non-zero entries of `rule_results[].data.diffs` — and the panel
+shows those when the pair says nothing (portal-side only; the contract itself is never edited).
 
 Against a portal that is actually running, `python web\check_live.py [--base http://127.0.0.1:8080]`
 covers what only a live server can answer — every asset the page references, the catalog, one real

@@ -174,21 +174,35 @@ const Panels = (() => {
     });
   }
 
+  /* What an exception must show is the number that failed. The evidence pair is sometimes the sum that
+   * matched (DMS-20's E03: "49215.00 vs 49215.00" for a Total Mismatch) while the sums that differ are on
+   * the rule result, so prefer those whenever the pair says nothing. */
+  function exceptionValues(ex) {
+    const pair = [];
+    if (ex.actual_value != null) pair.push(`<span class="act">${esc(short(ex.actual_value, 60))}</span>`);
+    if (ex.expected_value != null) pair.push(`<span class="exp">${esc(short(ex.expected_value, 60))}</span>`);
+    const sums = Object.entries(ex.diffs || {});
+    if (sums.length) {
+      const shown = sums.map(([k, v]) => `<span class="act">${esc(k)} = ${esc(short(v, 28))}</span>`).join('<br>');
+      const pairDiffers = pair.length === 2 && pair[0] !== pair[1];
+      return shown + (pairDiffers ? `<br><span class="muted">read ${pair[0]} vs ${pair[1]}</span>` : '');
+    }
+    return pair.length ? pair.join('<br>') : '<span class="miss">no values recorded</span>';
+  }
+
   /* ------------------------------------------------------------------ exceptions */
   function renderExceptions() {
     const host = el('tab-exceptions'); host.innerHTML = '';
     if (!(ov.exceptions || []).length) { host.innerHTML = '<p class="muted">No exceptions raised.</p>'; return; }
     const table = document.createElement('table'); table.className = 't';
-    table.innerHTML = '<thead><tr><th>Exc</th><th>Sev</th><th>Rule</th><th>Actual / expected</th><th>Boxes</th></tr></thead>';
+    table.innerHTML = '<thead><tr><th>Exc</th><th>Sev</th><th>Rule</th><th>What differs</th><th>Boxes</th></tr></thead>';
     const tb = document.createElement('tbody');
     (ov.exceptions || []).forEach(ex => {
       const tr = document.createElement('tr');
       tr.innerHTML = `<td><b class="cid">${esc(ex.code)}</b><div class="muted">${esc(short(ex.name, 34))}</div></td>
         <td><span class="sev ${esc(ex.severity)}">${esc(ex.severity)}</span></td>
         <td>${esc(ex.rule_id)}</td>
-        <td class="vals">${ex.actual_value != null ? `<span class="act">${esc(short(ex.actual_value, 60))}</span><br>` : ''}
-            ${ex.expected_value != null ? `<span class="exp">${esc(short(ex.expected_value, 60))}</span>` : ''}
-            ${(ex.actual_value == null && ex.expected_value == null) ? '<span class="miss">no values recorded</span>' : ''}</td>
+        <td class="vals">${exceptionValues(ex)}</td>
         <td class="num">${(ex.boxes || []).length}</td>`;
       tb.appendChild(tr);
       tr.title = (ex.element_ids || []).slice(0, 8).join('\n');

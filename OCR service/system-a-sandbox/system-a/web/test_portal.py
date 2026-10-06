@@ -173,6 +173,31 @@ def test_field_and_page_geometry_come_from_the_element_plane(client, stored):
     assert ov["by_page"]["1"] and all(b["bbox"] for b in ov["by_page"]["1"])
 
 
+def test_an_exception_carries_the_sum_that_actually_differs(client, home):
+    """DMS-20's E03 cites evidence "49215.00 vs 49215.00" — the pair that *matched* — while the sum that
+    failed is only in rule_results[].data.diffs. An operator shown two identical numbers for a Total
+    Mismatch learns nothing, so the overlay must carry the differing sums too (portal-side only: the
+    contract is not edited, DEC-013)."""
+    result = json.loads(json.dumps(CONTRACT_RESULT))
+    result["request"]["dms_doc_id"] = "DMS-9002"
+    result["rule_results"].append({"rule_id": "V-03", "rule_version": "1.0", "result": "fail",
+                                   "detail": None, "halted_by": None, "evidence_ids": ["X2"],
+                                   "data": {"diffs": {"lines_vs_sub_total": "0.00", "vat_7pct": "0.00",
+                                                      "sub_plus_vat_vs_grand": "3445.05"}}})
+    result["exceptions"].append({"exception_id": "X2", "code": "E03", "name": "Total Mismatch",
+                                 "severity": "High", "rule_id": "V-03", "evidence_ids": ["X2"]})
+    result["evidence"].append({"evidence_id": "X2", "rule_id": "V-03", "exception_code": "E03",
+                               "result": "fail", "severity": "High", "actual_value": "49215.00",
+                               "expected_value": "49215.00", "page_no": [1], "related_element_ids": []})
+    (home["results"] / "DMS-9002.json").write_text(json.dumps(result), encoding="utf-8")
+
+    ov = client.get("/api/overlays/DMS-9002").json()
+    by_code = {e["code"]: e for e in ov["exceptions"]}
+    assert by_code["E03"]["diffs"] == {"sub_plus_vat_vs_grand": "3445.05"}   # sums that matched are dropped
+    assert by_code["E03"]["actual_value"] == by_code["E03"]["expected_value"] == "49215.00"
+    assert by_code["E01"]["diffs"] == {}        # a rule whose data holds no diffs is passed through as is
+
+
 def test_cells_join_to_boxes_by_contract_field_name(client, stored):
     """Contract cells carry no element_id; the join key is the field name lines[<n>].<column>."""
     ov = client.get("/api/overlays/DMS-9001").json()
