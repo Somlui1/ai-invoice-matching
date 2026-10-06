@@ -166,6 +166,9 @@ button.active { border-color: var(--accent); color: #fff; background: #17303f; }
 #steps li.active { color: var(--fg); }
 .log { font: 11.5px/1.5 var(--mono); background: #070a0d; border: 1px solid var(--line);
   border-radius: 5px; padding: 8px 10px; margin: 0; max-height: 300px; overflow: auto; white-space: pre-wrap; color: #b7c6d8; }
+.log .lv-warn { color: var(--warn); }
+.log .lv-error { color: var(--bad); font-weight: 600; }
+.log .lv-warn[title], .log .lv-error[title] { cursor: help; text-decoration: underline dotted; }
 
 /* ------------------------------------------------------------------ results */
 .results { background: var(--bg); }

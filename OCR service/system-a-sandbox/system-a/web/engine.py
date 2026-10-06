@@ -17,6 +17,7 @@ from __future__ import annotations
 import json
 import os
 import queue
+import re
 import shutil
 import subprocess
 import sys
@@ -84,6 +85,51 @@ STEP_MARKERS: tuple[tuple[str, str, str], ...] = (
 )
 
 
+# ANSI colours are printed unconditionally by process_pdf.py, but the portal reads the CLI
+# through a pipe, where escapes are noise rather than colour.
+_ANSI_RE = re.compile(r"\[[0-9;]*m")
+
+# What makes an engine line a real failure.  Deliberately narrow: the CLI prints
+# "--- Exceptions / Findings ---" and a "[ SYSTEM_ERROR ]" badge on healthy output, and neither
+# is a fault.  A genuine crash is "[ERROR] ..." (process_pdf.py:251) or an uncaught traceback.
+_ERROR_RES = (
+    re.compile(r"Traceback \(most recent call last\)"),
+    re.compile(r"\[ERROR\]"),
+    re.compile(r"(?<![A-Za-z_])ERROR(?![A-Za-z_])"),
+    re.compile(r"(?<![A-Za-z_])CRITICAL(?![A-Za-z_])"),
+)
+
+# Notices that look like failures but are not, with the explanation shown as a tooltip.
+# Checked in order, so a specific hint can be attached to a specific library message.
+_WARN_HINTS: tuple[tuple[str, str], ...] = (
+    ("`fitz` api", "Upstream PyMuPDF notice: System A imports the old `fitz` alias, which still works. "
+                   "Renaming it would change the perception code fingerprint and invalidate every cached "
+                   "extraction, so it is scheduled with the next perception change rather than now."),
+    ("deprecat", "Upstream library deprecation notice; the run continues."),
+    ("insecurerequestwarning", "TLS verification warning on the Paperless connection; cosmetic."),
+    ("userwarning", "Library warning; the run continues."),
+    ("futurewarning", "Library warning about a future release; the run continues."),
+    ("warning:", "Library warning, printed by the engine's dependencies; the run continues."),
+)
+
+
+def strip_ansi(text: str) -> str:
+    """Remove the colour escapes process_pdf.py writes unconditionally."""
+    return _ANSI_RE.sub("", text)
+
+
+def classify(line: str) -> tuple[str, str]:
+    """Return (level, hint) for one engine line; level is 'info', 'warn' or 'error'."""
+    for rx in _ERROR_RES:
+        if rx.search(line):
+            return "error", ""
+    low = line.lower()
+    for needle, hint in _WARN_HINTS:
+        if needle in low:
+            return "warn", hint
+    return "info", ""
+
+
 def parse_step(line: str) -> tuple[str, str] | None:
     """Map one CLI output line onto (step_id, label), or None when it is not a step line."""
     for needle, step, label in STEP_MARKERS:
@@ -138,11 +184,16 @@ class EngineRun:
         assert proc and proc.stdout is not None
         try:
             for raw in proc.stdout:
-                line = raw.rstrip("\n")
+                line = strip_ansi(raw.rstrip("\n"))
                 if not line.strip():
                     continue
+                level, hint = classify(line)
                 self.log.append(line)
-                self._emit({"type": "log", "line": line, "t": round(time.time() - self.started_at, 1)})
+                ev = {"type": "log", "line": line, "level": level,
+                      "t": round(time.time() - self.started_at, 1)}
+                if hint:
+                    ev["hint"] = hint
+                self._emit(ev)
                 step = parse_step(line)
                 if step:
                     self._emit({"type": "step", "step": step[0], "label": step[1]})

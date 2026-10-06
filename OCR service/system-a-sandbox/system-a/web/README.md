@@ -141,3 +141,4 @@ and raster behaviour, dependency-outage behaviour, and UI/DOM id consistency.
 | verdict differs from an earlier run with the same options | perception cache poisoned by a truncated page — see the integrity flags in the result (`ok=false`, `pages_complete=false`) and delete that cache entry |
 | Oracle probe failed in health | MCP gateway unreachable; sandbox mode still works |
 | overlay looks shifted | confirm `coordinate_system` in `/api/overlays/{key}` and `pages[].rotation`; the raster applies `/Rotate` |
+| engine log shows `warning: The fitz API is deprecated` | upstream PyMuPDF notice, printed once when the engine imports the old `fitz` alias. Harmless — the line is drawn in amber with a tooltip, never as a failure. Renaming the import inside `src/system_a/perception/` would change the perception code fingerprint and invalidate every cached extraction, so it is queued with the next perception change |

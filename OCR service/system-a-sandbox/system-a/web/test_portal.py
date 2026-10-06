@@ -218,6 +218,42 @@ def test_step_parser_matches_the_cli_lines():
     assert engine.parse_step("Invoice No:      26/2691") is None
 
 
+def test_engine_log_levels_label_upstream_noise_without_hiding_it():
+    """A library deprecation notice must not read as a crash, and a real [ERROR] must read as one."""
+    fitz = "warning: The `fitz` API is deprecated and will be removed in future.  Use pymupdf instead."
+    assert engine.classify(fitz)[0] == "warn"
+    assert "fingerprint" in engine.classify(fitz)[1]              # the explanation is attached
+    assert engine.classify("DeprecationWarning: something old")[0] == "warn"
+    # the CLI's own healthy output must stay 'info' even though it spells out scary words
+    assert engine.classify("Recommendation:  [ SYSTEM_ERROR ] (Max Severity: -)")[0] == "info"
+    assert engine.classify("--- Exceptions / Findings ---")[0] == "info"
+    assert engine.classify(" [1/3] Running Perception (OCR + Layout + BBoxes)...")[0] == "info"
+    assert engine.classify("[ERROR] RuntimeError: oracle unreachable")[0] == "error"
+    assert engine.classify("Traceback (most recent call last):")[0] == "error"
+    assert engine.strip_ansi("\x1b[95m[ MANUAL_REVIEW ]\x1b[0m") == "[ MANUAL_REVIEW ]"
+
+
+def test_pump_strips_ansi_and_tags_every_line(client, home):
+    """The log stream the browser sees is colour-free and carries a level per line."""
+    class Proc:
+        stdout = iter(["warning: The `fitz` API is deprecated and will be removed in future.",
+                       "Recommendation:  \x1b[95m[ MANUAL_REVIEW ]\x1b[0m (Max Severity: High)",
+                       " [1/3] Running Perception (OCR + Layout + BBoxes)..."])
+
+        def wait(self):
+            return 0
+
+    run = engine.EngineRun(key="DMS-9002", mode="sandbox", quick=False)
+    run._proc = Proc()
+    run._pump(engine.RESULTS_DIR / "DMS-9002.json")               # no result file: run 'fails' cleanly
+    events = list(run.events())
+    logs = [e for e in events if e.get("type") == "log"]
+    assert [e["level"] for e in logs] == ["warn", "info", "info"]
+    assert logs[0]["hint"]
+    assert "\x1b" not in run.log[1] and run.log[1].startswith("Recommendation:  [ MANUAL_REVIEW ]")
+    assert [e for e in events if e["type"] == "step"][-1]["step"] == "perception"
+
+
 def test_verify_streams_progress_and_result(client, home, monkeypatch):
     """The portal must call the CLI with exactly the documented flags and stream its progress."""
     seen = {}

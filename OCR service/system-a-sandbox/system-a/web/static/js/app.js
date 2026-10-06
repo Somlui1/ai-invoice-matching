@@ -122,9 +122,15 @@ function markActive(id) {
   target.classList.add('active');
 }
 
-function logLine(line) {
+function logLine(line, level, hint) {
   const pre = $('engine-log');
-  pre.textContent += line + '\n';
+  const span = document.createElement('span');
+  span.textContent = line + '\n';
+  if (level && level !== 'info') {
+    span.className = 'lv-' + level;
+    if (hint) span.title = hint;          // why this line is not a failure
+  }
+  pre.appendChild(span);
   pre.scrollTop = pre.scrollHeight;
 }
 
@@ -142,7 +148,7 @@ function runVerify() {
 
   state.stream = API.stream(path, (type, ev) => {
     if (type === 'step' || ev.type === 'step') markActive(ev.step || '');
-    else if (ev.type === 'log') logLine(ev.line);
+    else if (ev.type === 'log') logLine(ev.line, ev.level, ev.hint);
     else if (type === 'result' || ev.type === 'result') {
       gotResult = true;
       finishProgress(true, ev.elapsed_s);
