@@ -49,3 +49,25 @@ Record format: ERR-YYYYMMDD-NNN
   - สคริปต์ start ต้องไม่เชื่อ `activate` เมื่อโฟลเดอร์อาจถูกย้าย - เรียกใช้ interpreter ด้วย path ของตัวเองเสมอ
   - service ที่เป็น HTTP ล้วนให้ `ws="none"` ไว้
   - เมื่อย้าย/เปลี่ยนชื่อโฟลเดอร์โครงการที่มี `.venv` ให้สร้าง venv ใหม่ หรือตรวจ `pyvenv.cfg` ว่า `command` ชี้มาที่ path ปัจจุบัน
+
+### ERR-20261007-005 - browser อ่าน field name ที่ API ไม่ได้ส่ง (pages/rec) และถามผลซ้ำไม่หยุด
+- **ID / เวลา**: ERR-20261007-005, 2026-10-07T12:07:00+07:00
+- **อาการ** (จาก log ของ `python -m webapp serve` ที่ผู้ใช้รันจริง):
+  ```
+  GET /api/documents/19/pages/undefined/image   -> 422 Unprocessable Content   (ทุกหน้า ของทุกเอกสาร)
+  GET /api/documents/19/result                  -> 409 Conflict                (ยิงซ้ำทุกครั้งที่ redraw)
+  ```
+  กล่อง bbox ไม่เคยแสดงเลย ทั้งที่ payload มี bbox ครบ และ badge recommendation ขึ้นค่าไม่ได้
+- **สาเหตุ**:
+  1. `service._public()` ส่ง `"pages": d.page_numbers` คือ **list ของเลขหน้า** (`[1,2,3]`) แต่ `pagesHtml()` ใน `webapp/static/app.js` ทำเหมือนเป็น list ของวัตถุ (`p.page`) → `undefined` ถูกเอาไปต่อ url; เอกสารที่ `page_numbers` ยังว่าง (ยังไม่เคยเรียก `catalog.ensure()`) รอดเพราะ fallback ใช้ `pages_total` ทำให้ดูเหมือน bug เกิดสุ่มเฉพาะบางเอกสาร
+  2. `ensureView()` เรียก `GET …/result` ทุกครั้งที่ redraw โดยไม่จำว่าถามไปแล้ว — ปกติที่ `/result` ตอบ 409 (ยังไม่ประมวลผล หรือ `WEBAPP_PERSIST=false` แล้ว server restart) จึงกลายเป็น storm ทั้ง client และ server
+  3. `applyServer()` อ่าน `m.rec` แต่ key จริงของแถวคือ `recommendation` → `r.rec` เป็น null เสมอ
+- **วิธีแก้ที่ใช้จริง** (`webapp/static/app.js` อย่างเดียว backend ไม่เปลี่ยน):
+  1. helper `pageNums(m)` แปลง `pages` (เลข หรือวัตถุ `{page:n}` หรือว่าง) รวมกับ `pages_total` เป็นเลขหน้าแล้วใช้ทั้งรายการหน้าและ jump link
+  2. flag `probed` ต่อเอกสาร: จำคำตอบ 404/409 ไว้, clear เมื่อ `applyServer()` เห็น `state: "done"` (ต้องไปเอาผลมาแสดง), set เมื่อผู้ใช้ลบผลใน `forget()`
+  3. อ่าน `m.recommendation` ทั้งใน `applyServer()` และข้อความสถานะใน `watch()`
+- **วิธีพิสูจน์ว่าหาย**: `…/pages/undefined/image` = 422 (ตามเดิมที่ควรเป็น) ส่วน url ที่หน้าสร้างตอนนี้ `…/pages/1/image` = **200** กับ doc 15/19/20 (PNG 3.0 MB / 0.8 MB / 2.3 MB); แถวของ doc 19 มี `pages [1,2,3,4]` และมี key `recommendation`; `pytest -q` (src/test-portal) 112/112, `node --check` ผ่าน
+- **วิธีป้องกัน**:
+  - test ฝั่ง UI ต้อง assert กับ **row จริงที่ app ส่งออก** (TestClient) ไม่ใช่เชื่อ shape ที่จำมา — เพิ่ม `test_page_numbers_are_used_as_the_numbers_the_server_sends`, `test_a_document_with_no_stored_result_is_asked_for_only_once`, `test_the_state_row_is_read_with_the_keys_the_server_uses`
+  - code ที่ต่อ url จากข้อมูลของ server ต้อง normalize ที่จุดเดียว (helper) แล้วห้ามใช้ array ดิบโดยตรง
+  - คำตอบ "ยังไม่มีผล" (404/409) ให้ถือเป็นสถานะปลายทาง ห้าม retry อัตโนมัติถ้าไม่มี event ใหม่ (รันเสร็จ/ลบผล)

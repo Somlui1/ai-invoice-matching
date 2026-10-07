@@ -86,3 +86,28 @@ def test_it_starts_a_run_then_polls_and_can_forget_a_result():
     assert "setTimeout" in CODE and "'POST'" in CODE or "method: 'POST'" in CODE
     assert "DELETE" in CODE                                    # forget(doc_id)
     assert "Esc" in CODE or "keydown" in CODE                  # the pinned box can be closed
+
+
+def test_page_numbers_are_used_as_the_numbers_the_server_sends(client):
+    """The server sends ``pages`` as bare numbers; using them as objects asked for ``/pages/undefined/image``."""
+    row = client.get("/api/documents").json()[0]
+    assert row["pages"] and all(type(n) is int for n in row["pages"]), row["pages"]
+    assert "const pageNums = m =>" in CODE
+    assert "pageNums(m).map(page => ({ page }))" in CODE        # the page list is normalised before any url
+    assert "m.pages && m.pages.length" not in CODE              # the old line that produced "undefined"
+    assert "api.img(m.id, p.page)" in CODE                      # built from the normalised value only
+    assert "const nums = pageNums(m);" in CODE.split("function docHtml")[1]   # the jump links use them too
+
+
+def test_a_document_with_no_stored_result_is_asked_for_only_once():
+    """A result that is not there answers 409 - asking again on every repaint is just noise for both sides."""
+    assert "probed: false" in CODE and "if (r.probed) return;" in CODE and "r.probed = true" in CODE
+    assert "r.probed = false" in CODE.split("function applyServer")[1]        # a run that finished is fetched
+    assert "probed: true" in CODE.split("async function forget")[1]           # and forgetting does not re-ask
+
+
+def test_the_state_row_is_read_with_the_keys_the_server_uses():
+    row = {"id": 1, "state": "done", "run": 1, "recommendation": "AUTO_PASS"}
+    assert "recommendation" in row                              # service._public() sends this name...
+    assert "m.recommendation" in CODE                           # ...so the script must not read "m.rec"
+    assert "r.rec = m.rec;" not in CODE

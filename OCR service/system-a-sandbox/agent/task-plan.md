@@ -62,3 +62,19 @@
    - `node --check webapp/static/app.js` ผ่าน และทุก `$('id')` มีอยู่ใน index.html
    - `python -m webapp check` ผ่านกับ DMS จริง; `SYSTEM_A_ENGINE=http webapp check` ผ่านกับ System A API ที่รันอยู่
    - รันเอกสารจริง 1 ฉบับผ่านพอร์ทัลแล้วเทียบ bbox ของ final refs กับ payload ว่าตรงกัน
+
+
+## Task: แก้ browser ที่ผู้ใช้รายงานจาก log จริง (page image 422 + result 409 storm)
+
+- **Started At**: 2026-10-07T11:50:00+07:00
+- **Completed At**: 2026-10-07T12:07:00+07:00
+- **Status**: Completed
+
+### Goals & Acceptance Criteria
+1. **หน้าเอกสารต้องโหลดรูปได้จริง**: ไม่มี `…/pages/undefined/image` ใน log อีก และ url ที่ browser สร้างต้องตอบ 200
+2. **หยุดถามผลที่ไม่มีอยู่ซ้ำ**: `/result` ต้องถูกถามครั้งเดียวต่อเอกสาร จนกว่าจะมี run ใหม่หรือผู้ใช้ลบผล
+3. **ต้องเห็น recommendation จากแถวของ server** บน badge และเส้นสถานะ
+4. **Verification**:
+   - `node --check webapp/static/app.js` ผ่าน
+   - `pytest -q` (src/test-portal) ผ่านหมด โดย test ใหม่ยึด row จริงจาก `/api/documents`
+   - รัน server จริงเทียบ url เดิม/ใหม่: 422 → 200

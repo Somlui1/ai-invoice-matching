@@ -172,6 +172,16 @@ def v04_receipt(c: Ctx) -> RuleOutcome:
         return _fail("V-04", [_f(c, "E05", "V-04",
                                  f"ไม่พบใบรับที่ QTY > 0 สำหรับ PO {s.query_keys.get('po_number')} + Invoice "
                                  f"{s.query_keys.get('invoice_num')}", element_ids=keys)], **data)
+    if len(s.receipt_nums) > 1 and (s.query_keys or {}).get("po_list_ambiguous"):
+        # PO-LIST fallback (receipt_scope.narrow): the PO has several receipts and none can be tied
+        # to THIS invoice by key, amount or open quantity.  That is "which receipt?", not E06.
+        nar = (s.query_keys or {}).get("po_list_narrowing") or {}
+        data.update(po_list_narrowing=nar)
+        return RuleOutcome("V-04", "manual_review",
+                           detail=f"ค้นด้วย PO ได้ใบรับ {len(s.receipt_nums)} ใบ ระบุใบรับของ Invoice นี้ไม่ได้ "
+                                  f"(เลขที่ใบรับ/ยอดเงิน/จำนวนค้างวางบิล ไม่ชี้ใบเดียว)", data=data)
+    if (s.query_keys or {}).get("po_list_narrowing"):
+        data.update(po_list_narrowing=s.query_keys["po_list_narrowing"])
     if len(s.receipt_nums) > 1 and _flag(c, "multi_po_receipts"):
         # Several receipts / POs are legitimate for ONE supplier and ONE operating unit only.
         sups = sorted({r.supplier_tax_id for r in s.active if r.supplier_tax_id})
@@ -283,7 +293,7 @@ def v05_customer(c: Ctx) -> RuleOutcome:
                                actual=d.v("customer_address"), element_ids=fid("customer_address")))
     if name_issue is not None:
         address_ok = data.get("address_match") is True or data.get("address_check") == "covered_by_customer_tax_id"
-        if _evidence_flag(c, "customer_name_advisory") and address_ok:
+        if address_ok:
             data.update(name_check="advisory", name_issue=name_issue[1] if isinstance(name_issue, tuple)
                         else name_issue.message_th)
         elif isinstance(name_issue, tuple):
@@ -302,6 +312,7 @@ def v07_line_match(c: Ctx) -> RuleOutcome:
     rows = {r.rcv_line_id: r for r in c.snapshot.active}
     lines = {l.line_no: l for l in c.doc.lines}
     out, min_conf = [], c.std.policy["ai"]["v07_min_confidence"]
+    waived: list = []
     for g in c.groups:
         refs = tuple(f"RCV:{i}" for i in g.rcv_line_ids)
         if g.relation == "UNMATCHED" or g.confidence < min_conf:
@@ -341,12 +352,29 @@ def v07_line_match(c: Ctx) -> RuleOutcome:
                 out.append(_f(c, "E12", "V-07", f"{_line_tag(l)}: ราคาต่างในกรอบ (Inv: {p}, Rcv: {rcv_price})",
                               actual=str(p), expected=str(rcv_price), element_ids=eids, oracle_refs=refs))
             if g.level == "M4":
+                if _values_confirm(c, l, rcv, g, pc):
+                    # policy.evidence.e11_waive_when_values_match: the description decided only WHICH of
+                    # several identical receipt lines; price, qty, amount and unit all equal it, so the
+                    # choice cannot change any money or quantity outcome.  Kept as audit data, not E11.
+                    waived.append({"invoice_line_no": n, "rcv_line_ids": list(g.rcv_line_ids),
+                                   "reason": "price/qty/amount/uom equal receipt", "ai_rationale": g.rationale})
+                    continue
                 out.append(_f(c, "E11", "V-07", f"{_line_tag(l)}: จับคู่ด้วยคำบรรยาย ({g.rationale or ''})"[:200],
                               element_ids=(l.element_id,), oracle_refs=refs))
     data = {"groups": len(c.groups), "ai_rejected": len(c.match_trace.get("ai_rejected", []))}
+    if waived:
+        data["e11_waived"] = waived
     if c.match_trace.get("ai_rejected"):
         return RuleOutcome("V-07", "manual_review", tuple(out), "AI เสนอการจับคู่ที่อ้างบรรทัดไม่ถูกต้อง", data=data)
     return _fail("V-07", out, **data) if out else _ok("V-07", **data)
+
+
+def _values_confirm(c: Ctx, l, rcv, g, pc) -> bool:
+    if not _evidence_flag(c, "e11_waive_when_values_match") or pc != "pass" or g.relation != "1:1":
+        return False
+    r = rcv[0]
+    q, a = l.v("qty"), l.v("amount")
+    return q is not None and a is not None and q == r.qty and abs(a - r.line_amount) <= c.std.tol("line_math")
 
 
 def v08_quantity(c: Ctx) -> RuleOutcome:

@@ -39,6 +39,65 @@ def line_po(line, rows) -> Optional[str]:
     return next((p for p in getattr(line, "po_refs", ()) if p in known), None)
 
 
+def _key(s) -> str:
+    return "".join(ch for ch in str(s or "").upper() if ch.isalnum())
+
+
+def _code_on_line(line, r) -> bool:
+    code = _key(r.item_code or (r.extra or {}).get("ITEM_CODE"))
+    if len(code) < 6:
+        return False
+    text = _key(line.cells.get("description").raw if line.cells.get("description") is not None else "") + \
+        _key(line.cells.get("item_code").raw if line.cells.get("item_code") is not None else "")
+    return code in text
+
+
+def _values_equal(l, r, std: Standard) -> bool:
+    q, p, a = l.v("qty"), l.v("unit_price"), l.v("amount")
+    if None in (q, p, a):
+        return False
+    return (_price_eq(p, r.unit_price, std) and q == r.qty and abs(a - r.line_amount) <= std.tol("line_math")
+            and (l.uom_group is None or std.uom_group(r.uom) == l.uom_group))
+
+
+def _narrow(l, cands, rows):
+    """Tie-breaks in order; each is applied only when it keeps at least one candidate."""
+    po = line_po(l, rows)
+    if len(cands) > 1 and po:
+        cands = [r for r in cands if r.po_number == po] or cands
+    if len(cands) > 1:
+        by_code = [r for r in cands if _code_on_line(l, r)]
+        cands = by_code or cands
+    return cands
+
+
+def _exact_value_pair(l, inv: dict, rcv: dict, rows, std: Standard):
+    cands = _narrow(l, [r for r in rcv.values() if _values_equal(l, r, std)], rows)
+    if len(cands) != 1:
+        return None
+    r = cands[0]
+    back = _narrow_inv(r, [x for x in inv.values() if _values_equal(x, r, std)], rows)
+    return r if back == [l] else None
+
+
+def _narrow_inv(r, lines, rows):
+    if len(lines) > 1 and r.po_number:
+        lines = [x for x in lines if line_po(x, rows) in (None, r.po_number)] or lines
+        lines = [x for x in lines if line_po(x, rows) == r.po_number] or lines
+    if len(lines) > 1:
+        lines = [x for x in lines if _code_on_line(x, r)] or lines
+    return lines
+
+
+def _tie_reason(l, r, rows) -> str:
+    bits = []
+    if line_po(l, rows) == r.po_number and r.po_number:
+        bits.append(f"PO {r.po_number}")
+    if _code_on_line(l, r):
+        bits.append(f"ITEM {r.item_code or (r.extra or {}).get('ITEM_CODE')}")
+    return " + ".join(bits) or "คู่เดียวที่ตัวเลขตรง"
+
+
 def inv_payload(doc: InvoiceDoc, rows=()) -> list[dict]:
     out = _inv_payload(doc)
     for d, l in zip(out, doc.lines):
@@ -87,7 +146,7 @@ def resolve(doc: InvoiceDoc, active: tuple[ReceiptRow, ...], std: Standard,
                  and (l.uom_group is None or std.uom_group(r.uom) == l.uom_group)]
         if len(cands) > 1:
             # 1 invoice -> several POs: the PO printed on the line decides between equal prices
-            po = line_po(l, rcv.values())
+            po = line_po(l, active)
             if po:
                 cands = [r for r in cands if r.po_number == po]
         if len(cands) != 1:
@@ -101,6 +160,21 @@ def resolve(doc: InvoiceDoc, active: tuple[ReceiptRow, ...], std: Standard,
             continue
         groups.append(MatchGroup(gid(), "1:1", "M1", (n,), (r.rcv_line_id,), 1.0, "logic", "ราคาตรงบรรทัดเดียว"))
         inv.pop(n), rcv.pop(r.rcv_line_id)
+
+    # ---- M1 by exact values + item code (logic) — policy.matching.m1_exact_values_item_code
+    # Several lines share a unit price (DMS-114: 33,000 x2, 28,000 x2), so the price-only M1 above
+    # gives up and the AI decides by description (M4 -> E11) although every number already agrees.
+    # Here a line is paired when price, qty, amount and UOM group all equal the receipt line AND the
+    # pairing is unique in both directions after the tie-breaks: confirmed PO on the line, then the
+    # receipt ITEM code printed in the invoice line.  Nothing is guessed: no unique pair, no match.
+    if (std.policy.get("matching") or {}).get("m1_exact_values_item_code", False):
+        for n, l in sorted(inv.items()):
+            r = _exact_value_pair(l, inv, rcv, active, std)
+            if r is None:
+                continue
+            groups.append(MatchGroup(gid(), "1:1", "M1", (n,), (r.rcv_line_id,), 1.0, "logic",
+                                     "ราคา/จำนวน/ยอดตรง + " + _tie_reason(l, r, active)))
+            inv.pop(n), rcv.pop(r.rcv_line_id)
 
     # ---- M3/M4/M5 (AI primary)
     if inv and rcv and ai is not None:

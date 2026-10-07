@@ -271,7 +271,7 @@ def _num(v) -> Optional[Decimal]:
 
 
 def _m(v) -> Optional[str]:
-    """Money/quantity as a string with 2 decimals (qty keeps up to 4: 0.3 -> 0.30, 0.125 -> 0.125)."""
+    """Money/quantity as a string with 2 decimals (more only when the value has them: 0.125)."""
     d = _num(v)
     if d is None:
         return None
@@ -284,7 +284,7 @@ def build_summary(payload: dict, doc, meta: dict) -> dict:
 
     Multi-PO safe: an invoice may bill lines of several POs / receipts.  Therefore
       * the header carries a LIST of POs (``po_numbers``), never one PO;
-      * ``receipts`` is one entry per (PO, receipt) with its own total;
+      * ``receipt.receipts`` is one entry per (PO, receipt) with its own total;
       * every line names the PO, receipt and receipt line it was matched to (taken from Oracle,
         the PO printed on the line is shown next to it as ``po_printed``);
       * ``po_breakdown`` reconciles the invoice amount per PO against the receipt amount per PO.
@@ -298,15 +298,16 @@ def build_summary(payload: dict, doc, meta: dict) -> dict:
     for g in (payload.get("line_matching") or {}).get("groups") or []:
         for n in g.get("invoice_line_nos") or ():
             groups[n] = g
-    by_line, rule_of = {}, {}
+    by_line = {}
     for e in payload["evidence"]:
         for eid in e.get("related_element_ids") or ():
             parts = str(eid).split("-L")
             if len(parts) == 2 and parts[1].split("-")[0].isdigit():
                 by_line.setdefault(int(parts[1].split("-")[0]), set()).add(e["exception_code"])
     fields = ext["fields"]
-    corroborated = next((r["data"].get("corroborated") or {} for r in payload["rule_results"]
-                         if r["rule_id"] == "V-01"), {})
+    rr = {r["rule_id"]: r for r in payload["rule_results"]}
+    corroborated = (rr.get("V-01") or {}).get("data", {}).get("corroborated") or {}
+    waived = {w["invoice_line_no"]: w for w in (rr.get("V-07") or {}).get("data", {}).get("e11_waived") or []}
 
     # ---------------------------------------------------------------- header
     inv = {}
@@ -316,22 +317,21 @@ def build_summary(payload: dict, doc, meta: dict) -> dict:
         if k == "currency" and v is None:
             v = "THB"
         inv[k] = _m(v) if k in _MONEY_KEYS else v
-    rcv_pos = sorted({r.get("po_number") or (r.get("extra") or {}).get("PO_NUM") for r in active.values()} - {None})
+    po_of = lambda r: r.get("po_number") or (r.get("extra") or {}).get("PO_NUM")
+    rcv_pos = sorted({po_of(r) for r in active.values()} - {None})
     printed = list(meta.get("po_numbers") or [])
     inv["po_numbers"] = sorted(set(printed) | set(rcv_pos)) if rcv_pos else printed
     inv["po_numbers_printed"] = printed
-    unreadable = sorted(k for k, f in fields.items() if not f.get("ok"))
 
     # ---------------------------------------------------------------- receipts (per PO / receipt)
     rc = {}
     for r in active.values():
-        po = r.get("po_number") or (r.get("extra") or {}).get("PO_NUM")
-        key = (po, r["receipt_num"])
-        e = rc.setdefault(key, {"po_number": po, "receipt_num": r["receipt_num"], "lines": 0,
-                                "receipt_total": Decimal(0)})
+        key = (po_of(r), r["receipt_num"])
+        e = rc.setdefault(key, {"po_number": key[0], "receipt_num": key[1], "lines": 0, "receipt_total": Decimal(0)})
         e["lines"] += 1
         e["receipt_total"] += _num(r.get("line_amount")) or Decimal(0)
-    receipts = [{**v, "receipt_total": _m(v["receipt_total"])} for _, v in sorted(rc.items(), key=lambda x: (str(x[0][0]), x[0][1]))]
+    receipts = [{**v, "receipt_total": _m(v["receipt_total"])}
+                for _, v in sorted(rc.items(), key=lambda x: (str(x[0][0]), x[0][1]))]
     rcv_total = sum((_num(r.get("line_amount")) or Decimal(0) for r in active.values()), Decimal(0))
 
     # ---------------------------------------------------------------- lines
@@ -341,7 +341,7 @@ def build_summary(payload: dict, doc, meta: dict) -> dict:
         n = it["line_no"]
         g = groups.get(n) or {}
         rl = [rows[i] for i in g.get("rcv_line_ids") or () if i in rows]
-        pos = sorted({r.get("po_number") or (r.get("extra") or {}).get("PO_NUM") for r in rl} - {None})
+        pos = sorted({po_of(r) for r in rl} - {None})
         po = pos[0] if len(pos) == 1 else (pos or None)
         pr = next((p for p in po_lines.get(n, ()) if p in rcv_pos), None) or (po_lines.get(n) or (None,))[0]
         codes = sorted(by_line.get(n, ()))
@@ -351,12 +351,10 @@ def build_summary(payload: dict, doc, meta: dict) -> dict:
         amt = _num(it.get("amount"))
         if isinstance(po, str) and amt is not None and g.get("relation") != "N:1":
             per_po[po] = per_po.get(po, Decimal(0)) + amt
-        lines.append({
-            "line_no": n,
-            "po_number": po,
-            "po_printed": pr,
-            "receipt_num": sorted({r["receipt_num"] for r in rl})[0] if len({r["receipt_num"] for r in rl}) == 1
-            else (sorted({r["receipt_num"] for r in rl}) or None),
+        rcv_nums = sorted({r["receipt_num"] for r in rl})
+        line = {
+            "line_no": n, "po_number": po, "po_printed": pr,
+            "receipt_num": rcv_nums[0] if len(rcv_nums) == 1 else (rcv_nums or None),
             "rcv_line_ids": [r["rcv_line_id"] for r in rl],
             "item_code": next((r.get("item_code") for r in rl if r.get("item_code")), it.get("item_code")),
             "description": it.get("description"),
@@ -369,13 +367,15 @@ def build_summary(payload: dict, doc, meta: dict) -> dict:
             "match_level": g.get("level"), "relation": g.get("relation"),
             "result": result, "codes": codes,
             "unreadable": sorted(k for k, ok in (it.get("cells_ok") or {}).items() if not ok),
-        })
+        }
+        if n in waived:
+            line["note"] = "E11 waived: price/qty/amount/uom equal receipt"
+        lines.append(line)
 
     # ---------------------------------------------------------------- per-PO reconciliation
     rc_po = {}
     for r in active.values():
-        p = r.get("po_number") or (r.get("extra") or {}).get("PO_NUM")
-        rc_po[p] = rc_po.get(p, Decimal(0)) + (_num(r.get("line_amount")) or Decimal(0))
+        rc_po[po_of(r)] = rc_po.get(po_of(r), Decimal(0)) + (_num(r.get("line_amount")) or Decimal(0))
     breakdown = []
     for p in sorted(set(rc_po) | set(per_po), key=str):
         ia, ra = per_po.get(p), rc_po.get(p)
@@ -383,8 +383,20 @@ def build_summary(payload: dict, doc, meta: dict) -> dict:
                           "invoice_amount": _m(ia), "receipt_amount": _m(ra),
                           "diff": _m(ia - ra) if ia is not None and ra is not None else None})
 
-    rr = {r["rule_id"]: r for r in payload["rule_results"]}
     sub = _num((fields.get("sub_total") or {}).get("normalized_value"))
+    receipt = {
+        "found": bool(active), "lookup_path": snap.get("lookup_path"),
+        "org_id": snap.get("org_id"),
+        "ou_name": next((r.get("ou_name") for r in active.values() if r.get("ou_name")), None),
+        "receiver": snap.get("receiver"),
+        "receipts": receipts,
+        "receipt_total": _m(rcv_total) if active else None,
+        "invoice_vs_receipt_diff": _m(sub - rcv_total) if active and sub is not None else None,
+        "lines_matched": f"{sum(1 for l in lines if l['relation'] not in (None, 'UNMATCHED'))}/{len(lines)}",
+    }
+    nar = (snap.get("query_keys") or {}).get("po_list_narrowing")
+    if nar:
+        receipt["narrowing"] = nar
     return {
         "summary_version": SUMMARY_VERSION,
         "dms_doc_id": payload["package"]["dms_doc_id"],
@@ -393,15 +405,7 @@ def build_summary(payload: dict, doc, meta: dict) -> dict:
                      "needs_manual_review": [r for r in rec.get("reasons") or [] if "manual_review" in r],
                      "multi_po": len(rcv_pos) > 1},
         "invoice": inv,
-        "receipt": {
-            "found": bool(active), "lookup_path": snap.get("lookup_path"),
-            "org_id": snap.get("org_id"), "ou_name": next((r.get("ou_name") for r in active.values() if r.get("ou_name")), None),
-            "receiver": snap.get("receiver"),
-            "receipts": receipts,
-            "receipt_total": _m(rcv_total) if active else None,
-            "invoice_vs_receipt_diff": _m(sub - rcv_total) if active and sub is not None else None,
-            "lines_matched": f"{sum(1 for l in lines if l['relation'] not in (None, 'UNMATCHED'))}/{len(lines)}",
-        },
+        "receipt": receipt,
         "po_breakdown": breakdown,
         "lines": lines,
         "rules": [{"rule_id": k, "result": v["result"],
@@ -409,6 +413,6 @@ def build_summary(payload: dict, doc, meta: dict) -> dict:
                    "detail": v.get("detail")} for k, v in rr.items()],
         "exceptions": [{"code": e["exception_code"], "severity": e["severity"], "rule_id": e["rule_id"],
                         "message": e["message_th"]} for e in payload["evidence"]],
-        "unreadable_fields": unreadable,
+        "unreadable_fields": sorted(k for k, f in fields.items() if not f.get("ok")),
         "corroborated": corroborated,
     }

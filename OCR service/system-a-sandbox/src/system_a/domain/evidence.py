@@ -150,7 +150,6 @@ def corroborate_oracle(doc: InvoiceDoc, snap: Optional[OracleSnapshot], std: Sta
     rows = snap.active
     f = dict(doc.fields)
 
-    # invoice number: the receipt was found by it (shipment / packing slip / waybill, any spelling)
     inv = _val(f.get("invoice_num"))
     if inv is not None:
         keys = {_norm_key(inv)} | {_norm_key(v) for v in (snap.query_keys or {}).get("invoice_variants") or ()}
@@ -214,7 +213,6 @@ def corroborate_lines(doc: InvoiceDoc, groups, rows: dict, std: Standard) -> Inv
         for n in g.invoice_line_nos:
             l = by_no[n]
             cells = {}
-            # ---- unit of measure
             u = l.cells.get("uom")
             if len(rcv_groups) == 1 and (u is None or not u.ok):
                 rg = next(iter(rcv_groups))
@@ -227,7 +225,6 @@ def corroborate_lines(doc: InvoiceDoc, groups, rows: dict, std: Standard) -> Inv
                     base = u or NField("uom", f"{l.element_id}-uom", None, None, None, False, "NOT_PRESENT")
                     cells["uom"] = replace(base, value=rg, ok=True, null_reason=None,
                                            evidence=tuple(base.evidence) + (f"inherited_from_receipt:{ids}",))
-            # ---- price / qty / amount (1:1 and 1:N only: N:1 shares one receipt line)
             if g.relation in ("1:1", "1:N"):
                 rq = sum((r.qty for r in rcv), Decimal(0))
                 ra = sum((r.line_amount for r in rcv), Decimal(0))
@@ -242,7 +239,6 @@ def corroborate_lines(doc: InvoiceDoc, groups, rows: dict, std: Standard) -> Inv
                 if a is not None and abs(a - ra) <= tol_line:
                     cells["amount"] = _promote(l.cells.get("amount"), f"oracle:receipt_amount:{ids}")
             l = _with_cells(l, **cells)
-            # ---- weight-billed lines: qty column holds pieces, amount = weight x price (DMS-102)
             if enabled(std, "derive_qty_from_amount") and g.relation in ("1:1", "1:N") \
                     and l.ok("unit_price") and l.ok("amount") and not l.ok("qty") and l.v("unit_price"):
                 derived = (l.v("amount") / l.v("unit_price"))

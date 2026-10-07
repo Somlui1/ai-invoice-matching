@@ -73,17 +73,24 @@ const api = {
   pdf: id => '/api/documents/' + id + '/pdf'
 };
 const stOf = id => RES[id] || (RES[id] = { id: id, state: 'idle', run: 0, step: null, cls: null, rec: null,
-  error: null, tb: null, seconds: null, types: [], boxes: 0, started: 0, view: null, from: null, src_err: null });
+  error: null, tb: null, seconds: null, types: [], boxes: 0, started: 0, view: null, from: null, src_err: null,
+  probed: false });
+// /api/documents ส่ง "pages" เป็นเลขหน้า เช่น [1,2,3] ไม่ใช่วัตถุ — ต้องแปลงเป็นเลขก่อนต่อ url ของรูปหน้า
+const pageNums = m => {
+  const got = (m.pages || []).map(p => +((p && typeof p === 'object') ? p.page : p)).filter(n => n > 0);
+  const total = Math.max(+m.pages_total || 0, ...got, 0) || 1;
+  return [...new Set(got.concat(Array.from({ length: total }, (_, i) => i + 1)))].sort((a, b) => a - b);
+};
 const hasView = r => !!(r.view && r.state === 'done');
 const isBusy = r => r.state === 'processing';
 const rcls = r => isBusy(r) ? 'partial' : r.state === 'error' ? 'error' : hasView(r) ? (r.cls || 'ok') : 'idle';
 
 function applyServer(m) {                        // 1 แถวของ /api/documents -> สถานะของเอกสารนั้น
   const r = stOf(m.id), first = r.state;
-  r.state = m.state; r.run = m.run || 0; r.step = m.step; r.cls = m.cls; r.rec = m.rec;
+  r.state = m.state; r.run = m.run || 0; r.step = m.step; r.cls = m.cls; r.rec = m.recommendation || null;
   r.error = m.error; r.tb = m.traceback; r.seconds = m.seconds; r.types = m.types || [];
   r.boxes = m.boxes || 0; r.src_err = m.source_error || null;
-  if (m.state === 'done') { r.error = null; r.tb = null }
+  if (m.state === 'done') { r.error = null; r.tb = null; if (!r.view) r.probed = false }   // ให้ไปเอาผลมาแสดง
   if (first === 'processing' && m.state === 'error' && m.error) note = `error #${m.id}: ${m.error}`;
   if (m.state !== 'processing' && POLL[m.id]) { clearInterval(POLL[m.id]); delete POLL[m.id] }
 }
@@ -250,7 +257,7 @@ function boxesOf(v, p) {
 }
 function pagesHtml(m) {
   const r = stOf(m.id), v = r.view, show = $('ov').checked;
-  const pages = (m.pages && m.pages.length) ? m.pages : Array.from({ length: m.pages_total || 1 }, (_, i) => ({ page: i + 1 }));
+  const pages = pageNums(m).map(page => ({ page }));
   return pages.map(p => {
     const full = v && (v.pages || []).find(x => x.page === p.page);
     const img = `<img src="${api.img(m.id, p.page)}" data-p="${p.page}" alt="page ${p.page}">`;
@@ -268,7 +275,8 @@ function pagesHtml(m) {
 function docHtml(m) {
   const r = stOf(m.id), cls = rcls(r);
   const link = x => `<span class=pglink data-jump="${m.id}:${x}">หน${x}</span>`;
-  const jump = m.pages_total > 1 ? Array.from({ length: m.pages_total }, (_, i) => link(i + 1)).join(' ') : '';
+  const nums = pageNums(m);
+  const jump = nums.length > 1 ? nums.map(link).join(' ') : '';
   return `<div class=card id=doc-${m.id}><div class=ch><span class="${cls}">[${esc(r.rec || cls)}]</span> <b>#${m.id}</b>`
     + ` · ${esc(m.title || '')} <span class=idle>(${esc(m.file_name || m.mime || '')} · ${esc(m.file_class || '')}`
     + ` · <a href="${esc(m.dms_url || m.viewer_url)}" target=_blank>Paperless</a>`
@@ -319,6 +327,8 @@ async function ensureView(id) {                  // ผลที่ server ป�
   const r = stOf(id);
   if (r.state === 'done' && r.view) return;
   if (r.state === 'processing' || r.state === 'error') return;
+  if (r.probed) return;                                  // ถามครั้งเดียว: ที่ server ไม่มีผลของเอกสารนี้เก็บไว้
+  r.probed = true;
   loading.add(id);
   try {
     const v = await api.result(id);
@@ -382,7 +392,8 @@ function watch(id) {                             // ถามสถานะเ�
       const m = await api.status(id);
       applyServer(m);
       if (m.state === 'done') {
-        last = `เสร็จ #${id} · ${m.rec} · ${m.seconds}s`;
+        last = `เสร็จ #${id} · ${m.recommendation || '-'} · ${m.seconds}s`;
+        const r0 = stOf(id); r0.probed = true;
         try { const v = await api.result(id); const r = stOf(id); r.view = v; r.from = 'server'; saveCase(id, v) } catch (e) { }
         apply();
       } else if (m.state === 'error') { last = `error #${id} · ${m.error}`; apply(); }
@@ -396,7 +407,8 @@ async function forget(id) {                      // ลบผลของเอ�
   try { await api.forget(id) } catch (e) { }
   dropCase(id);
   const r = stOf(id);
-  Object.assign(r, { state: 'idle', view: null, cls: null, rec: null, error: null, tb: null, boxes: 0, from: null });
+  Object.assign(r, { state: 'idle', view: null, cls: null, rec: null, error: null, tb: null, boxes: 0, from: null,
+    probed: true });                             // เพิ่งลบผล — ไม่ต้องไปถาม server ซ้ำ
   apply();
 }
 

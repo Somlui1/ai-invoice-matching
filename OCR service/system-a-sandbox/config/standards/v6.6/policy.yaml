@@ -20,6 +20,8 @@ oracle:
       - {type: insert_after_prefix, prefix: "SQ26", insert: "/"}
     use_ocr_supplier_tax_id: true    # OCR Tax ID first (checksum must pass), Oracle PO lookup as fallback
     po_list_fallback: true           # last hop: search by PO when the invoice number matches nothing
+    po_list_narrowing: true          # 2026-10-07 v2 #2: keep only THIS invoice's receipt (key / amount / open qty);
+                                     # none -> V-04 manual_review instead of E06 (application/receipt_scope.py)
 validation:
   multi_po_receipts: false           # AIVA-SYSA-ORA-01 — waiting for the Standard owner's approval
   v09_compare_matched_only: false    # AIVA-SYSA-ORA-01 — waiting for the Standard owner's approval
@@ -51,5 +53,10 @@ evidence:
   uom_inherit_from_receipt: true      # no/unknown unit on the invoice -> unit of the matched receipt line
   derive_qty_from_amount: true        # weight-billed line: amount/unit_price == receipt qty -> qty
   customer_identity_by_tax_id: true   # D: unconfirmed customer name/address covered by an Oracle Tax ID
-  customer_name_advisory: true
-  deliverer_from_stamp: true         # deliverer slot undecided + company stamp region on an invoice page        # Tax ID + address match -> name mismatch is audit data, not E07/manual
+  customer_name_advisory: true        # Tax ID + address match -> name mismatch is audit data, not E07/manual
+  deliverer_from_stamp: true          # deliverer slot undecided + company stamp region on an invoice page
+  e11_waive_when_values_match: true   # 2026-10-07 v2 #1: AI picked among identical lines; all values equal -> no E11
+
+# 2026-10-07 v2 #1 — deterministic pairing before the AI (domain/matching.py)
+matching:
+  m1_exact_values_item_code: true     # price+qty+amount+UOM equal, unique after PO / ITEM-code tie-break -> M1

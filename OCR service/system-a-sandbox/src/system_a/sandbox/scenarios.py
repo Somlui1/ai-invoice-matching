@@ -150,7 +150,8 @@ class Scenario:
     queries: Optional[int] = None                # expected Oracle queries per round (documentation)
     locked: bool = False                         # True: --force-mode / SYSTEM_A_LOOKUP_MODE never applies
     checks: dict = field(default_factory=dict)   # extra assertions (lookup_path, matched_on_column, ...)
-    evidence: dict = field(default_factory=dict)  # policy.evidence overrides for this scenario only
+    policy: dict = field(default_factory=dict)   # policy.yaml sections overridden for this scenario only
+                                                 # e.g. {"evidence": {...}, "matching": {...}, "oracle.lookup": {...}}
 
     @property
     def extraction_model(self) -> ExtractionResult:
@@ -176,7 +177,11 @@ def standard_for(sc: Scenario) -> Standard:
     policy = copy.deepcopy(std.policy)
     val = policy.setdefault("validation", {})
     val.update(sc.flags)
-    policy.setdefault("evidence", {}).update(sc.evidence)
+    for section, values in sc.policy.items():
+        node = policy
+        for part in section.split("."):
+            node = node.setdefault(part, {})
+        node.update(values)
     lookup = policy.setdefault("oracle", {}).setdefault("lookup", {})
     lookup["mode"] = effective_mode(sc)
     return replace(std, policy=policy)
@@ -193,7 +198,22 @@ def run_scenario(sc: Scenario, settings: Optional[Settings] = None) -> tuple[dic
 
 def outcome_ok(sc: Scenario, res: dict) -> bool:
     rec = res["recommendation"]
-    return rec["value"] == sc.expect and set(sc.codes) == set(rec["exception_codes"])
+    return rec["value"] == sc.expect and set(sc.codes) == set(rec["exception_codes"]) and _checks_ok(sc, res)
+
+
+def _checks_ok(sc: Scenario, res: dict) -> bool:
+    """Assertions for the 2026-10-07 switches (other ``checks`` keys stay documentation)."""
+    c = sc.checks
+    rr = {r["rule_id"]: r for r in res["rule_results"]}
+    if "no_ai" in c and bool(res["metrics"].get("ai_line_matcher_called")) == bool(c["no_ai"]):
+        return False
+    if "e11_waived" in c and len(rr["V-07"]["data"].get("e11_waived") or []) != c["e11_waived"]:
+        return False
+    if "narrowing" in c:
+        nar = ((res.get("oracle_snapshot") or {}).get("query_keys") or {}).get("po_list_narrowing") or {}
+        if nar.get("rule") != c["narrowing"]:
+            return False
+    return True
 
 
 def integrity_hash(res: dict) -> str:
@@ -299,7 +319,7 @@ def s11() -> Scenario:
                     doc(lines=lines, customer_name="APICO HITECH PARTS"),
                     DS([E(PO_A, INV_A, [R(PO_A, "RCV-0000012345", 1, BRACKET, 10, "EA", "100.00")])],
                        {PO_A: SUP_TAX}), "MANUAL_REVIEW", (), queries=1,
-                    evidence={"customer_name_advisory": False})   # pins the Standard behaviour
+                    policy={"evidence": {"customer_name_advisory": False}})   # pins the Standard behaviour
 
 
 def s12() -> Scenario:
@@ -332,7 +352,10 @@ def s14() -> Scenario:
     rows = [R(PO_A, "RCV-0000012349", 1, BRACKET, 10, "EA", "100.00"),
             R(PO_A, "RCV-0000012349", 2, GASKET, 4, "EA", "100.00")]
     return Scenario("S14", "ราคาไม่ unique ในใบรับ -> จับคู่ด้วยคำบรรยาย (E11)", doc(lines=lines),
-                    DS([E(PO_A, INV_A, rows)], {PO_A: SUP_TAX}), "REVIEW", ("E11",), queries=1)
+                    DS([E(PO_A, INV_A, rows)], {PO_A: SUP_TAX}), "REVIEW", ("E11",), queries=1,
+                    # pins the Standard behaviour: S39/S40 show the same data with the 2026-10-07 switches on
+                    policy={"matching": {"m1_exact_values_item_code": False},
+                            "evidence": {"e11_waive_when_values_match": False}})
 
 
 def s15() -> Scenario:

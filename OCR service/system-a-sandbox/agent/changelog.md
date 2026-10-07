@@ -2,6 +2,26 @@
 
 All notable permanent changes to System A codebase are documented here.
 
+## [2026-10-07] - `src/test-portal` browser fixes: page numbers, one-shot result probe, state key names
+### Fixed
+- **`GET /api/documents/{id}/pages/undefined/image` (422 on every page of every document)** - `service._public()`
+  sends `pages` as the bare **page numbers** System A's ingest counted (`[1,2,3]`), but `pagesHtml()` used each entry
+  as an object (`p.page`), so every `<img src>` was built from `undefined`.  `webapp/static/app.js` now has one
+  `pageNums(m)` helper that accepts numbers, `{page:n}` objects or nothing, merges them with `pages_total`, and both
+  the rendered page list and the `หนn` jump links come from it.  Boxes are still drawn only on a page whose number is
+  in the payload's own `pages[]`.
+- **`GET /api/documents/{id}/result` was requested on every repaint** (a `409` storm in the server log for documents
+  that simply have no stored result - the normal case with `WEBAPP_PERSIST=false` after a restart): `ensureView()`
+  had no memory of having asked.  The per-document state now carries `probed`; a `404`/`409` answer is remembered and
+  the flag is cleared only when the server reports a finished run (`applyServer`) or set again by `forget()`.
+- **The recommendation of a server row never reached the screen** - the row's key is `recommendation`
+  (`service._public()`) while `applyServer()` read `m.rec`, so badges and the `เสร็จ #<id> · …` line showed
+  `undefined`.  Both now read `m.recommendation`.
+### Tests
+- `tests/test_ui_static.py` +3 (suite now **112 tests, 6.8 s**): the client must read `pages` as the numbers the
+  server sends (asserted against a live `/api/documents` row), must build no image url from the raw array, must probe
+  a document's result once, and must use the server's key names.
+
 ## [2026-10-07] - `src/test-portal` reworked into a System A-only test screen (payload-driven, no batch/replay/demo)
 ### Changed
 - **Purpose fixed to one thing**: the portal now tests `src/system_a/` and nothing else.  Documents come from real

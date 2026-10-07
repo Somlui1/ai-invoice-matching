@@ -20,6 +20,7 @@ from ..domain.normalize import normalize
 from ..domain.ports import EntityJudgeAI, LineMatcherAI, OracleRepository, QtyJudgeAI
 from ..domain.recommendation import recommend
 from ..domain.standard import Standard, load_standard
+from . import receipt_scope
 from .assembler import assemble
 from .oracle_lookup import TAX_MODE, OracleSession, lookup_mode
 
@@ -108,6 +109,7 @@ def validate(ext: ExtractionResult, svc: Services, *, request: dict, std: Option
         timings["oracle_ms"] = (time.perf_counter() - t1) * 1000
 
     if not halted:
+        ctx.snapshot = receipt_scope.narrow(ctx.snapshot, doc, std)   # PO-LIST -> this invoice's receipt
         doc = ev.corroborate_oracle(doc, ctx.snapshot, std)              # evidence C/D (header)
         ctx.doc = doc
         if not ctx.snapshot.active and not all(read_ok.values()):

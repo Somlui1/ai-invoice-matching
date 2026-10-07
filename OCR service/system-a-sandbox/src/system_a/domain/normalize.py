@@ -190,7 +190,8 @@ def normalize(ext: ExtractionResult, std: Standard) -> tuple[InvoiceDoc, dict]:
             if d is not None:
                 cells["uom"] = u = d
         if u is not None and u.ok:                      # Table 3 #13: normalized_value = UOM group
-            cells["uom"] = NField(u.name, u.element_id, u.raw, std.uom_group(u.value), u.confidence, True, None)
+            cells["uom"] = NField(u.name, u.element_id, u.raw, std.uom_group(u.value), u.confidence, True, None,
+                                  u.evidence)
         for req in std.policy["required_line_cells"]:
             cells.setdefault(req, NField(req, f"{lid}-{req}", None, None, None, False, "NOT_PRESENT"))
         ug = cells["uom"].value if cells["uom"].ok else None
