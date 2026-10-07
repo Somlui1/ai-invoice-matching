@@ -10,6 +10,7 @@ import hashlib
 import json
 from datetime import datetime, timezone
 from decimal import Decimal
+from typing import Optional
 
 from ..domain.contracts import COORDINATE_SYSTEM, ExtractionResult, InvoiceDoc, row_payload
 
@@ -170,10 +171,15 @@ def assemble(*, ext, doc, meta, std, ctx, outcomes, recommendation, halted, erro
         "metrics": metrics,
     }
     payload = json.loads(json.dumps(payload, default=_s, ensure_ascii=False))
-    stable = {k: v for k, v in payload.items() if k not in ("request", "metrics")}
+    try:
+        summary = build_summary(payload, doc, meta)
+    except Exception as e:                       # a view must never fail the validation
+        summary = {"summary_version": SUMMARY_VERSION, "error": f"{type(e).__name__}: {str(e)[:160]}"}
+    payload = {"summary": summary, **payload}
+    stable = {k: v for k, v in payload.items() if k not in ("request", "metrics", "summary")}
     body = json.dumps(_strip_times(stable), sort_keys=True, ensure_ascii=False).encode()
     payload["integrity"] = {"payload_sha256": "sha256:" + hashlib.sha256(body).hexdigest(),
-                            "excludes": ["request", "metrics", "*evaluated_at", "*queried_at"]}
+                            "excludes": ["request", "metrics", "summary", "*evaluated_at", "*queried_at"]}
     return payload
 
 
@@ -247,3 +253,162 @@ def items_summary(items: list, doc) -> dict:
             "lines_matched": sum(1 for i in items if i["match"] and i["match"]["relation"] != "UNMATCHED"),
             "sum_amount": _s(total.quantize(Decimal("0.01"))) if amounts else None,
             "sub_total": _s(sub), "sum_vs_sub_total_diff": _s((total - sub).quantize(Decimal("0.01"))) if amounts and sub is not None else None}
+
+
+# ============================================================================ one-page summary
+SUMMARY_VERSION = "1.1"
+_HEADER_FIELDS = ("invoice_num", "invoice_date", "supplier_name", "supplier_tax_id",
+                  "customer_name", "customer_tax_id", "currency", "sub_total", "vat", "grand_total")
+_MONEY_KEYS = {"sub_total", "vat", "grand_total"}
+Q2S = Decimal("0.01")
+
+
+def _num(v) -> Optional[Decimal]:
+    try:
+        return Decimal(str(v)) if v is not None and str(v).strip() != "" else None
+    except Exception:
+        return None
+
+
+def _m(v) -> Optional[str]:
+    """Money/quantity as a string with 2 decimals (qty keeps up to 4: 0.3 -> 0.30, 0.125 -> 0.125)."""
+    d = _num(v)
+    if d is None:
+        return None
+    q = d.quantize(Q2S) if d == d.quantize(Q2S) else d.normalize()
+    return str(q)
+
+
+def build_summary(payload: dict, doc, meta: dict) -> dict:
+    """Reviewer view — read this block only.  Derived from the rest of the payload; decides nothing.
+
+    Multi-PO safe: an invoice may bill lines of several POs / receipts.  Therefore
+      * the header carries a LIST of POs (``po_numbers``), never one PO;
+      * ``receipts`` is one entry per (PO, receipt) with its own total;
+      * every line names the PO, receipt and receipt line it was matched to (taken from Oracle,
+        the PO printed on the line is shown next to it as ``po_printed``);
+      * ``po_breakdown`` reconciles the invoice amount per PO against the receipt amount per PO.
+    Excluded from ``integrity`` (it is a view).
+    """
+    ext, rec = payload["extraction"], payload["recommendation"]
+    snap = payload.get("oracle_snapshot") or {}
+    rows = {r["rcv_line_id"]: r for r in snap.get("receipt_lines") or []}
+    active = {k: r for k, r in rows.items() if (_num(r.get("qty")) or 0) > 0}
+    groups = {}
+    for g in (payload.get("line_matching") or {}).get("groups") or []:
+        for n in g.get("invoice_line_nos") or ():
+            groups[n] = g
+    by_line, rule_of = {}, {}
+    for e in payload["evidence"]:
+        for eid in e.get("related_element_ids") or ():
+            parts = str(eid).split("-L")
+            if len(parts) == 2 and parts[1].split("-")[0].isdigit():
+                by_line.setdefault(int(parts[1].split("-")[0]), set()).add(e["exception_code"])
+    fields = ext["fields"]
+    corroborated = next((r["data"].get("corroborated") or {} for r in payload["rule_results"]
+                         if r["rule_id"] == "V-01"), {})
+
+    # ---------------------------------------------------------------- header
+    inv = {}
+    for k in _HEADER_FIELDS:
+        f = fields.get(k) or {}
+        v = f.get("normalized_value") if f.get("normalized_value") is not None else f.get("raw_value")
+        if k == "currency" and v is None:
+            v = "THB"
+        inv[k] = _m(v) if k in _MONEY_KEYS else v
+    rcv_pos = sorted({r.get("po_number") or (r.get("extra") or {}).get("PO_NUM") for r in active.values()} - {None})
+    printed = list(meta.get("po_numbers") or [])
+    inv["po_numbers"] = sorted(set(printed) | set(rcv_pos)) if rcv_pos else printed
+    inv["po_numbers_printed"] = printed
+    unreadable = sorted(k for k, f in fields.items() if not f.get("ok"))
+
+    # ---------------------------------------------------------------- receipts (per PO / receipt)
+    rc = {}
+    for r in active.values():
+        po = r.get("po_number") or (r.get("extra") or {}).get("PO_NUM")
+        key = (po, r["receipt_num"])
+        e = rc.setdefault(key, {"po_number": po, "receipt_num": r["receipt_num"], "lines": 0,
+                                "receipt_total": Decimal(0)})
+        e["lines"] += 1
+        e["receipt_total"] += _num(r.get("line_amount")) or Decimal(0)
+    receipts = [{**v, "receipt_total": _m(v["receipt_total"])} for _, v in sorted(rc.items(), key=lambda x: (str(x[0][0]), x[0][1]))]
+    rcv_total = sum((_num(r.get("line_amount")) or Decimal(0) for r in active.values()), Decimal(0))
+
+    # ---------------------------------------------------------------- lines
+    po_lines = {ln.line_no: ln.po_refs for ln in doc.lines}
+    lines, per_po = [], {}
+    for it in payload["normalized_fields"]["items"]:
+        n = it["line_no"]
+        g = groups.get(n) or {}
+        rl = [rows[i] for i in g.get("rcv_line_ids") or () if i in rows]
+        pos = sorted({r.get("po_number") or (r.get("extra") or {}).get("PO_NUM") for r in rl} - {None})
+        po = pos[0] if len(pos) == 1 else (pos or None)
+        pr = next((p for p in po_lines.get(n, ()) if p in rcv_pos), None) or (po_lines.get(n) or (None,))[0]
+        codes = sorted(by_line.get(n, ()))
+        qc = (it.get("qty_check") or {}).get("result")
+        matched = bool(g) and g.get("relation") != "UNMATCHED"
+        result = "pass" if matched and not codes and qc in (None, "pass") else ("unmatched" if not matched else "check")
+        amt = _num(it.get("amount"))
+        if isinstance(po, str) and amt is not None and g.get("relation") != "N:1":
+            per_po[po] = per_po.get(po, Decimal(0)) + amt
+        lines.append({
+            "line_no": n,
+            "po_number": po,
+            "po_printed": pr,
+            "receipt_num": sorted({r["receipt_num"] for r in rl})[0] if len({r["receipt_num"] for r in rl}) == 1
+            else (sorted({r["receipt_num"] for r in rl}) or None),
+            "rcv_line_ids": [r["rcv_line_id"] for r in rl],
+            "item_code": next((r.get("item_code") for r in rl if r.get("item_code")), it.get("item_code")),
+            "description": it.get("description"),
+            "invoice_qty": _m(it.get("qty")), "uom": it.get("uom_group") or it.get("uom"),
+            "invoice_price": _m(it.get("unit_price")), "invoice_amount": _m(it.get("amount")),
+            "receipt_qty": _m(sum((_num(r.get("qty")) or Decimal(0) for r in rl), Decimal(0))) if rl else None,
+            "receipt_uom": rl[0].get("uom_group") if rl else None,
+            "receipt_price": _m(rl[0].get("unit_price")) if rl and len({str(r.get("unit_price")) for r in rl}) == 1 else None,
+            "receipt_amount": _m(sum((_num(r.get("line_amount")) or Decimal(0) for r in rl), Decimal(0))) if rl else None,
+            "match_level": g.get("level"), "relation": g.get("relation"),
+            "result": result, "codes": codes,
+            "unreadable": sorted(k for k, ok in (it.get("cells_ok") or {}).items() if not ok),
+        })
+
+    # ---------------------------------------------------------------- per-PO reconciliation
+    rc_po = {}
+    for r in active.values():
+        p = r.get("po_number") or (r.get("extra") or {}).get("PO_NUM")
+        rc_po[p] = rc_po.get(p, Decimal(0)) + (_num(r.get("line_amount")) or Decimal(0))
+    breakdown = []
+    for p in sorted(set(rc_po) | set(per_po), key=str):
+        ia, ra = per_po.get(p), rc_po.get(p)
+        breakdown.append({"po_number": p, "invoice_lines": sum(1 for l in lines if l["po_number"] == p),
+                          "invoice_amount": _m(ia), "receipt_amount": _m(ra),
+                          "diff": _m(ia - ra) if ia is not None and ra is not None else None})
+
+    rr = {r["rule_id"]: r for r in payload["rule_results"]}
+    sub = _num((fields.get("sub_total") or {}).get("normalized_value"))
+    return {
+        "summary_version": SUMMARY_VERSION,
+        "dms_doc_id": payload["package"]["dms_doc_id"],
+        "decision": {"status": rec["value"], "max_severity": rec["max_severity"],
+                     "exception_codes": rec["exception_codes"], "halted_by": rec.get("halted_by"),
+                     "needs_manual_review": [r for r in rec.get("reasons") or [] if "manual_review" in r],
+                     "multi_po": len(rcv_pos) > 1},
+        "invoice": inv,
+        "receipt": {
+            "found": bool(active), "lookup_path": snap.get("lookup_path"),
+            "org_id": snap.get("org_id"), "ou_name": next((r.get("ou_name") for r in active.values() if r.get("ou_name")), None),
+            "receiver": snap.get("receiver"),
+            "receipts": receipts,
+            "receipt_total": _m(rcv_total) if active else None,
+            "invoice_vs_receipt_diff": _m(sub - rcv_total) if active and sub is not None else None,
+            "lines_matched": f"{sum(1 for l in lines if l['relation'] not in (None, 'UNMATCHED'))}/{len(lines)}",
+        },
+        "po_breakdown": breakdown,
+        "lines": lines,
+        "rules": [{"rule_id": k, "result": v["result"],
+                   "codes": sorted({e["exception_code"] for e in payload["evidence"] if e["rule_id"] == k}),
+                   "detail": v.get("detail")} for k, v in rr.items()],
+        "exceptions": [{"code": e["exception_code"], "severity": e["severity"], "rule_id": e["rule_id"],
+                        "message": e["message_th"]} for e in payload["evidence"]],
+        "unreadable_fields": unreadable,
+        "corroborated": corroborated,
+    }

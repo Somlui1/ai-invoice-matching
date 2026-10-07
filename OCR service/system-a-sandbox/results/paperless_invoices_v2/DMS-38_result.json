@@ -1,0 +1,6434 @@
+{
+  "contract": "aiva.system_a.result/3.0",
+  "request": {
+    "validation_id": "VAL-DMS-38-1791342521",
+    "correlation_id": "a02c9e05-33f9-4af1-90e5-9fd670d7b352",
+    "idempotency_key": null,
+    "document_revision": 1,
+    "validation_round": 1,
+    "source": "cli_process_pdf",
+    "run_id": "single",
+    "dms_doc_id": "DMS-38",
+    "content_kind": "pdf",
+    "declared_mime": "application/pdf",
+    "completed_at": "2026-10-07T03:08:43.235678+00:00"
+  },
+  "versions": {
+    "schema": "3.0",
+    "standard": "6.6",
+    "ruleset": "v6.6-r4",
+    "models": {
+      "line_matcher": "nvidia/Qwen3.8-Flash-Next-NVFP4",
+      "qty_judge": "nvidia/Qwen3.8-Flash-Next-NVFP4",
+      "entity_judge": "nvidia/Qwen3.8-Flash-Next-NVFP4",
+      "vision": "nvidia/Qwen3.8-Flash-Next-NVFP4"
+    },
+    "prompts": {
+      "V-08": "v08-qty@1.0.0",
+      "V-07": "v07-match@1.0.0",
+      "V-05": "v05-entity@1.0.0"
+    }
+  },
+  "package": {
+    "package_id": "PKG-DMS-38",
+    "dms_doc_id": "DMS-38",
+    "file_sha256": "sha256:5c95b35bdeb1bbd85e0e0fe62895d0339c3f9646bd964326df06287f62774ec5",
+    "page_count": 4,
+    "pages_complete": true,
+    "coordinate_system": {
+      "origin": "top-left",
+      "unit": "normalized",
+      "range": [
+        0,
+        1
+      ],
+      "bbox_format": "[x, y, w, h]",
+      "reference": "rendered page after rotation correction (see pages[].rotation)"
+    }
+  },
+  "pages": [
+    {
+      "page_no": 1,
+      "width_pt": 595.0,
+      "height_pt": 842.0,
+      "rotation": 0,
+      "render_dpi": 150,
+      "page_type": "TAX_INVOICE",
+      "type_confidence": 1.0,
+      "ocr_quality": null
+    },
+    {
+      "page_no": 2,
+      "width_pt": 595.0,
+      "height_pt": 842.0,
+      "rotation": 0,
+      "render_dpi": 150,
+      "page_type": "TAX_INVOICE",
+      "type_confidence": 1.0,
+      "ocr_quality": null
+    },
+    {
+      "page_no": 3,
+      "width_pt": 595.0,
+      "height_pt": 842.0,
+      "rotation": 0,
+      "render_dpi": 150,
+      "page_type": "TAX_INVOICE",
+      "type_confidence": 1.0,
+      "ocr_quality": null
+    },
+    {
+      "page_no": 4,
+      "width_pt": 595.0,
+      "height_pt": 842.0,
+      "rotation": 0,
+      "render_dpi": 150,
+      "page_type": "DELIVERY_NOTE",
+      "type_confidence": 1.0,
+      "ocr_quality": null
+    }
+  ],
+  "documents": [
+    {
+      "document_id": "D1",
+      "document_type": "INVOICE",
+      "pages": [
+        1,
+        2,
+        3
+      ],
+      "confidence": 1.0
+    },
+    {
+      "document_id": "D2",
+      "document_type": "DELIVERY_NOTE",
+      "pages": [
+        4
+      ],
+      "confidence": 1.0
+    }
+  ],
+  "ocr": {
+    "elements": [
+      {
+        "element_id": "P1",
+        "document_id": "D1",
+        "document_type": "INVOICE",
+        "page_no": 1,
+        "element_type": "page",
+        "parent_id": null,
+        "field_name": null,
+        "raw_value": null,
+        "normalized_value": null,
+        "confidence": 1.0,
+        "bbox": [
+          0,
+          0,
+          1,
+          1
+        ],
+        "source_reference": {
+          "package_id": "PKG-DMS-38",
+          "dms_doc_id": "DMS-38",
+          "file_sha256": "sha256:5c95b35bdeb1bbd85e0e0fe62895d0339c3f9646bd964326df06287f62774ec5",
+          "extractors": {
+            "vlm": "nvidia/Qwen3.8-Flash-Next-NVFP4",
+            "prompts": "vision-page-items@2.0.0+vision-page-classify@1.0.0+vision-table-rows@2.0.0+vision-crop-reread@1.0.0",
+            "ocr": "pdf-text-layer(pymupdf)",
+            "pipeline": "vision-pipeline/db0d4e577167"
+          }
+        }
+      },
+      {
+        "element_id": "P2",
+        "document_id": "D1",
+        "document_type": "INVOICE",
+        "page_no": 2,
+        "element_type": "page",
+        "parent_id": null,
+        "field_name": null,
+        "raw_value": null,
+        "normalized_value": null,
+        "confidence": 1.0,
+        "bbox": [
+          0,
+          0,
+          1,
+          1
+        ],
+        "source_reference": {
+          "package_id": "PKG-DMS-38",
+          "dms_doc_id": "DMS-38",
+          "file_sha256": "sha256:5c95b35bdeb1bbd85e0e0fe62895d0339c3f9646bd964326df06287f62774ec5",
+          "extractors": {
+            "vlm": "nvidia/Qwen3.8-Flash-Next-NVFP4",
+            "prompts": "vision-page-items@2.0.0+vision-page-classify@1.0.0+vision-table-rows@2.0.0+vision-crop-reread@1.0.0",
+            "ocr": "pdf-text-layer(pymupdf)",
+            "pipeline": "vision-pipeline/db0d4e577167"
+          }
+        }
+      },
+      {
+        "element_id": "P3",
+        "document_id": "D1",
+        "document_type": "INVOICE",
+        "page_no": 3,
+        "element_type": "page",
+        "parent_id": null,
+        "field_name": null,
+        "raw_value": null,
+        "normalized_value": null,
+        "confidence": 1.0,
+        "bbox": [
+          0,
+          0,
+          1,
+          1
+        ],
+        "source_reference": {
+          "package_id": "PKG-DMS-38",
+          "dms_doc_id": "DMS-38",
+          "file_sha256": "sha256:5c95b35bdeb1bbd85e0e0fe62895d0339c3f9646bd964326df06287f62774ec5",
+          "extractors": {
+            "vlm": "nvidia/Qwen3.8-Flash-Next-NVFP4",
+            "prompts": "vision-page-items@2.0.0+vision-page-classify@1.0.0+vision-table-rows@2.0.0+vision-crop-reread@1.0.0",
+            "ocr": "pdf-text-layer(pymupdf)",
+            "pipeline": "vision-pipeline/db0d4e577167"
+          }
+        }
+      },
+      {
+        "element_id": "P4",
+        "document_id": "D2",
+        "document_type": "DELIVERY_NOTE",
+        "page_no": 4,
+        "element_type": "page",
+        "parent_id": null,
+        "field_name": null,
+        "raw_value": null,
+        "normalized_value": null,
+        "confidence": 1.0,
+        "bbox": [
+          0,
+          0,
+          1,
+          1
+        ],
+        "source_reference": {
+          "package_id": "PKG-DMS-38",
+          "dms_doc_id": "DMS-38",
+          "file_sha256": "sha256:5c95b35bdeb1bbd85e0e0fe62895d0339c3f9646bd964326df06287f62774ec5",
+          "extractors": {
+            "vlm": "nvidia/Qwen3.8-Flash-Next-NVFP4",
+            "prompts": "vision-page-items@2.0.0+vision-page-classify@1.0.0+vision-table-rows@2.0.0+vision-crop-reread@1.0.0",
+            "ocr": "pdf-text-layer(pymupdf)",
+            "pipeline": "vision-pipeline/db0d4e577167"
+          }
+        }
+      },
+      {
+        "element_id": "D1-f-po_number",
+        "document_id": "D1",
+        "document_type": "INVOICE",
+        "page_no": 1,
+        "element_type": "field",
+        "parent_id": null,
+        "field_name": "po_number",
+        "raw_value": "43039142",
+        "normalized_value": "43039142",
+        "confidence": 0.7,
+        "bbox": [
+          0.6613,
+          0.3307,
+          0.0847,
+          0.0114
+        ],
+        "source_reference": {
+          "package_id": "PKG-DMS-38",
+          "dms_doc_id": "DMS-38",
+          "file_sha256": "sha256:5c95b35bdeb1bbd85e0e0fe62895d0339c3f9646bd964326df06287f62774ec5",
+          "extractors": {
+            "vlm": "nvidia/Qwen3.8-Flash-Next-NVFP4",
+            "prompts": "vision-page-items@2.0.0+vision-page-classify@1.0.0+vision-table-rows@2.0.0+vision-crop-reread@1.0.0",
+            "ocr": "pdf-text-layer(pymupdf)",
+            "pipeline": "vision-pipeline/db0d4e577167"
+          },
+          "word_ids": [],
+          "null_reason": null,
+          "agreement": false,
+          "source": "vlm"
+        }
+      },
+      {
+        "element_id": "D1-f-invoice_date",
+        "document_id": "D1",
+        "document_type": "INVOICE",
+        "page_no": 1,
+        "element_type": "field",
+        "parent_id": null,
+        "field_name": "invoice_date",
+        "raw_value": "02/09/2026",
+        "normalized_value": "2026-09-02",
+        "confidence": 0.7,
+        "bbox": [
+          0.6694,
+          0.3991,
+          0.0685,
+          0.0114
+        ],
+        "source_reference": {
+          "package_id": "PKG-DMS-38",
+          "dms_doc_id": "DMS-38",
+          "file_sha256": "sha256:5c95b35bdeb1bbd85e0e0fe62895d0339c3f9646bd964326df06287f62774ec5",
+          "extractors": {
+            "vlm": "nvidia/Qwen3.8-Flash-Next-NVFP4",
+            "prompts": "vision-page-items@2.0.0+vision-page-classify@1.0.0+vision-table-rows@2.0.0+vision-crop-reread@1.0.0",
+            "ocr": "pdf-text-layer(pymupdf)",
+            "pipeline": "vision-pipeline/db0d4e577167"
+          },
+          "word_ids": [],
+          "null_reason": null,
+          "agreement": false,
+          "source": "vlm"
+        }
+      },
+      {
+        "element_id": "D1-f-supplier_name",
+        "document_id": "D1",
+        "document_type": "INVOICE",
+        "page_no": 1,
+        "element_type": "field",
+        "parent_id": null,
+        "field_name": "supplier_name",
+        "raw_value": "QST (THAILAND) C",
+        "normalized_value": "QST (THAILAND) C",
+        "confidence": 0.96,
+        "bbox": [
+          0.2137,
+          0.0513,
+          0.3468,
+          0.0542
+        ],
+        "source_reference": {
+          "package_id": "PKG-DMS-38",
+          "dms_doc_id": "DMS-38",
+          "file_sha256": "sha256:5c95b35bdeb1bbd85e0e0fe62895d0339c3f9646bd964326df06287f62774ec5",
+          "extractors": {
+            "vlm": "nvidia/Qwen3.8-Flash-Next-NVFP4",
+            "prompts": "vision-page-items@2.0.0+vision-page-classify@1.0.0+vision-table-rows@2.0.0+vision-crop-reread@1.0.0",
+            "ocr": "pdf-text-layer(pymupdf)",
+            "pipeline": "vision-pipeline/db0d4e577167"
+          },
+          "word_ids": [],
+          "null_reason": null,
+          "agreement": true,
+          "source": "consensus"
+        }
+      },
+      {
+        "element_id": "D1-f-supplier_tax_id",
+        "document_id": "D1",
+        "document_type": "INVOICE",
+        "page_no": 1,
+        "element_type": "field",
+        "parent_id": null,
+        "field_name": "supplier_tax_id",
+        "raw_value": "0205545000583",
+        "normalized_value": "0205545000583",
+        "confidence": 0.7,
+        "bbox": [
+          0.2823,
+          0.1796,
+          0.2137,
+          0.0114
+        ],
+        "source_reference": {
+          "package_id": "PKG-DMS-38",
+          "dms_doc_id": "DMS-38",
+          "file_sha256": "sha256:5c95b35bdeb1bbd85e0e0fe62895d0339c3f9646bd964326df06287f62774ec5",
+          "extractors": {
+            "vlm": "nvidia/Qwen3.8-Flash-Next-NVFP4",
+            "prompts": "vision-page-items@2.0.0+vision-page-classify@1.0.0+vision-table-rows@2.0.0+vision-crop-reread@1.0.0",
+            "ocr": "pdf-text-layer(pymupdf)",
+            "pipeline": "vision-pipeline/db0d4e577167"
+          },
+          "word_ids": [],
+          "null_reason": null,
+          "agreement": false,
+          "source": "vlm"
+        }
+      },
+      {
+        "element_id": "D1-f-customer_name",
+        "document_id": "D1",
+        "document_type": "INVOICE",
+        "page_no": 1,
+        "element_type": "field",
+        "parent_id": null,
+        "field_name": "customer_name",
+        "raw_value": "Aapico Hitech Parts Company Limited",
+        "normalized_value": "Aapico Hitech Parts Company Limited",
+        "confidence": 0.7,
+        "bbox": [
+          0.0871,
+          0.3791,
+          0.2315,
+          0.0114
+        ],
+        "source_reference": {
+          "package_id": "PKG-DMS-38",
+          "dms_doc_id": "DMS-38",
+          "file_sha256": "sha256:5c95b35bdeb1bbd85e0e0fe62895d0339c3f9646bd964326df06287f62774ec5",
+          "extractors": {
+            "vlm": "nvidia/Qwen3.8-Flash-Next-NVFP4",
+            "prompts": "vision-page-items@2.0.0+vision-page-classify@1.0.0+vision-table-rows@2.0.0+vision-crop-reread@1.0.0",
+            "ocr": "pdf-text-layer(pymupdf)",
+            "pipeline": "vision-pipeline/db0d4e577167"
+          },
+          "word_ids": [],
+          "null_reason": null,
+          "agreement": false,
+          "source": "vlm"
+        }
+      },
+      {
+        "element_id": "D1-f-customer_tax_id",
+        "document_id": "D1",
+        "document_type": "INVOICE",
+        "page_no": 1,
+        "element_type": "field",
+        "parent_id": null,
+        "field_name": "customer_tax_id",
+        "raw_value": "0145548001549",
+        "normalized_value": "0145548001549",
+        "confidence": 0.7,
+        "bbox": [
+          0.3831,
+          0.3307,
+          0.1234,
+          0.0114
+        ],
+        "source_reference": {
+          "package_id": "PKG-DMS-38",
+          "dms_doc_id": "DMS-38",
+          "file_sha256": "sha256:5c95b35bdeb1bbd85e0e0fe62895d0339c3f9646bd964326df06287f62774ec5",
+          "extractors": {
+            "vlm": "nvidia/Qwen3.8-Flash-Next-NVFP4",
+            "prompts": "vision-page-items@2.0.0+vision-page-classify@1.0.0+vision-table-rows@2.0.0+vision-crop-reread@1.0.0",
+            "ocr": "pdf-text-layer(pymupdf)",
+            "pipeline": "vision-pipeline/db0d4e577167"
+          },
+          "word_ids": [],
+          "null_reason": null,
+          "agreement": false,
+          "source": "vlm"
+        }
+      },
+      {
+        "element_id": "D1-f-sub_total",
+        "document_id": "D1",
+        "document_type": "INVOICE",
+        "page_no": 1,
+        "element_type": "field",
+        "parent_id": null,
+        "field_name": "sub_total",
+        "raw_value": "20,790.00",
+        "normalized_value": "20790.00",
+        "confidence": 0.7,
+        "bbox": [
+          0.7016,
+          0.9892,
+          0.0605,
+          0.0108
+        ],
+        "source_reference": {
+          "package_id": "PKG-DMS-38",
+          "dms_doc_id": "DMS-38",
+          "file_sha256": "sha256:5c95b35bdeb1bbd85e0e0fe62895d0339c3f9646bd964326df06287f62774ec5",
+          "extractors": {
+            "vlm": "nvidia/Qwen3.8-Flash-Next-NVFP4",
+            "prompts": "vision-page-items@2.0.0+vision-page-classify@1.0.0+vision-table-rows@2.0.0+vision-crop-reread@1.0.0",
+            "ocr": "pdf-text-layer(pymupdf)",
+            "pipeline": "vision-pipeline/db0d4e577167"
+          },
+          "word_ids": [],
+          "null_reason": null,
+          "agreement": false,
+          "source": "vlm"
+        }
+      },
+      {
+        "element_id": "D1-f-supplier_address",
+        "document_id": "D1",
+        "document_type": "INVOICE",
+        "page_no": 1,
+        "element_type": "field",
+        "parent_id": null,
+        "field_name": "supplier_address",
+        "raw_value": "188/5 Moo 1 T.Mapphai A.Banbueng Chonburi 20170 188/5 ม.1 ต.มาบไผ่ อ.บ้านบึง จ.ชลบุรี 20170",
+        "normalized_value": "188/5 Moo 1 T.Mapphai A.Banbueng Chonburi 20170 188/5 ม.1 ต.มาบไผ่ อ.บ้านบึง จ.ชลบุรี 20170",
+        "confidence": 0.7,
+        "bbox": [
+          0.1895,
+          0.1083,
+          0.3992,
+          0.0513
+        ],
+        "source_reference": {
+          "package_id": "PKG-DMS-38",
+          "dms_doc_id": "DMS-38",
+          "file_sha256": "sha256:5c95b35bdeb1bbd85e0e0fe62895d0339c3f9646bd964326df06287f62774ec5",
+          "extractors": {
+            "vlm": "nvidia/Qwen3.8-Flash-Next-NVFP4",
+            "prompts": "vision-page-items@2.0.0+vision-page-classify@1.0.0+vision-table-rows@2.0.0+vision-crop-reread@1.0.0",
+            "ocr": "pdf-text-layer(pymupdf)",
+            "pipeline": "vision-pipeline/db0d4e577167"
+          },
+          "word_ids": [],
+          "null_reason": null,
+          "agreement": false,
+          "source": "vlm"
+        }
+      },
+      {
+        "element_id": "D1-f-customer_address",
+        "document_id": "D1",
+        "document_type": "INVOICE",
+        "page_no": 1,
+        "element_type": "field",
+        "parent_id": null,
+        "field_name": "customer_address",
+        "raw_value": "99/2 Moo. 1 Hi-tech Industrial Estate T.Banlane A.Bang Pa-in , Ayuthaya 13160 Thailand",
+        "normalized_value": "99/2 Moo. 1 Hi-tech Industrial Estate T.Banlane A.Bang Pa-in , Ayuthaya 13160 Thailand",
+        "confidence": 0.7,
+        "bbox": [
+          0.0871,
+          0.3991,
+          0.3202,
+          0.057
+        ],
+        "source_reference": {
+          "package_id": "PKG-DMS-38",
+          "dms_doc_id": "DMS-38",
+          "file_sha256": "sha256:5c95b35bdeb1bbd85e0e0fe62895d0339c3f9646bd964326df06287f62774ec5",
+          "extractors": {
+            "vlm": "nvidia/Qwen3.8-Flash-Next-NVFP4",
+            "prompts": "vision-page-items@2.0.0+vision-page-classify@1.0.0+vision-table-rows@2.0.0+vision-crop-reread@1.0.0",
+            "ocr": "pdf-text-layer(pymupdf)",
+            "pipeline": "vision-pipeline/db0d4e577167"
+          },
+          "word_ids": [],
+          "null_reason": null,
+          "agreement": false,
+          "source": "vlm"
+        }
+      },
+      {
+        "element_id": "D1-f-invoice_num",
+        "document_id": "D1",
+        "document_type": "INVOICE",
+        "page_no": 4,
+        "element_type": "field",
+        "parent_id": null,
+        "field_name": "invoice_num",
+        "raw_value": "IV2609014",
+        "normalized_value": "IV2609014",
+        "confidence": 0.7,
+        "bbox": [
+          0.2113,
+          0.0696,
+          0.0605,
+          0.0063
+        ],
+        "source_reference": {
+          "package_id": "PKG-DMS-38",
+          "dms_doc_id": "DMS-38",
+          "file_sha256": "sha256:5c95b35bdeb1bbd85e0e0fe62895d0339c3f9646bd964326df06287f62774ec5",
+          "extractors": {
+            "vlm": "nvidia/Qwen3.8-Flash-Next-NVFP4",
+            "prompts": "vision-page-items@2.0.0+vision-page-classify@1.0.0+vision-table-rows@2.0.0+vision-crop-reread@1.0.0",
+            "ocr": "pdf-text-layer(pymupdf)",
+            "pipeline": "vision-pipeline/db0d4e577167"
+          },
+          "word_ids": [],
+          "null_reason": "CONFLICT_BETWEEN_SOURCES",
+          "agreement": false,
+          "source": "vlm"
+        }
+      },
+      {
+        "element_id": "D1-f-grand_total",
+        "document_id": "D1",
+        "document_type": "INVOICE",
+        "page_no": 4,
+        "element_type": "field",
+        "parent_id": null,
+        "field_name": "grand_total",
+        "raw_value": "20,790.00",
+        "normalized_value": "20790.00",
+        "confidence": 0.7,
+        "bbox": [
+          0.4758,
+          0.1214,
+          0.0605,
+          0.0063
+        ],
+        "source_reference": {
+          "package_id": "PKG-DMS-38",
+          "dms_doc_id": "DMS-38",
+          "file_sha256": "sha256:5c95b35bdeb1bbd85e0e0fe62895d0339c3f9646bd964326df06287f62774ec5",
+          "extractors": {
+            "vlm": "nvidia/Qwen3.8-Flash-Next-NVFP4",
+            "prompts": "vision-page-items@2.0.0+vision-page-classify@1.0.0+vision-table-rows@2.0.0+vision-crop-reread@1.0.0",
+            "ocr": "pdf-text-layer(pymupdf)",
+            "pipeline": "vision-pipeline/db0d4e577167"
+          },
+          "word_ids": [],
+          "null_reason": "CONFLICT_BETWEEN_SOURCES",
+          "agreement": false,
+          "source": "vlm"
+        }
+      },
+      {
+        "element_id": "D1-f-vat",
+        "document_id": "D1",
+        "document_type": "INVOICE",
+        "page_no": null,
+        "element_type": "field",
+        "parent_id": null,
+        "field_name": "vat",
+        "raw_value": null,
+        "normalized_value": null,
+        "confidence": null,
+        "bbox": null,
+        "source_reference": {
+          "package_id": "PKG-DMS-38",
+          "dms_doc_id": "DMS-38",
+          "file_sha256": "sha256:5c95b35bdeb1bbd85e0e0fe62895d0339c3f9646bd964326df06287f62774ec5",
+          "extractors": {
+            "vlm": "nvidia/Qwen3.8-Flash-Next-NVFP4",
+            "prompts": "vision-page-items@2.0.0+vision-page-classify@1.0.0+vision-table-rows@2.0.0+vision-crop-reread@1.0.0",
+            "ocr": "pdf-text-layer(pymupdf)",
+            "pipeline": "vision-pipeline/db0d4e577167"
+          },
+          "word_ids": [],
+          "null_reason": "NOT_PRESENT",
+          "agreement": false,
+          "source": "vlm"
+        }
+      },
+      {
+        "element_id": "D1-L1",
+        "document_id": "D1",
+        "document_type": "INVOICE",
+        "page_no": 1,
+        "element_type": "row",
+        "parent_id": null,
+        "field_name": "lines[1]",
+        "raw_value": null,
+        "normalized_value": null,
+        "confidence": null,
+        "bbox": [
+          0.004,
+          0.5188,
+          0.7661,
+          0.439
+        ],
+        "source_reference": {
+          "package_id": "PKG-DMS-38",
+          "dms_doc_id": "DMS-38",
+          "file_sha256": "sha256:5c95b35bdeb1bbd85e0e0fe62895d0339c3f9646bd964326df06287f62774ec5",
+          "extractors": {
+            "vlm": "nvidia/Qwen3.8-Flash-Next-NVFP4",
+            "prompts": "vision-page-items@2.0.0+vision-page-classify@1.0.0+vision-table-rows@2.0.0+vision-crop-reread@1.0.0",
+            "ocr": "pdf-text-layer(pymupdf)",
+            "pipeline": "vision-pipeline/db0d4e577167"
+          }
+        }
+      },
+      {
+        "element_id": "D1-L1-description",
+        "document_id": "D1",
+        "document_type": "INVOICE",
+        "page_no": 1,
+        "element_type": "cell",
+        "parent_id": "D1-L1",
+        "field_name": "lines[1].description",
+        "raw_value": "M8-1.25x20.6,Weld Bolt (Cr3+) Lot.No. C5041380011A",
+        "normalized_value": "M8-1.25x20.6,Weld Bolt (Cr3+) Lot.No. C5041380011A",
+        "confidence": 0.7,
+        "bbox": [
+          0.004,
+          0.5188,
+          0.7661,
+          0.439
+        ],
+        "source_reference": {
+          "package_id": "PKG-DMS-38",
+          "dms_doc_id": "DMS-38",
+          "file_sha256": "sha256:5c95b35bdeb1bbd85e0e0fe62895d0339c3f9646bd964326df06287f62774ec5",
+          "extractors": {
+            "vlm": "nvidia/Qwen3.8-Flash-Next-NVFP4",
+            "prompts": "vision-page-items@2.0.0+vision-page-classify@1.0.0+vision-table-rows@2.0.0+vision-crop-reread@1.0.0",
+            "ocr": "pdf-text-layer(pymupdf)",
+            "pipeline": "vision-pipeline/db0d4e577167"
+          },
+          "null_reason": null,
+          "agreement": false
+        }
+      },
+      {
+        "element_id": "D1-L1-qty",
+        "document_id": "D1",
+        "document_type": "INVOICE",
+        "page_no": 1,
+        "element_type": "cell",
+        "parent_id": "D1-L1",
+        "field_name": "lines[1].qty",
+        "raw_value": "9,000",
+        "normalized_value": "9000",
+        "confidence": 0.95,
+        "bbox": [
+          0.004,
+          0.5188,
+          0.7661,
+          0.439
+        ],
+        "source_reference": {
+          "package_id": "PKG-DMS-38",
+          "dms_doc_id": "DMS-38",
+          "file_sha256": "sha256:5c95b35bdeb1bbd85e0e0fe62895d0339c3f9646bd964326df06287f62774ec5",
+          "extractors": {
+            "vlm": "nvidia/Qwen3.8-Flash-Next-NVFP4",
+            "prompts": "vision-page-items@2.0.0+vision-page-classify@1.0.0+vision-table-rows@2.0.0+vision-crop-reread@1.0.0",
+            "ocr": "pdf-text-layer(pymupdf)",
+            "pipeline": "vision-pipeline/db0d4e577167"
+          },
+          "null_reason": null,
+          "agreement": true
+        }
+      },
+      {
+        "element_id": "D1-L1-unit_price",
+        "document_id": "D1",
+        "document_type": "INVOICE",
+        "page_no": 1,
+        "element_type": "cell",
+        "parent_id": "D1-L1",
+        "field_name": "lines[1].unit_price",
+        "raw_value": "2.31",
+        "normalized_value": "2.31",
+        "confidence": 0.95,
+        "bbox": [
+          0.004,
+          0.5188,
+          0.7661,
+          0.439
+        ],
+        "source_reference": {
+          "package_id": "PKG-DMS-38",
+          "dms_doc_id": "DMS-38",
+          "file_sha256": "sha256:5c95b35bdeb1bbd85e0e0fe62895d0339c3f9646bd964326df06287f62774ec5",
+          "extractors": {
+            "vlm": "nvidia/Qwen3.8-Flash-Next-NVFP4",
+            "prompts": "vision-page-items@2.0.0+vision-page-classify@1.0.0+vision-table-rows@2.0.0+vision-crop-reread@1.0.0",
+            "ocr": "pdf-text-layer(pymupdf)",
+            "pipeline": "vision-pipeline/db0d4e577167"
+          },
+          "null_reason": null,
+          "agreement": true
+        }
+      },
+      {
+        "element_id": "D1-L1-amount",
+        "document_id": "D1",
+        "document_type": "INVOICE",
+        "page_no": 1,
+        "element_type": "cell",
+        "parent_id": "D1-L1",
+        "field_name": "lines[1].amount",
+        "raw_value": "20,790.00",
+        "normalized_value": "20790.00",
+        "confidence": 0.95,
+        "bbox": [
+          0.004,
+          0.5188,
+          0.7661,
+          0.439
+        ],
+        "source_reference": {
+          "package_id": "PKG-DMS-38",
+          "dms_doc_id": "DMS-38",
+          "file_sha256": "sha256:5c95b35bdeb1bbd85e0e0fe62895d0339c3f9646bd964326df06287f62774ec5",
+          "extractors": {
+            "vlm": "nvidia/Qwen3.8-Flash-Next-NVFP4",
+            "prompts": "vision-page-items@2.0.0+vision-page-classify@1.0.0+vision-table-rows@2.0.0+vision-crop-reread@1.0.0",
+            "ocr": "pdf-text-layer(pymupdf)",
+            "pipeline": "vision-pipeline/db0d4e577167"
+          },
+          "null_reason": null,
+          "agreement": true
+        }
+      },
+      {
+        "element_id": "T1-001",
+        "document_id": "D1",
+        "document_type": "INVOICE",
+        "page_no": 1,
+        "element_type": "table",
+        "parent_id": "P1",
+        "field_name": "item_table",
+        "raw_value": null,
+        "normalized_value": null,
+        "confidence": 0.9,
+        "bbox": [
+          0.003,
+          0.361,
+          0.955,
+          0.372
+        ],
+        "source_reference": {
+          "package_id": "PKG-DMS-38",
+          "dms_doc_id": "DMS-38",
+          "file_sha256": "sha256:5c95b35bdeb1bbd85e0e0fe62895d0339c3f9646bd964326df06287f62774ec5",
+          "extractors": {
+            "vlm": "nvidia/Qwen3.8-Flash-Next-NVFP4",
+            "prompts": "vision-page-items@2.0.0+vision-page-classify@1.0.0+vision-table-rows@2.0.0+vision-crop-reread@1.0.0",
+            "ocr": "pdf-text-layer(pymupdf)",
+            "pipeline": "vision-pipeline/db0d4e577167"
+          },
+          "region_kind": "table"
+        }
+      },
+      {
+        "element_id": "T1-C01",
+        "document_id": "D1",
+        "document_type": "INVOICE",
+        "page_no": 1,
+        "element_type": "section",
+        "parent_id": "P1",
+        "field_name": "column:description",
+        "raw_value": null,
+        "normalized_value": null,
+        "confidence": null,
+        "bbox": [
+          0.229,
+          0.361,
+          0.237,
+          0.032
+        ],
+        "source_reference": {
+          "package_id": "PKG-DMS-38",
+          "dms_doc_id": "DMS-38",
+          "file_sha256": "sha256:5c95b35bdeb1bbd85e0e0fe62895d0339c3f9646bd964326df06287f62774ec5",
+          "extractors": {
+            "vlm": "nvidia/Qwen3.8-Flash-Next-NVFP4",
+            "prompts": "vision-page-items@2.0.0+vision-page-classify@1.0.0+vision-table-rows@2.0.0+vision-crop-reread@1.0.0",
+            "ocr": "pdf-text-layer(pymupdf)",
+            "pipeline": "vision-pipeline/db0d4e577167"
+          },
+          "region_kind": "section"
+        }
+      },
+      {
+        "element_id": "T1-C02",
+        "document_id": "D1",
+        "document_type": "INVOICE",
+        "page_no": 1,
+        "element_type": "section",
+        "parent_id": "P1",
+        "field_name": "column:qty",
+        "raw_value": null,
+        "normalized_value": null,
+        "confidence": null,
+        "bbox": [
+          0.466,
+          0.361,
+          0.163,
+          0.032
+        ],
+        "source_reference": {
+          "package_id": "PKG-DMS-38",
+          "dms_doc_id": "DMS-38",
+          "file_sha256": "sha256:5c95b35bdeb1bbd85e0e0fe62895d0339c3f9646bd964326df06287f62774ec5",
+          "extractors": {
+            "vlm": "nvidia/Qwen3.8-Flash-Next-NVFP4",
+            "prompts": "vision-page-items@2.0.0+vision-page-classify@1.0.0+vision-table-rows@2.0.0+vision-crop-reread@1.0.0",
+            "ocr": "pdf-text-layer(pymupdf)",
+            "pipeline": "vision-pipeline/db0d4e577167"
+          },
+          "region_kind": "section"
+        }
+      },
+      {
+        "element_id": "T1-C03",
+        "document_id": "D1",
+        "document_type": "INVOICE",
+        "page_no": 1,
+        "element_type": "section",
+        "parent_id": "P1",
+        "field_name": "column:unit_price",
+        "raw_value": null,
+        "normalized_value": null,
+        "confidence": null,
+        "bbox": [
+          0.629,
+          0.361,
+          0.163,
+          0.032
+        ],
+        "source_reference": {
+          "package_id": "PKG-DMS-38",
+          "dms_doc_id": "DMS-38",
+          "file_sha256": "sha256:5c95b35bdeb1bbd85e0e0fe62895d0339c3f9646bd964326df06287f62774ec5",
+          "extractors": {
+            "vlm": "nvidia/Qwen3.8-Flash-Next-NVFP4",
+            "prompts": "vision-page-items@2.0.0+vision-page-classify@1.0.0+vision-table-rows@2.0.0+vision-crop-reread@1.0.0",
+            "ocr": "pdf-text-layer(pymupdf)",
+            "pipeline": "vision-pipeline/db0d4e577167"
+          },
+          "region_kind": "section"
+        }
+      },
+      {
+        "element_id": "T1-C04",
+        "document_id": "D1",
+        "document_type": "INVOICE",
+        "page_no": 1,
+        "element_type": "section",
+        "parent_id": "P1",
+        "field_name": "column:amount",
+        "raw_value": null,
+        "normalized_value": null,
+        "confidence": null,
+        "bbox": [
+          0.792,
+          0.361,
+          0.166,
+          0.032
+        ],
+        "source_reference": {
+          "package_id": "PKG-DMS-38",
+          "dms_doc_id": "DMS-38",
+          "file_sha256": "sha256:5c95b35bdeb1bbd85e0e0fe62895d0339c3f9646bd964326df06287f62774ec5",
+          "extractors": {
+            "vlm": "nvidia/Qwen3.8-Flash-Next-NVFP4",
+            "prompts": "vision-page-items@2.0.0+vision-page-classify@1.0.0+vision-table-rows@2.0.0+vision-crop-reread@1.0.0",
+            "ocr": "pdf-text-layer(pymupdf)",
+            "pipeline": "vision-pipeline/db0d4e577167"
+          },
+          "region_kind": "section"
+        }
+      },
+      {
+        "element_id": "T2-001",
+        "document_id": "D1",
+        "document_type": "INVOICE",
+        "page_no": 2,
+        "element_type": "table",
+        "parent_id": "P2",
+        "field_name": "item_table",
+        "raw_value": null,
+        "normalized_value": null,
+        "confidence": 0.9,
+        "bbox": [
+          0.002,
+          0.363,
+          0.954,
+          0.37
+        ],
+        "source_reference": {
+          "package_id": "PKG-DMS-38",
+          "dms_doc_id": "DMS-38",
+          "file_sha256": "sha256:5c95b35bdeb1bbd85e0e0fe62895d0339c3f9646bd964326df06287f62774ec5",
+          "extractors": {
+            "vlm": "nvidia/Qwen3.8-Flash-Next-NVFP4",
+            "prompts": "vision-page-items@2.0.0+vision-page-classify@1.0.0+vision-table-rows@2.0.0+vision-crop-reread@1.0.0",
+            "ocr": "pdf-text-layer(pymupdf)",
+            "pipeline": "vision-pipeline/db0d4e577167"
+          },
+          "region_kind": "table"
+        }
+      },
+      {
+        "element_id": "T2-C01",
+        "document_id": "D1",
+        "document_type": "INVOICE",
+        "page_no": 2,
+        "element_type": "section",
+        "parent_id": "P2",
+        "field_name": "column:description",
+        "raw_value": null,
+        "normalized_value": null,
+        "confidence": null,
+        "bbox": [
+          0.23,
+          0.363,
+          0.232,
+          0.032
+        ],
+        "source_reference": {
+          "package_id": "PKG-DMS-38",
+          "dms_doc_id": "DMS-38",
+          "file_sha256": "sha256:5c95b35bdeb1bbd85e0e0fe62895d0339c3f9646bd964326df06287f62774ec5",
+          "extractors": {
+            "vlm": "nvidia/Qwen3.8-Flash-Next-NVFP4",
+            "prompts": "vision-page-items@2.0.0+vision-page-classify@1.0.0+vision-table-rows@2.0.0+vision-crop-reread@1.0.0",
+            "ocr": "pdf-text-layer(pymupdf)",
+            "pipeline": "vision-pipeline/db0d4e577167"
+          },
+          "region_kind": "section"
+        }
+      },
+      {
+        "element_id": "T2-C02",
+        "document_id": "D1",
+        "document_type": "INVOICE",
+        "page_no": 2,
+        "element_type": "section",
+        "parent_id": "P2",
+        "field_name": "column:qty",
+        "raw_value": null,
+        "normalized_value": null,
+        "confidence": null,
+        "bbox": [
+          0.462,
+          0.363,
+          0.168,
+          0.032
+        ],
+        "source_reference": {
+          "package_id": "PKG-DMS-38",
+          "dms_doc_id": "DMS-38",
+          "file_sha256": "sha256:5c95b35bdeb1bbd85e0e0fe62895d0339c3f9646bd964326df06287f62774ec5",
+          "extractors": {
+            "vlm": "nvidia/Qwen3.8-Flash-Next-NVFP4",
+            "prompts": "vision-page-items@2.0.0+vision-page-classify@1.0.0+vision-table-rows@2.0.0+vision-crop-reread@1.0.0",
+            "ocr": "pdf-text-layer(pymupdf)",
+            "pipeline": "vision-pipeline/db0d4e577167"
+          },
+          "region_kind": "section"
+        }
+      },
+      {
+        "element_id": "T2-C03",
+        "document_id": "D1",
+        "document_type": "INVOICE",
+        "page_no": 2,
+        "element_type": "section",
+        "parent_id": "P2",
+        "field_name": "column:unit_price",
+        "raw_value": null,
+        "normalized_value": null,
+        "confidence": null,
+        "bbox": [
+          0.63,
+          0.363,
+          0.162,
+          0.032
+        ],
+        "source_reference": {
+          "package_id": "PKG-DMS-38",
+          "dms_doc_id": "DMS-38",
+          "file_sha256": "sha256:5c95b35bdeb1bbd85e0e0fe62895d0339c3f9646bd964326df06287f62774ec5",
+          "extractors": {
+            "vlm": "nvidia/Qwen3.8-Flash-Next-NVFP4",
+            "prompts": "vision-page-items@2.0.0+vision-page-classify@1.0.0+vision-table-rows@2.0.0+vision-crop-reread@1.0.0",
+            "ocr": "pdf-text-layer(pymupdf)",
+            "pipeline": "vision-pipeline/db0d4e577167"
+          },
+          "region_kind": "section"
+        }
+      },
+      {
+        "element_id": "T2-C04",
+        "document_id": "D1",
+        "document_type": "INVOICE",
+        "page_no": 2,
+        "element_type": "section",
+        "parent_id": "P2",
+        "field_name": "column:amount",
+        "raw_value": null,
+        "normalized_value": null,
+        "confidence": null,
+        "bbox": [
+          0.792,
+          0.363,
+          0.164,
+          0.032
+        ],
+        "source_reference": {
+          "package_id": "PKG-DMS-38",
+          "dms_doc_id": "DMS-38",
+          "file_sha256": "sha256:5c95b35bdeb1bbd85e0e0fe62895d0339c3f9646bd964326df06287f62774ec5",
+          "extractors": {
+            "vlm": "nvidia/Qwen3.8-Flash-Next-NVFP4",
+            "prompts": "vision-page-items@2.0.0+vision-page-classify@1.0.0+vision-table-rows@2.0.0+vision-crop-reread@1.0.0",
+            "ocr": "pdf-text-layer(pymupdf)",
+            "pipeline": "vision-pipeline/db0d4e577167"
+          },
+          "region_kind": "section"
+        }
+      },
+      {
+        "element_id": "T3-001",
+        "document_id": "D1",
+        "document_type": "INVOICE",
+        "page_no": 3,
+        "element_type": "table",
+        "parent_id": "P3",
+        "field_name": "item_table",
+        "raw_value": null,
+        "normalized_value": null,
+        "confidence": 0.9,
+        "bbox": [
+          0.002,
+          0.363,
+          0.954,
+          0.462
+        ],
+        "source_reference": {
+          "package_id": "PKG-DMS-38",
+          "dms_doc_id": "DMS-38",
+          "file_sha256": "sha256:5c95b35bdeb1bbd85e0e0fe62895d0339c3f9646bd964326df06287f62774ec5",
+          "extractors": {
+            "vlm": "nvidia/Qwen3.8-Flash-Next-NVFP4",
+            "prompts": "vision-page-items@2.0.0+vision-page-classify@1.0.0+vision-table-rows@2.0.0+vision-crop-reread@1.0.0",
+            "ocr": "pdf-text-layer(pymupdf)",
+            "pipeline": "vision-pipeline/db0d4e577167"
+          },
+          "region_kind": "table"
+        }
+      },
+      {
+        "element_id": "T3-C01",
+        "document_id": "D1",
+        "document_type": "INVOICE",
+        "page_no": 3,
+        "element_type": "section",
+        "parent_id": "P3",
+        "field_name": "column:description",
+        "raw_value": null,
+        "normalized_value": null,
+        "confidence": null,
+        "bbox": [
+          0.235,
+          0.363,
+          0.227,
+          0.035
+        ],
+        "source_reference": {
+          "package_id": "PKG-DMS-38",
+          "dms_doc_id": "DMS-38",
+          "file_sha256": "sha256:5c95b35bdeb1bbd85e0e0fe62895d0339c3f9646bd964326df06287f62774ec5",
+          "extractors": {
+            "vlm": "nvidia/Qwen3.8-Flash-Next-NVFP4",
+            "prompts": "vision-page-items@2.0.0+vision-page-classify@1.0.0+vision-table-rows@2.0.0+vision-crop-reread@1.0.0",
+            "ocr": "pdf-text-layer(pymupdf)",
+            "pipeline": "vision-pipeline/db0d4e577167"
+          },
+          "region_kind": "section"
+        }
+      },
+      {
+        "element_id": "T3-C02",
+        "document_id": "D1",
+        "document_type": "INVOICE",
+        "page_no": 3,
+        "element_type": "section",
+        "parent_id": "P3",
+        "field_name": "column:qty",
+        "raw_value": null,
+        "normalized_value": null,
+        "confidence": null,
+        "bbox": [
+          0.462,
+          0.363,
+          0.175,
+          0.035
+        ],
+        "source_reference": {
+          "package_id": "PKG-DMS-38",
+          "dms_doc_id": "DMS-38",
+          "file_sha256": "sha256:5c95b35bdeb1bbd85e0e0fe62895d0339c3f9646bd964326df06287f62774ec5",
+          "extractors": {
+            "vlm": "nvidia/Qwen3.8-Flash-Next-NVFP4",
+            "prompts": "vision-page-items@2.0.0+vision-page-classify@1.0.0+vision-table-rows@2.0.0+vision-crop-reread@1.0.0",
+            "ocr": "pdf-text-layer(pymupdf)",
+            "pipeline": "vision-pipeline/db0d4e577167"
+          },
+          "region_kind": "section"
+        }
+      },
+      {
+        "element_id": "T3-C03",
+        "document_id": "D1",
+        "document_type": "INVOICE",
+        "page_no": 3,
+        "element_type": "section",
+        "parent_id": "P3",
+        "field_name": "column:uom",
+        "raw_value": null,
+        "normalized_value": null,
+        "confidence": null,
+        "bbox": [
+          0.462,
+          0.363,
+          0.175,
+          0.035
+        ],
+        "source_reference": {
+          "package_id": "PKG-DMS-38",
+          "dms_doc_id": "DMS-38",
+          "file_sha256": "sha256:5c95b35bdeb1bbd85e0e0fe62895d0339c3f9646bd964326df06287f62774ec5",
+          "extractors": {
+            "vlm": "nvidia/Qwen3.8-Flash-Next-NVFP4",
+            "prompts": "vision-page-items@2.0.0+vision-page-classify@1.0.0+vision-table-rows@2.0.0+vision-crop-reread@1.0.0",
+            "ocr": "pdf-text-layer(pymupdf)",
+            "pipeline": "vision-pipeline/db0d4e577167"
+          },
+          "region_kind": "section"
+        }
+      },
+      {
+        "element_id": "T3-C04",
+        "document_id": "D1",
+        "document_type": "INVOICE",
+        "page_no": 3,
+        "element_type": "section",
+        "parent_id": "P3",
+        "field_name": "column:unit_price",
+        "raw_value": null,
+        "normalized_value": null,
+        "confidence": null,
+        "bbox": [
+          0.637,
+          0.363,
+          0.155,
+          0.035
+        ],
+        "source_reference": {
+          "package_id": "PKG-DMS-38",
+          "dms_doc_id": "DMS-38",
+          "file_sha256": "sha256:5c95b35bdeb1bbd85e0e0fe62895d0339c3f9646bd964326df06287f62774ec5",
+          "extractors": {
+            "vlm": "nvidia/Qwen3.8-Flash-Next-NVFP4",
+            "prompts": "vision-page-items@2.0.0+vision-page-classify@1.0.0+vision-table-rows@2.0.0+vision-crop-reread@1.0.0",
+            "ocr": "pdf-text-layer(pymupdf)",
+            "pipeline": "vision-pipeline/db0d4e577167"
+          },
+          "region_kind": "section"
+        }
+      },
+      {
+        "element_id": "T3-C05",
+        "document_id": "D1",
+        "document_type": "INVOICE",
+        "page_no": 3,
+        "element_type": "section",
+        "parent_id": "P3",
+        "field_name": "column:amount",
+        "raw_value": null,
+        "normalized_value": null,
+        "confidence": null,
+        "bbox": [
+          0.792,
+          0.363,
+          0.164,
+          0.035
+        ],
+        "source_reference": {
+          "package_id": "PKG-DMS-38",
+          "dms_doc_id": "DMS-38",
+          "file_sha256": "sha256:5c95b35bdeb1bbd85e0e0fe62895d0339c3f9646bd964326df06287f62774ec5",
+          "extractors": {
+            "vlm": "nvidia/Qwen3.8-Flash-Next-NVFP4",
+            "prompts": "vision-page-items@2.0.0+vision-page-classify@1.0.0+vision-table-rows@2.0.0+vision-crop-reread@1.0.0",
+            "ocr": "pdf-text-layer(pymupdf)",
+            "pipeline": "vision-pipeline/db0d4e577167"
+          },
+          "region_kind": "section"
+        }
+      },
+      {
+        "element_id": "S1-header",
+        "document_id": "D1",
+        "document_type": "INVOICE",
+        "page_no": 1,
+        "element_type": "section",
+        "parent_id": "P1",
+        "field_name": "header",
+        "raw_value": "Original | DELIVERY ORDER / TAX INVOICE ใบส่งสินค้า/ใบกำกับภาษี | 43039142-40 | IV2609014 | 02/09/2026",
+        "normalized_value": null,
+        "confidence": 0.98,
+        "bbox": [
+          0.2339,
+          0.2252,
+          0.5322,
+          0.1853
+        ],
+        "source_reference": {
+          "package_id": "PKG-DMS-38",
+          "dms_doc_id": "DMS-38",
+          "file_sha256": "sha256:5c95b35bdeb1bbd85e0e0fe62895d0339c3f9646bd964326df06287f62774ec5",
+          "extractors": {
+            "vlm": "nvidia/Qwen3.8-Flash-Next-NVFP4",
+            "prompts": "vision-page-items@2.0.0+vision-page-classify@1.0.0+vision-table-rows@2.0.0+vision-crop-reread@1.0.0",
+            "ocr": "pdf-text-layer(pymupdf)",
+            "pipeline": "vision-pipeline/db0d4e577167"
+          },
+          "region_kind": "section"
+        }
+      },
+      {
+        "element_id": "S1-supplier",
+        "document_id": "D1",
+        "document_type": "INVOICE",
+        "page_no": 1,
+        "element_type": "section",
+        "parent_id": "P1",
+        "field_name": "supplier",
+        "raw_value": "QST (THAILAND) CO., LTD. บริษัท คิวเอสที (ไทยแลนด์) จำกัด | Tel: 038-151687, 151688 Fax: 038-151689 | 0205545000583 | 188/5 Moo 1 T.Mapphai A.Banbueng Chonburi 20170 188/5 ม.1 ต.มาบไผ่ อ.บ้านบึง จ.ชลบุรี 20170 | สำนักงานใหญ่",
+        "normalized_value": null,
+        "confidence": 0.97,
+        "bbox": [
+          0.1895,
+          0.0513,
+          0.5686,
+          0.1539
+        ],
+        "source_reference": {
+          "package_id": "PKG-DMS-38",
+          "dms_doc_id": "DMS-38",
+          "file_sha256": "sha256:5c95b35bdeb1bbd85e0e0fe62895d0339c3f9646bd964326df06287f62774ec5",
+          "extractors": {
+            "vlm": "nvidia/Qwen3.8-Flash-Next-NVFP4",
+            "prompts": "vision-page-items@2.0.0+vision-page-classify@1.0.0+vision-table-rows@2.0.0+vision-crop-reread@1.0.0",
+            "ocr": "pdf-text-layer(pymupdf)",
+            "pipeline": "vision-pipeline/db0d4e577167"
+          },
+          "region_kind": "section"
+        }
+      },
+      {
+        "element_id": "S1-customer",
+        "document_id": "D1",
+        "document_type": "INVOICE",
+        "page_no": 1,
+        "element_type": "section",
+        "parent_id": "P1",
+        "field_name": "customer",
+        "raw_value": "Aapico Hitech Parts Company Limited | 0145548001549 | 99/2 Moo. 1 Hi-tech Industrial Estate T.Banlane A.Bang Pa-in , Ayuthaya 13160 Thailand | AHP",
+        "normalized_value": null,
+        "confidence": 0.97,
+        "bbox": [
+          0.0871,
+          0.3307,
+          0.4194,
+          0.1254
+        ],
+        "source_reference": {
+          "package_id": "PKG-DMS-38",
+          "dms_doc_id": "DMS-38",
+          "file_sha256": "sha256:5c95b35bdeb1bbd85e0e0fe62895d0339c3f9646bd964326df06287f62774ec5",
+          "extractors": {
+            "vlm": "nvidia/Qwen3.8-Flash-Next-NVFP4",
+            "prompts": "vision-page-items@2.0.0+vision-page-classify@1.0.0+vision-table-rows@2.0.0+vision-crop-reread@1.0.0",
+            "ocr": "pdf-text-layer(pymupdf)",
+            "pipeline": "vision-pipeline/db0d4e577167"
+          },
+          "region_kind": "section"
+        }
+      },
+      {
+        "element_id": "S1-total",
+        "document_id": "D1",
+        "document_type": "INVOICE",
+        "page_no": 1,
+        "element_type": "section",
+        "parent_id": "P1",
+        "field_name": "total",
+        "raw_value": "20,790.00",
+        "normalized_value": null,
+        "confidence": 0.97,
+        "bbox": [
+          0.7016,
+          0.9892,
+          0.0605,
+          0.0108
+        ],
+        "source_reference": {
+          "package_id": "PKG-DMS-38",
+          "dms_doc_id": "DMS-38",
+          "file_sha256": "sha256:5c95b35bdeb1bbd85e0e0fe62895d0339c3f9646bd964326df06287f62774ec5",
+          "extractors": {
+            "vlm": "nvidia/Qwen3.8-Flash-Next-NVFP4",
+            "prompts": "vision-page-items@2.0.0+vision-page-classify@1.0.0+vision-table-rows@2.0.0+vision-crop-reread@1.0.0",
+            "ocr": "pdf-text-layer(pymupdf)",
+            "pipeline": "vision-pipeline/db0d4e577167"
+          },
+          "region_kind": "section"
+        }
+      },
+      {
+        "element_id": "S1-payment",
+        "document_id": "D1",
+        "document_type": "INVOICE",
+        "page_no": 1,
+        "element_type": "section",
+        "parent_id": "P1",
+        "field_name": "payment",
+        "raw_value": "90 Days",
+        "normalized_value": null,
+        "confidence": 0.97,
+        "bbox": [
+          0.6774,
+          0.4418,
+          0.0524,
+          0.0114
+        ],
+        "source_reference": {
+          "package_id": "PKG-DMS-38",
+          "dms_doc_id": "DMS-38",
+          "file_sha256": "sha256:5c95b35bdeb1bbd85e0e0fe62895d0339c3f9646bd964326df06287f62774ec5",
+          "extractors": {
+            "vlm": "nvidia/Qwen3.8-Flash-Next-NVFP4",
+            "prompts": "vision-page-items@2.0.0+vision-page-classify@1.0.0+vision-table-rows@2.0.0+vision-crop-reread@1.0.0",
+            "ocr": "pdf-text-layer(pymupdf)",
+            "pipeline": "vision-pipeline/db0d4e577167"
+          },
+          "region_kind": "section"
+        }
+      },
+      {
+        "element_id": "S1-table",
+        "document_id": "D1",
+        "document_type": "INVOICE",
+        "page_no": 1,
+        "element_type": "table",
+        "parent_id": "P1",
+        "field_name": "table",
+        "raw_value": "Item ลำดับที่ Part No. รหัสสินค้า Description รายละเอียด Quantity (Pcs) จำนวน Unit Price (Baht) ราคาต่อหน่วย Amount (Baht) จำนวนเงิน",
+        "normalized_value": null,
+        "confidence": 0.96,
+        "bbox": [
+          0.004,
+          0.4675,
+          0.7661,
+          0.0513
+        ],
+        "source_reference": {
+          "package_id": "PKG-DMS-38",
+          "dms_doc_id": "DMS-38",
+          "file_sha256": "sha256:5c95b35bdeb1bbd85e0e0fe62895d0339c3f9646bd964326df06287f62774ec5",
+          "extractors": {
+            "vlm": "nvidia/Qwen3.8-Flash-Next-NVFP4",
+            "prompts": "vision-page-items@2.0.0+vision-page-classify@1.0.0+vision-table-rows@2.0.0+vision-crop-reread@1.0.0",
+            "ocr": "pdf-text-layer(pymupdf)",
+            "pipeline": "vision-pipeline/db0d4e577167"
+          },
+          "region_kind": "table"
+        }
+      },
+      {
+        "element_id": "S1-other",
+        "document_id": "D1",
+        "document_type": "INVOICE",
+        "page_no": 1,
+        "element_type": "section",
+        "parent_id": "P1",
+        "field_name": "other",
+        "raw_value": "530336849",
+        "normalized_value": null,
+        "confidence": 0.85,
+        "bbox": [
+          0.5081,
+          0.2509,
+          0.1613,
+          0.0399
+        ],
+        "source_reference": {
+          "package_id": "PKG-DMS-38",
+          "dms_doc_id": "DMS-38",
+          "file_sha256": "sha256:5c95b35bdeb1bbd85e0e0fe62895d0339c3f9646bd964326df06287f62774ec5",
+          "extractors": {
+            "vlm": "nvidia/Qwen3.8-Flash-Next-NVFP4",
+            "prompts": "vision-page-items@2.0.0+vision-page-classify@1.0.0+vision-table-rows@2.0.0+vision-crop-reread@1.0.0",
+            "ocr": "pdf-text-layer(pymupdf)",
+            "pipeline": "vision-pipeline/db0d4e577167"
+          },
+          "region_kind": "section"
+        }
+      },
+      {
+        "element_id": "S2-supplier",
+        "document_id": "D1",
+        "document_type": "INVOICE",
+        "page_no": 2,
+        "element_type": "section",
+        "parent_id": "P2",
+        "field_name": "supplier",
+        "raw_value": "QST (THAILAND) CO., LTD. | 188/5 Moo 1 T.Mapphai A.Banbueng Chonburi 20170 | Tel: 038-151687, 151688 Fax: 038-151689 | Tax ID No.: 0205545000583 | บริษัท ควีเอสที (ไทยแลนด์) จำกัด | 188/5 ม.1 ต.มาบไผ่ อ.บ้านบึง จ.ชลบุรี 20170",
+        "normalized_value": null,
+        "confidence": 0.98,
+        "bbox": [
+          0.3331,
+          0.057,
+          0.6669,
+          0.1585
+        ],
+        "source_reference": {
+          "package_id": "PKG-DMS-38",
+          "dms_doc_id": "DMS-38",
+          "file_sha256": "sha256:5c95b35bdeb1bbd85e0e0fe62895d0339c3f9646bd964326df06287f62774ec5",
+          "extractors": {
+            "vlm": "nvidia/Qwen3.8-Flash-Next-NVFP4",
+            "prompts": "vision-page-items@2.0.0+vision-page-classify@1.0.0+vision-table-rows@2.0.0+vision-crop-reread@1.0.0",
+            "ocr": "pdf-text-layer(pymupdf)",
+            "pipeline": "vision-pipeline/db0d4e577167"
+          },
+          "region_kind": "section"
+        }
+      },
+      {
+        "element_id": "S2-header",
+        "document_id": "D1",
+        "document_type": "INVOICE",
+        "page_no": 2,
+        "element_type": "section",
+        "parent_id": "P2",
+        "field_name": "header",
+        "raw_value": "DELIVERY ORDER / TAX INVOICE | ใบส่งสินค้า/ใบกำกับภาษี",
+        "normalized_value": null,
+        "confidence": 0.98,
+        "bbox": [
+          0.4169,
+          0.2406,
+          0.5282,
+          0.053
+        ],
+        "source_reference": {
+          "package_id": "PKG-DMS-38",
+          "dms_doc_id": "DMS-38",
+          "file_sha256": "sha256:5c95b35bdeb1bbd85e0e0fe62895d0339c3f9646bd964326df06287f62774ec5",
+          "extractors": {
+            "vlm": "nvidia/Qwen3.8-Flash-Next-NVFP4",
+            "prompts": "vision-page-items@2.0.0+vision-page-classify@1.0.0+vision-table-rows@2.0.0+vision-crop-reread@1.0.0",
+            "ocr": "pdf-text-layer(pymupdf)",
+            "pipeline": "vision-pipeline/db0d4e577167"
+          },
+          "region_kind": "section"
+        }
+      },
+      {
+        "element_id": "S2-customer",
+        "document_id": "D1",
+        "document_type": "INVOICE",
+        "page_no": 2,
+        "element_type": "section",
+        "parent_id": "P2",
+        "field_name": "customer",
+        "raw_value": "Aapico Hitech Parts Company Limited | Tax I.D.No.0145548001549 | 99/2 Moo. 1 Hi-tech Industrial Estate T.Banlane A.Bang Pa-in , Ayuthaya 13160 Thailand | AHP",
+        "normalized_value": null,
+        "confidence": 0.97,
+        "bbox": [
+          0.1548,
+          0.3335,
+          0.7339,
+          0.1557
+        ],
+        "source_reference": {
+          "package_id": "PKG-DMS-38",
+          "dms_doc_id": "DMS-38",
+          "file_sha256": "sha256:5c95b35bdeb1bbd85e0e0fe62895d0339c3f9646bd964326df06287f62774ec5",
+          "extractors": {
+            "vlm": "nvidia/Qwen3.8-Flash-Next-NVFP4",
+            "prompts": "vision-page-items@2.0.0+vision-page-classify@1.0.0+vision-table-rows@2.0.0+vision-crop-reread@1.0.0",
+            "ocr": "pdf-text-layer(pymupdf)",
+            "pipeline": "vision-pipeline/db0d4e577167"
+          },
+          "region_kind": "section"
+        }
+      },
+      {
+        "element_id": "S2-table",
+        "document_id": "D1",
+        "document_type": "INVOICE",
+        "page_no": 2,
+        "element_type": "table",
+        "parent_id": "P2",
+        "field_name": "table",
+        "raw_value": "Item ลำดับที่ Part No. รหัสสินค้า Description รายละเอียด Quantity (Pcs) จำนวน Unit Price (Baht) ราคาต่อหน่วย Amount (Baht) จำนวนเงิน",
+        "normalized_value": null,
+        "confidence": 0.95,
+        "bbox": [
+          0.0081,
+          0.5103,
+          0.9919,
+          0.0456
+        ],
+        "source_reference": {
+          "package_id": "PKG-DMS-38",
+          "dms_doc_id": "DMS-38",
+          "file_sha256": "sha256:5c95b35bdeb1bbd85e0e0fe62895d0339c3f9646bd964326df06287f62774ec5",
+          "extractors": {
+            "vlm": "nvidia/Qwen3.8-Flash-Next-NVFP4",
+            "prompts": "vision-page-items@2.0.0+vision-page-classify@1.0.0+vision-table-rows@2.0.0+vision-crop-reread@1.0.0",
+            "ocr": "pdf-text-layer(pymupdf)",
+            "pipeline": "vision-pipeline/db0d4e577167"
+          },
+          "region_kind": "table"
+        }
+      },
+      {
+        "element_id": "S2-other",
+        "document_id": "D1",
+        "document_type": "INVOICE",
+        "page_no": 2,
+        "element_type": "section",
+        "parent_id": "P2",
+        "field_name": "other",
+        "raw_value": "530336841",
+        "normalized_value": null,
+        "confidence": 0.9,
+        "bbox": [
+          0.9048,
+          0.2725,
+          0.0952,
+          0.0353
+        ],
+        "source_reference": {
+          "package_id": "PKG-DMS-38",
+          "dms_doc_id": "DMS-38",
+          "file_sha256": "sha256:5c95b35bdeb1bbd85e0e0fe62895d0339c3f9646bd964326df06287f62774ec5",
+          "extractors": {
+            "vlm": "nvidia/Qwen3.8-Flash-Next-NVFP4",
+            "prompts": "vision-page-items@2.0.0+vision-page-classify@1.0.0+vision-table-rows@2.0.0+vision-crop-reread@1.0.0",
+            "ocr": "pdf-text-layer(pymupdf)",
+            "pipeline": "vision-pipeline/db0d4e577167"
+          },
+          "region_kind": "section"
+        }
+      },
+      {
+        "element_id": "S3-header",
+        "document_id": "D1",
+        "document_type": "INVOICE",
+        "page_no": 3,
+        "element_type": "section",
+        "parent_id": "P3",
+        "field_name": "header",
+        "raw_value": "DELIVERY ORDER / TAX INVOICE ใบส่งสินค้า/ใบกำกับภาษี | Copy | 43039142-40 | IV2609014 | 02/09/2026 | 530336841",
+        "normalized_value": null,
+        "confidence": 0.97,
+        "bbox": [
+          0.2363,
+          0.2281,
+          0.5096,
+          0.1767
+        ],
+        "source_reference": {
+          "package_id": "PKG-DMS-38",
+          "dms_doc_id": "DMS-38",
+          "file_sha256": "sha256:5c95b35bdeb1bbd85e0e0fe62895d0339c3f9646bd964326df06287f62774ec5",
+          "extractors": {
+            "vlm": "nvidia/Qwen3.8-Flash-Next-NVFP4",
+            "prompts": "vision-page-items@2.0.0+vision-page-classify@1.0.0+vision-table-rows@2.0.0+vision-crop-reread@1.0.0",
+            "ocr": "pdf-text-layer(pymupdf)",
+            "pipeline": "vision-pipeline/db0d4e577167"
+          },
+          "region_kind": "section"
+        }
+      },
+      {
+        "element_id": "S3-supplier",
+        "document_id": "D1",
+        "document_type": "INVOICE",
+        "page_no": 3,
+        "element_type": "section",
+        "parent_id": "P3",
+        "field_name": "supplier",
+        "raw_value": "QST (THAILAND) CO., LTD. บริษัท ควีเอสที (ไทยแลนด์) จำกัด | 188/5 Moo 1 T.Mapphai A.Banbueng Chonburi 20170 188/5 ม.1 ต.มาบไผ่ อ.บ้านบึง จ.ชลบุรี 20170 | Tel: 038-151687, 151688 Fax: 038-151689 | Tax ID No.: 0205545000583 | สำนักงานใหญ่",
+        "normalized_value": null,
+        "confidence": 0.97,
+        "bbox": [
+          0.1871,
+          0.057,
+          0.571,
+          0.1482
+        ],
+        "source_reference": {
+          "package_id": "PKG-DMS-38",
+          "dms_doc_id": "DMS-38",
+          "file_sha256": "sha256:5c95b35bdeb1bbd85e0e0fe62895d0339c3f9646bd964326df06287f62774ec5",
+          "extractors": {
+            "vlm": "nvidia/Qwen3.8-Flash-Next-NVFP4",
+            "prompts": "vision-page-items@2.0.0+vision-page-classify@1.0.0+vision-table-rows@2.0.0+vision-crop-reread@1.0.0",
+            "ocr": "pdf-text-layer(pymupdf)",
+            "pipeline": "vision-pipeline/db0d4e577167"
+          },
+          "region_kind": "section"
+        }
+      },
+      {
+        "element_id": "S3-customer",
+        "document_id": "D1",
+        "document_type": "INVOICE",
+        "page_no": 3,
+        "element_type": "section",
+        "parent_id": "P3",
+        "field_name": "customer",
+        "raw_value": "Aapico Hitech Parts Company Limited | Tax I.D.No.0145548001549 | 99/2 Moo. 1 Hi-tech Industrial Estate T.Banlane A.Bang Pa-in , Ayuthaya 13160 Thailand",
+        "normalized_value": null,
+        "confidence": 0.96,
+        "bbox": [
+          0.0887,
+          0.3193,
+          0.4177,
+          0.1482
+        ],
+        "source_reference": {
+          "package_id": "PKG-DMS-38",
+          "dms_doc_id": "DMS-38",
+          "file_sha256": "sha256:5c95b35bdeb1bbd85e0e0fe62895d0339c3f9646bd964326df06287f62774ec5",
+          "extractors": {
+            "vlm": "nvidia/Qwen3.8-Flash-Next-NVFP4",
+            "prompts": "vision-page-items@2.0.0+vision-page-classify@1.0.0+vision-table-rows@2.0.0+vision-crop-reread@1.0.0",
+            "ocr": "pdf-text-layer(pymupdf)",
+            "pipeline": "vision-pipeline/db0d4e577167"
+          },
+          "region_kind": "section"
+        }
+      },
+      {
+        "element_id": "S3-payment",
+        "document_id": "D1",
+        "document_type": "INVOICE",
+        "page_no": 3,
+        "element_type": "section",
+        "parent_id": "P3",
+        "field_name": "payment",
+        "raw_value": "90 Days",
+        "normalized_value": null,
+        "confidence": 0.96,
+        "bbox": [
+          0.679,
+          0.439,
+          0.0532,
+          0.0114
+        ],
+        "source_reference": {
+          "package_id": "PKG-DMS-38",
+          "dms_doc_id": "DMS-38",
+          "file_sha256": "sha256:5c95b35bdeb1bbd85e0e0fe62895d0339c3f9646bd964326df06287f62774ec5",
+          "extractors": {
+            "vlm": "nvidia/Qwen3.8-Flash-Next-NVFP4",
+            "prompts": "vision-page-items@2.0.0+vision-page-classify@1.0.0+vision-table-rows@2.0.0+vision-crop-reread@1.0.0",
+            "ocr": "pdf-text-layer(pymupdf)",
+            "pipeline": "vision-pipeline/db0d4e577167"
+          },
+          "region_kind": "section"
+        }
+      },
+      {
+        "element_id": "S3-total",
+        "document_id": "D1",
+        "document_type": "INVOICE",
+        "page_no": 3,
+        "element_type": "section",
+        "parent_id": "P3",
+        "field_name": "total",
+        "raw_value": "20,790.00",
+        "normalized_value": null,
+        "confidence": 0.96,
+        "bbox": [
+          0.7056,
+          0.992,
+          0.0621,
+          0.008
+        ],
+        "source_reference": {
+          "package_id": "PKG-DMS-38",
+          "dms_doc_id": "DMS-38",
+          "file_sha256": "sha256:5c95b35bdeb1bbd85e0e0fe62895d0339c3f9646bd964326df06287f62774ec5",
+          "extractors": {
+            "vlm": "nvidia/Qwen3.8-Flash-Next-NVFP4",
+            "prompts": "vision-page-items@2.0.0+vision-page-classify@1.0.0+vision-table-rows@2.0.0+vision-crop-reread@1.0.0",
+            "ocr": "pdf-text-layer(pymupdf)",
+            "pipeline": "vision-pipeline/db0d4e577167"
+          },
+          "region_kind": "section"
+        }
+      },
+      {
+        "element_id": "S3-table",
+        "document_id": "D1",
+        "document_type": "INVOICE",
+        "page_no": 3,
+        "element_type": "table",
+        "parent_id": "P3",
+        "field_name": "table",
+        "raw_value": "Item ลำดับที่ Part No. รหัสสินค้า Description รายละเอียด Quantity (Pcs) จำนวน Unit Price (Baht) ราคาต่อหน่วย Amount (Baht) จำนวนเงิน",
+        "normalized_value": null,
+        "confidence": 0.95,
+        "bbox": [
+          0.0024,
+          0.4846,
+          0.7718,
+          0.0342
+        ],
+        "source_reference": {
+          "package_id": "PKG-DMS-38",
+          "dms_doc_id": "DMS-38",
+          "file_sha256": "sha256:5c95b35bdeb1bbd85e0e0fe62895d0339c3f9646bd964326df06287f62774ec5",
+          "extractors": {
+            "vlm": "nvidia/Qwen3.8-Flash-Next-NVFP4",
+            "prompts": "vision-page-items@2.0.0+vision-page-classify@1.0.0+vision-table-rows@2.0.0+vision-crop-reread@1.0.0",
+            "ocr": "pdf-text-layer(pymupdf)",
+            "pipeline": "vision-pipeline/db0d4e577167"
+          },
+          "region_kind": "table"
+        }
+      },
+      {
+        "element_id": "S3-other",
+        "document_id": "D1",
+        "document_type": "INVOICE",
+        "page_no": 3,
+        "element_type": "section",
+        "parent_id": "P3",
+        "field_name": "other",
+        "raw_value": "(เอกสารออกเป็นชุด) | AHP",
+        "normalized_value": null,
+        "confidence": 0.9,
+        "bbox": [
+          0.004,
+          0.2509,
+          0.1169,
+          0.0655
+        ],
+        "source_reference": {
+          "package_id": "PKG-DMS-38",
+          "dms_doc_id": "DMS-38",
+          "file_sha256": "sha256:5c95b35bdeb1bbd85e0e0fe62895d0339c3f9646bd964326df06287f62774ec5",
+          "extractors": {
+            "vlm": "nvidia/Qwen3.8-Flash-Next-NVFP4",
+            "prompts": "vision-page-items@2.0.0+vision-page-classify@1.0.0+vision-table-rows@2.0.0+vision-crop-reread@1.0.0",
+            "ocr": "pdf-text-layer(pymupdf)",
+            "pipeline": "vision-pipeline/db0d4e577167"
+          },
+          "region_kind": "section"
+        }
+      },
+      {
+        "element_id": "S4-supplier",
+        "document_id": "D2",
+        "document_type": "DELIVERY_NOTE",
+        "page_no": 4,
+        "element_type": "section",
+        "parent_id": "P4",
+        "field_name": "supplier",
+        "raw_value": "AHP - Aapico Hitech Parts | CHONBURI | 188/5 moo 1, t.mapphai, a.banbung,chon-buri,20170,th",
+        "normalized_value": null,
+        "confidence": 0.98,
+        "bbox": [
+          0.0887,
+          0.0388,
+          0.4016,
+          0.1071
+        ],
+        "source_reference": {
+          "package_id": "PKG-DMS-38",
+          "dms_doc_id": "DMS-38",
+          "file_sha256": "sha256:5c95b35bdeb1bbd85e0e0fe62895d0339c3f9646bd964326df06287f62774ec5",
+          "extractors": {
+            "vlm": "nvidia/Qwen3.8-Flash-Next-NVFP4",
+            "prompts": "vision-page-items@2.0.0+vision-page-classify@1.0.0+vision-table-rows@2.0.0+vision-crop-reread@1.0.0",
+            "ocr": "pdf-text-layer(pymupdf)",
+            "pipeline": "vision-pipeline/db0d4e577167"
+          },
+          "region_kind": "section"
+        }
+      },
+      {
+        "element_id": "S4-header",
+        "document_id": "D2",
+        "document_type": "DELIVERY_NOTE",
+        "page_no": 4,
+        "element_type": "section",
+        "parent_id": "P4",
+        "field_name": "header",
+        "raw_value": "Purchase Order Shipping Confirm (PSC) | IV2609014 | 2026-09-02 | 2026-08-31 | (Copied) | Page 2 | 43039142, 40 | 2026-09-02 | 90 Days | 02-SEP-2026 | IV2609014|43039142 | IV2609014|43039142 | Receiving Number:",
+        "normalized_value": null,
+        "confidence": 0.98,
+        "bbox": [
+          0.1871,
+          0.0148,
+          0.7322,
+          0.1517
+        ],
+        "source_reference": {
+          "package_id": "PKG-DMS-38",
+          "dms_doc_id": "DMS-38",
+          "file_sha256": "sha256:5c95b35bdeb1bbd85e0e0fe62895d0339c3f9646bd964326df06287f62774ec5",
+          "extractors": {
+            "vlm": "nvidia/Qwen3.8-Flash-Next-NVFP4",
+            "prompts": "vision-page-items@2.0.0+vision-page-classify@1.0.0+vision-table-rows@2.0.0+vision-crop-reread@1.0.0",
+            "ocr": "pdf-text-layer(pymupdf)",
+            "pipeline": "vision-pipeline/db0d4e577167"
+          },
+          "region_kind": "section"
+        }
+      },
+      {
+        "element_id": "S4-total",
+        "document_id": "D2",
+        "document_type": "DELIVERY_NOTE",
+        "page_no": 4,
+        "element_type": "section",
+        "parent_id": "P4",
+        "field_name": "total",
+        "raw_value": "20,790.00 | 9000",
+        "normalized_value": null,
+        "confidence": 0.98,
+        "bbox": [
+          0.4758,
+          0.1214,
+          0.0888,
+          0.073
+        ],
+        "source_reference": {
+          "package_id": "PKG-DMS-38",
+          "dms_doc_id": "DMS-38",
+          "file_sha256": "sha256:5c95b35bdeb1bbd85e0e0fe62895d0339c3f9646bd964326df06287f62774ec5",
+          "extractors": {
+            "vlm": "nvidia/Qwen3.8-Flash-Next-NVFP4",
+            "prompts": "vision-page-items@2.0.0+vision-page-classify@1.0.0+vision-table-rows@2.0.0+vision-crop-reread@1.0.0",
+            "ocr": "pdf-text-layer(pymupdf)",
+            "pipeline": "vision-pipeline/db0d4e577167"
+          },
+          "region_kind": "section"
+        }
+      },
+      {
+        "element_id": "S4-other",
+        "document_id": "D2",
+        "document_type": "DELIVERY_NOTE",
+        "page_no": 4,
+        "element_type": "section",
+        "parent_id": "P4",
+        "field_name": "other",
+        "raw_value": "--- End of Document --- | QST-AHP-NISSAN;H60A (CR-2025) | TF-04-05, Oct 01,2020 (Rev.0) | AHP | 2026-08-31 17:03 | qr_code",
+        "normalized_value": null,
+        "confidence": 0.97,
+        "bbox": [
+          0.0742,
+          0.0268,
+          0.6282,
+          0.2047
+        ],
+        "source_reference": {
+          "package_id": "PKG-DMS-38",
+          "dms_doc_id": "DMS-38",
+          "file_sha256": "sha256:5c95b35bdeb1bbd85e0e0fe62895d0339c3f9646bd964326df06287f62774ec5",
+          "extractors": {
+            "vlm": "nvidia/Qwen3.8-Flash-Next-NVFP4",
+            "prompts": "vision-page-items@2.0.0+vision-page-classify@1.0.0+vision-table-rows@2.0.0+vision-crop-reread@1.0.0",
+            "ocr": "pdf-text-layer(pymupdf)",
+            "pipeline": "vision-pipeline/db0d4e577167"
+          },
+          "region_kind": "section"
+        }
+      },
+      {
+        "element_id": "S4-stamp",
+        "document_id": "D2",
+        "document_type": "DELIVERY_NOTE",
+        "page_no": 4,
+        "element_type": "stamp",
+        "parent_id": "P4",
+        "field_name": "stamp",
+        "raw_value": "stamped",
+        "normalized_value": null,
+        "confidence": 0.97,
+        "bbox": [
+          0.4492,
+          0.2395,
+          0.175,
+          0.0513
+        ],
+        "source_reference": {
+          "package_id": "PKG-DMS-38",
+          "dms_doc_id": "DMS-38",
+          "file_sha256": "sha256:5c95b35bdeb1bbd85e0e0fe62895d0339c3f9646bd964326df06287f62774ec5",
+          "extractors": {
+            "vlm": "nvidia/Qwen3.8-Flash-Next-NVFP4",
+            "prompts": "vision-page-items@2.0.0+vision-page-classify@1.0.0+vision-table-rows@2.0.0+vision-crop-reread@1.0.0",
+            "ocr": "pdf-text-layer(pymupdf)",
+            "pipeline": "vision-pipeline/db0d4e577167"
+          },
+          "region_kind": "stamp"
+        }
+      },
+      {
+        "element_id": "S4-table",
+        "document_id": "D2",
+        "document_type": "DELIVERY_NOTE",
+        "page_no": 4,
+        "element_type": "table",
+        "parent_id": "P4",
+        "field_name": "table",
+        "raw_value": "1 Item Code: PCP3000264A Description: 80498JR20A BOLT SPECIAL (CR3+) Lot Sup Unit Price: 2.31 Due Date: 02-SEP-2026 Std. Qty/Pack: 900 Packs: 10 Total Quantity Del.: 9000 Amount: 20,790.00",
+        "normalized_value": null,
+        "confidence": 0.95,
+        "bbox": [
+          0.0871,
+          0.1551,
+          0.629,
+          0.0502
+        ],
+        "source_reference": {
+          "package_id": "PKG-DMS-38",
+          "dms_doc_id": "DMS-38",
+          "file_sha256": "sha256:5c95b35bdeb1bbd85e0e0fe62895d0339c3f9646bd964326df06287f62774ec5",
+          "extractors": {
+            "vlm": "nvidia/Qwen3.8-Flash-Next-NVFP4",
+            "prompts": "vision-page-items@2.0.0+vision-page-classify@1.0.0+vision-table-rows@2.0.0+vision-crop-reread@1.0.0",
+            "ocr": "pdf-text-layer(pymupdf)",
+            "pipeline": "vision-pipeline/db0d4e577167"
+          },
+          "region_kind": "table"
+        }
+      }
+    ]
+  },
+  "extraction": {
+    "invoice_document_id": "D1",
+    "fields": {
+      "po_number": {
+        "raw_value": "43039142",
+        "normalized_value": "43039142",
+        "confidence": 0.7,
+        "ok": true,
+        "null_reason": null,
+        "element_id": "D1-f-po_number"
+      },
+      "invoice_date": {
+        "raw_value": "02/09/2026",
+        "normalized_value": "2026-09-02",
+        "confidence": 0.7,
+        "ok": true,
+        "null_reason": null,
+        "element_id": "D1-f-invoice_date"
+      },
+      "supplier_name": {
+        "raw_value": "QST (THAILAND) C",
+        "normalized_value": "QST (THAILAND) C",
+        "confidence": 0.96,
+        "ok": true,
+        "null_reason": null,
+        "element_id": "D1-f-supplier_name"
+      },
+      "supplier_tax_id": {
+        "raw_value": "0205545000583",
+        "normalized_value": "0205545000583",
+        "confidence": 0.7,
+        "ok": true,
+        "null_reason": null,
+        "element_id": "D1-f-supplier_tax_id"
+      },
+      "customer_name": {
+        "raw_value": "Aapico Hitech Parts Company Limited",
+        "normalized_value": "Aapico Hitech Parts Company Limited",
+        "confidence": 0.7,
+        "ok": true,
+        "null_reason": null,
+        "element_id": "D1-f-customer_name"
+      },
+      "customer_tax_id": {
+        "raw_value": "0145548001549",
+        "normalized_value": "0145548001549",
+        "confidence": 0.7,
+        "ok": true,
+        "null_reason": null,
+        "element_id": "D1-f-customer_tax_id"
+      },
+      "sub_total": {
+        "raw_value": "20,790.00",
+        "normalized_value": "20790.00",
+        "confidence": 0.7,
+        "ok": true,
+        "null_reason": null,
+        "element_id": "D1-f-sub_total"
+      },
+      "supplier_address": {
+        "raw_value": "188/5 Moo 1 T.Mapphai A.Banbueng Chonburi 20170 188/5 ม.1 ต.มาบไผ่ อ.บ้านบึง จ.ชลบุรี 20170",
+        "normalized_value": "188/5 Moo 1 T.Mapphai A.Banbueng Chonburi 20170 188/5 ม.1 ต.มาบไผ่ อ.บ้านบึง จ.ชลบุรี 20170",
+        "confidence": 0.7,
+        "ok": true,
+        "null_reason": null,
+        "element_id": "D1-f-supplier_address"
+      },
+      "customer_address": {
+        "raw_value": "99/2 Moo. 1 Hi-tech Industrial Estate T.Banlane A.Bang Pa-in , Ayuthaya 13160 Thailand",
+        "normalized_value": "99/2 Moo. 1 Hi-tech Industrial Estate T.Banlane A.Bang Pa-in , Ayuthaya 13160 Thailand",
+        "confidence": 0.7,
+        "ok": true,
+        "null_reason": null,
+        "element_id": "D1-f-customer_address"
+      },
+      "invoice_num": {
+        "raw_value": "IV2609014",
+        "normalized_value": "IV2609014",
+        "confidence": 0.7,
+        "ok": false,
+        "null_reason": "CONFLICT_BETWEEN_SOURCES",
+        "element_id": "D1-f-invoice_num"
+      },
+      "grand_total": {
+        "raw_value": "20,790.00",
+        "normalized_value": "20790.00",
+        "confidence": 0.7,
+        "ok": false,
+        "null_reason": "CONFLICT_BETWEEN_SOURCES",
+        "element_id": "D1-f-grand_total"
+      },
+      "vat": {
+        "raw_value": null,
+        "normalized_value": null,
+        "confidence": null,
+        "ok": false,
+        "null_reason": "NOT_PRESENT",
+        "element_id": "D1-f-vat"
+      }
+    },
+    "lines": [
+      {
+        "line_no": 1,
+        "element_id": "D1-L1",
+        "uom_group": null,
+        "cells": {
+          "description": {
+            "raw_value": "M8-1.25x20.6,Weld Bolt (Cr3+) Lot.No. C5041380011A",
+            "normalized_value": "M8-1.25x20.6,Weld Bolt (Cr3+) Lot.No. C5041380011A",
+            "ok": true,
+            "null_reason": null
+          },
+          "qty": {
+            "raw_value": "9,000",
+            "normalized_value": "9000",
+            "ok": true,
+            "null_reason": null
+          },
+          "unit_price": {
+            "raw_value": "2.31",
+            "normalized_value": "2.31",
+            "ok": true,
+            "null_reason": null
+          },
+          "amount": {
+            "raw_value": "20,790.00",
+            "normalized_value": "20790.00",
+            "ok": true,
+            "null_reason": null
+          },
+          "uom": {
+            "raw_value": null,
+            "normalized_value": null,
+            "ok": false,
+            "null_reason": "NOT_PRESENT"
+          }
+        }
+      }
+    ],
+    "signatures": {},
+    "extra": {
+      "ocr_text_by_page": {
+        "1": "",
+        "2": "",
+        "3": "",
+        "4": ""
+      },
+      "text_layer_chars_by_page": {
+        "1": 0,
+        "2": 0,
+        "3": 0,
+        "4": 0
+      },
+      "doc_type_by_page": {
+        "1": "tax_invoice",
+        "2": "tax_invoice",
+        "3": "tax_invoice",
+        "4": "delivery_note"
+      },
+      "page_type_votes": {
+        "1": [
+          "TAX_INVOICE",
+          "TAX_INVOICE"
+        ],
+        "2": [
+          "TAX_INVOICE",
+          "TAX_INVOICE"
+        ],
+        "3": [
+          "TAX_INVOICE",
+          "TAX_INVOICE"
+        ],
+        "4": [
+          "DELIVERY_NOTE",
+          "DELIVERY_NOTE"
+        ]
+      },
+      "is_copy_by_page": {
+        "1": false,
+        "2": true,
+        "3": true,
+        "4": true
+      },
+      "coord_mode_by_page": {
+        "1": "pixel",
+        "2": "pixel",
+        "3": "pixel",
+        "4": "pixel"
+      },
+      "coord_overflow": {
+        "1": {
+          "mode": "pixel",
+          "items_total": 28,
+          "items_outside": 9,
+          "max_x_px": 955.0,
+          "max_y_px": 2180.0,
+          "img_w": 1240,
+          "img_h": 1754,
+          "implied_scale_x": 1.298,
+          "implied_scale_y": 0.805
+        },
+        "2": {
+          "mode": "pixel",
+          "items_total": 31,
+          "items_outside": 20,
+          "max_x_px": 1682.0,
+          "max_y_px": 2340.0,
+          "img_w": 1240,
+          "img_h": 1754,
+          "implied_scale_x": 0.737,
+          "implied_scale_y": 0.75
+        },
+        "3": {
+          "mode": "pixel",
+          "items_total": 29,
+          "items_outside": 9,
+          "max_x_px": 960.0,
+          "max_y_px": 2270.0,
+          "img_w": 1240,
+          "img_h": 1754,
+          "implied_scale_x": 1.292,
+          "implied_scale_y": 0.773
+        }
+      },
+      "ocr_quality_by_page": {
+        "1": null,
+        "2": null,
+        "3": null,
+        "4": null
+      },
+      "items_by_page": {
+        "1": [
+          {
+            "type": "header",
+            "label": "doc_set_flag",
+            "text": "Original",
+            "bbox": [
+              0.6492,
+              0.2252,
+              0.1169,
+              0.0257
+            ],
+            "confidence": 0.98,
+            "bbox_vlm": null,
+            "bbox_method": null
+          },
+          {
+            "type": "header",
+            "label": "doc_title",
+            "text": "DELIVERY ORDER / TAX INVOICE ใบส่งสินค้า/ใบกำกับภาษี",
+            "bbox": [
+              0.2339,
+              0.2281,
+              0.3065,
+              0.0456
+            ],
+            "confidence": 0.97,
+            "bbox_vlm": null,
+            "bbox_method": null
+          },
+          {
+            "type": "header",
+            "label": "po_number",
+            "text": "43039142-40",
+            "bbox": [
+              0.6613,
+              0.3307,
+              0.0847,
+              0.0114
+            ],
+            "confidence": 0.97,
+            "bbox_vlm": null,
+            "bbox_method": null
+          },
+          {
+            "type": "header",
+            "label": "invoice_ref",
+            "text": "IV2609014",
+            "bbox": [
+              0.6694,
+              0.3791,
+              0.0685,
+              0.0114
+            ],
+            "confidence": 0.97,
+            "bbox_vlm": null,
+            "bbox_method": null
+          },
+          {
+            "type": "header",
+            "label": "doc_date",
+            "text": "02/09/2026",
+            "bbox": [
+              0.6694,
+              0.3991,
+              0.0685,
+              0.0114
+            ],
+            "confidence": 0.97,
+            "bbox_vlm": null,
+            "bbox_method": null
+          },
+          {
+            "type": "supplier",
+            "label": "supplier_name",
+            "text": "QST (THAILAND) CO., LTD. บริษัท คิวเอสที (ไทยแลนด์) จำกัด",
+            "bbox": [
+              0.2137,
+              0.0513,
+              0.3468,
+              0.0542
+            ],
+            "confidence": 0.97,
+            "bbox_vlm": null,
+            "bbox_method": null
+          },
+          {
+            "type": "supplier",
+            "label": "supplier_phone",
+            "text": "Tel: 038-151687, 151688 Fax: 038-151689",
+            "bbox": [
+              0.2258,
+              0.1625,
+              0.3266,
+              0.0143
+            ],
+            "confidence": 0.97,
+            "bbox_vlm": null,
+            "bbox_method": null
+          },
+          {
+            "type": "supplier",
+            "label": "supplier_tax_id",
+            "text": "0205545000583",
+            "bbox": [
+              0.2823,
+              0.1796,
+              0.2137,
+              0.0114
+            ],
+            "confidence": 0.97,
+            "bbox_vlm": null,
+            "bbox_method": null
+          },
+          {
+            "type": "customer",
+            "label": "customer_name",
+            "text": "Aapico Hitech Parts Company Limited",
+            "bbox": [
+              0.0871,
+              0.3791,
+              0.2315,
+              0.0114
+            ],
+            "confidence": 0.97,
+            "bbox_vlm": null,
+            "bbox_method": null
+          },
+          {
+            "type": "customer",
+            "label": "customer_tax_id",
+            "text": "0145548001549",
+            "bbox": [
+              0.3831,
+              0.3307,
+              0.1234,
+              0.0114
+            ],
+            "confidence": 0.97,
+            "bbox_vlm": null,
+            "bbox_method": null
+          },
+          {
+            "type": "total",
+            "label": "sub_total",
+            "text": "20,790.00",
+            "bbox": [
+              0.7016,
+              0.9892,
+              0.0605,
+              0.0108
+            ],
+            "confidence": 0.97,
+            "bbox_vlm": null,
+            "bbox_method": null
+          },
+          {
+            "type": "payment",
+            "label": "payment_terms",
+            "text": "90 Days",
+            "bbox": [
+              0.6774,
+              0.4418,
+              0.0524,
+              0.0114
+            ],
+            "confidence": 0.97,
+            "bbox_vlm": null,
+            "bbox_method": null
+          },
+          {
+            "type": "supplier",
+            "label": "supplier_address",
+            "text": "188/5 Moo 1 T.Mapphai A.Banbueng Chonburi 20170 188/5 ม.1 ต.มาบไผ่ อ.บ้านบึง จ.ชลบุรี 20170",
+            "bbox": [
+              0.1895,
+              0.1083,
+              0.3992,
+              0.0513
+            ],
+            "confidence": 0.96,
+            "bbox_vlm": null,
+            "bbox_method": null
+          },
+          {
+            "type": "customer",
+            "label": "customer_address",
+            "text": "99/2 Moo. 1 Hi-tech Industrial Estate T.Banlane A.Bang Pa-in , Ayuthaya 13160 Thailand",
+            "bbox": [
+              0.0871,
+              0.3991,
+              0.3202,
+              0.057
+            ],
+            "confidence": 0.96,
+            "bbox_vlm": null,
+            "bbox_method": null
+          },
+          {
+            "type": "table",
+            "label": "table_header",
+            "text": "Item ลำดับที่ Part No. รหัสสินค้า Description รายละเอียด Quantity (Pcs) จำนวน Unit Price (Baht) ราคาต่อหน่วย Amount (Baht) จำนวนเงิน",
+            "bbox": [
+              0.004,
+              0.4675,
+              0.7661,
+              0.0513
+            ],
+            "confidence": 0.96,
+            "bbox_vlm": null,
+            "bbox_method": null
+          },
+          {
+            "type": "line",
+            "label": "line_1",
+            "text": "1 80498 JR20A M8-1.25x20.6,Weld Bolt (Cr3+) Lot.No. C5041380011A 9,000 2.31 20,790.00",
+            "bbox": [
+              0.004,
+              0.5188,
+              0.7661,
+              0.439
+            ],
+            "confidence": 0.96,
+            "bbox_vlm": null,
+            "bbox_method": null
+          },
+          {
+            "type": "supplier",
+            "label": "supplier_branch",
+            "text": "สำนักงานใหญ่",
+            "bbox": [
+              0.6573,
+              0.1881,
+              0.1008,
+              0.0171
+            ],
+            "confidence": 0.95,
+            "bbox_vlm": null,
+            "bbox_method": null
+          },
+          {
+            "type": "customer",
+            "label": "customer_id",
+            "text": "AHP",
+            "bbox": [
+              0.0871,
+              0.3307,
+              0.0298,
+              0.0114
+            ],
+            "confidence": 0.95,
+            "bbox_vlm": null,
+            "bbox_method": null
+          },
+          {
+            "type": "other",
+            "label": "handwriting",
+            "text": "530336849",
+            "bbox": [
+              0.5081,
+              0.2509,
+              0.1613,
+              0.0399
+            ],
+            "confidence": 0.85,
+            "bbox_vlm": null,
+            "bbox_method": null
+          }
+        ],
+        "2": [
+          {
+            "type": "supplier",
+            "label": "supplier_name",
+            "text": "QST (THAILAND) CO., LTD.",
+            "bbox": [
+              0.3758,
+              0.057,
+              0.6097,
+              0.0257
+            ],
+            "confidence": 0.98,
+            "bbox_vlm": null,
+            "bbox_method": null
+          },
+          {
+            "type": "header",
+            "label": "doc_title",
+            "text": "DELIVERY ORDER / TAX INVOICE",
+            "bbox": [
+              0.4169,
+              0.2406,
+              0.5282,
+              0.0205
+            ],
+            "confidence": 0.98,
+            "bbox_vlm": null,
+            "bbox_method": null
+          },
+          {
+            "type": "supplier",
+            "label": "supplier_address",
+            "text": "188/5 Moo 1 T.Mapphai A.Banbueng Chonburi 20170",
+            "bbox": [
+              0.3331,
+              0.1243,
+              0.6669,
+              0.0194
+            ],
+            "confidence": 0.97,
+            "bbox_vlm": null,
+            "bbox_method": null
+          },
+          {
+            "type": "supplier",
+            "label": "supplier_phone",
+            "text": "Tel: 038-151687, 151688 Fax: 038-151689",
+            "bbox": [
+              0.3968,
+              0.1756,
+              0.5726,
+              0.0182
+            ],
+            "confidence": 0.97,
+            "bbox_vlm": null,
+            "bbox_method": null
+          },
+          {
+            "type": "supplier",
+            "label": "supplier_tax_id",
+            "text": "Tax ID No.: 0205545000583",
+            "bbox": [
+              0.4935,
+              0.1967,
+              0.379,
+              0.0188
+            ],
+            "confidence": 0.97,
+            "bbox_vlm": null,
+            "bbox_method": null
+          },
+          {
+            "type": "customer",
+            "label": "customer_name",
+            "text": "Aapico Hitech Parts Company Limited",
+            "bbox": [
+              0.1548,
+              0.3808,
+              0.4113,
+              0.0171
+            ],
+            "confidence": 0.97,
+            "bbox_vlm": null,
+            "bbox_method": null
+          },
+          {
+            "type": "customer",
+            "label": "customer_tax_id",
+            "text": "Tax I.D.No.0145548001549",
+            "bbox": [
+              0.5984,
+              0.3335,
+              0.2903,
+              0.0154
+            ],
+            "confidence": 0.96,
+            "bbox_vlm": null,
+            "bbox_method": null
+          },
+          {
+            "type": "customer",
+            "label": "customer_address",
+            "text": "99/2 Moo. 1 Hi-tech Industrial Estate T.Banlane A.Bang Pa-in , Ayuthaya 13160 Thailand",
+            "bbox": [
+              0.1548,
+              0.4265,
+              0.5645,
+              0.0627
+            ],
+            "confidence": 0.96,
+            "bbox_vlm": null,
+            "bbox_method": null
+          },
+          {
+            "type": "supplier",
+            "label": "supplier_name_2",
+            "text": "บริษัท ควีเอสที (ไทยแลนด์) จำกัด",
+            "bbox": [
+              0.3968,
+              0.0855,
+              0.5645,
+              0.0257
+            ],
+            "confidence": 0.95,
+            "bbox_vlm": null,
+            "bbox_method": null
+          },
+          {
+            "type": "supplier",
+            "label": "supplier_address_2",
+            "text": "188/5 ม.1 ต.มาบไผ่ อ.บ้านบึง จ.ชลบุรี 20170",
+            "bbox": [
+              0.3895,
+              0.1454,
+              0.5879,
+              0.02
+            ],
+            "confidence": 0.95,
+            "bbox_vlm": null,
+            "bbox_method": null
+          },
+          {
+            "type": "header",
+            "label": "doc_title_2",
+            "text": "ใบส่งสินค้า/ใบกำกับภาษี",
+            "bbox": [
+              0.4532,
+              0.2651,
+              0.4355,
+              0.0285
+            ],
+            "confidence": 0.95,
+            "bbox_vlm": null,
+            "bbox_method": null
+          },
+          {
+            "type": "customer",
+            "label": "customer_branch",
+            "text": "AHP",
+            "bbox": [
+              0.1548,
+              0.3335,
+              0.0484,
+              0.0143
+            ],
+            "confidence": 0.95,
+            "bbox_vlm": null,
+            "bbox_method": null
+          },
+          {
+            "type": "table",
+            "label": "table_header",
+            "text": "Item ลำดับที่ Part No. รหัสสินค้า Description รายละเอียด Quantity (Pcs) จำนวน Unit Price (Baht) ราคาต่อหน่วย Amount (Baht) จำนวนเงิน",
+            "bbox": [
+              0.0081,
+              0.5103,
+              0.9919,
+              0.0456
+            ],
+            "confidence": 0.95,
+            "bbox_vlm": null,
+            "bbox_method": null
+          },
+          {
+            "type": "line",
+            "label": "line_1",
+            "text": "1 80498 JR20A M8-1.25x20.6,Weld Bolt (Cr3+) Lot.No. C5041380011A 9,000 2.31 20,790.00",
+            "bbox": [
+              0.0081,
+              0.5559,
+              0.9919,
+              0.4441
+            ],
+            "confidence": 0.95,
+            "bbox_vlm": null,
+            "bbox_method": null
+          },
+          {
+            "type": "other",
+            "label": "handwriting",
+            "text": "530336841",
+            "bbox": [
+              0.9048,
+              0.2725,
+              0.0952,
+              0.0353
+            ],
+            "confidence": 0.9,
+            "bbox_vlm": null,
+            "bbox_method": null
+          }
+        ],
+        "3": [
+          {
+            "type": "header",
+            "label": "doc_title",
+            "text": "DELIVERY ORDER / TAX INVOICE ใบส่งสินค้า/ใบกำกับภาษี",
+            "bbox": [
+              0.2363,
+              0.2281,
+              0.3056,
+              0.0513
+            ],
+            "confidence": 0.97,
+            "bbox_vlm": null,
+            "bbox_method": null
+          },
+          {
+            "type": "header",
+            "label": "doc_set_flag",
+            "text": "Copy",
+            "bbox": [
+              0.6734,
+              0.2281,
+              0.0685,
+              0.0228
+            ],
+            "confidence": 0.97,
+            "bbox_vlm": null,
+            "bbox_method": null
+          },
+          {
+            "type": "supplier",
+            "label": "supplier_name",
+            "text": "QST (THAILAND) CO., LTD. บริษัท ควีเอสที (ไทยแลนด์) จำกัด",
+            "bbox": [
+              0.2137,
+              0.057,
+              0.3468,
+              0.0342
+            ],
+            "confidence": 0.97,
+            "bbox_vlm": null,
+            "bbox_method": null
+          },
+          {
+            "type": "supplier",
+            "label": "supplier_address",
+            "text": "188/5 Moo 1 T.Mapphai A.Banbueng Chonburi 20170 188/5 ม.1 ต.มาบไผ่ อ.บ้านบึง จ.ชลบุรี 20170",
+            "bbox": [
+              0.1871,
+              0.1197,
+              0.4016,
+              0.0456
+            ],
+            "confidence": 0.96,
+            "bbox_vlm": null,
+            "bbox_method": null
+          },
+          {
+            "type": "supplier",
+            "label": "supplier_phone",
+            "text": "Tel: 038-151687, 151688 Fax: 038-151689",
+            "bbox": [
+              0.2258,
+              0.171,
+              0.3266,
+              0.0114
+            ],
+            "confidence": 0.96,
+            "bbox_vlm": null,
+            "bbox_method": null
+          },
+          {
+            "type": "supplier",
+            "label": "supplier_tax_id",
+            "text": "Tax ID No.: 0205545000583",
+            "bbox": [
+              0.2806,
+              0.1938,
+              0.2153,
+              0.0114
+            ],
+            "confidence": 0.96,
+            "bbox_vlm": null,
+            "bbox_method": null
+          },
+          {
+            "type": "customer",
+            "label": "customer_name",
+            "text": "Aapico Hitech Parts Company Limited",
+            "bbox": [
+              0.0887,
+              0.3535,
+              0.2323,
+              0.0171
+            ],
+            "confidence": 0.96,
+            "bbox_vlm": null,
+            "bbox_method": null
+          },
+          {
+            "type": "header",
+            "label": "po_number",
+            "text": "43039142-40",
+            "bbox": [
+              0.6653,
+              0.3022,
+              0.0806,
+              0.0114
+            ],
+            "confidence": 0.96,
+            "bbox_vlm": null,
+            "bbox_method": null
+          },
+          {
+            "type": "header",
+            "label": "invoice_ref",
+            "text": "IV2609014",
+            "bbox": [
+              0.6734,
+              0.3478,
+              0.0669,
+              0.0114
+            ],
+            "confidence": 0.96,
+            "bbox_vlm": null,
+            "bbox_method": null
+          },
+          {
+            "type": "header",
+            "label": "doc_date",
+            "text": "02/09/2026",
+            "bbox": [
+              0.671,
+              0.3934,
+              0.071,
+              0.0114
+            ],
+            "confidence": 0.96,
+            "bbox_vlm": null,
+            "bbox_method": null
+          },
+          {
+            "type": "payment",
+            "label": "credit_term",
+            "text": "90 Days",
+            "bbox": [
+              0.679,
+              0.439,
+              0.0532,
+              0.0114
+            ],
+            "confidence": 0.96,
+            "bbox_vlm": null,
+            "bbox_method": null
+          },
+          {
+            "type": "total",
+            "label": "sub_total",
+            "text": "20,790.00",
+            "bbox": [
+              0.7056,
+              0.992,
+              0.0621,
+              0.008
+            ],
+            "confidence": 0.96,
+            "bbox_vlm": null,
+            "bbox_method": null
+          },
+          {
+            "type": "customer",
+            "label": "customer_tax_id",
+            "text": "Tax I.D.No.0145548001549",
+            "bbox": [
+              0.3403,
+              0.3193,
+              0.1661,
+              0.0114
+            ],
+            "confidence": 0.95,
+            "bbox_vlm": null,
+            "bbox_method": null
+          },
+          {
+            "type": "customer",
+            "label": "customer_address",
+            "text": "99/2 Moo. 1 Hi-tech Industrial Estate T.Banlane A.Bang Pa-in , Ayuthaya 13160 Thailand",
+            "bbox": [
+              0.0887,
+              0.4048,
+              0.321,
+              0.0627
+            ],
+            "confidence": 0.95,
+            "bbox_vlm": null,
+            "bbox_method": null
+          },
+          {
+            "type": "table",
+            "label": "table_header",
+            "text": "Item ลำดับที่ Part No. รหัสสินค้า Description รายละเอียด Quantity (Pcs) จำนวน Unit Price (Baht) ราคาต่อหน่วย Amount (Baht) จำนวนเงิน",
+            "bbox": [
+              0.0024,
+              0.4846,
+              0.7718,
+              0.0342
+            ],
+            "confidence": 0.95,
+            "bbox_vlm": null,
+            "bbox_method": null
+          },
+          {
+            "type": "line",
+            "label": "line_1",
+            "text": "1 80498 JR20A M8-1.25x20.6,Weld Bolt (Cr3+) Lot.No. C5041380011A 9,000 2.31 20,790.00",
+            "bbox": [
+              0.0024,
+              0.5245,
+              0.7718,
+              0.4732
+            ],
+            "confidence": 0.93,
+            "bbox_vlm": null,
+            "bbox_method": null
+          },
+          {
+            "type": "header",
+            "label": "doc_no",
+            "text": "530336841",
+            "bbox": [
+              0.5097,
+              0.2623,
+              0.1597,
+              0.0285
+            ],
+            "confidence": 0.9,
+            "bbox_vlm": null,
+            "bbox_method": null
+          },
+          {
+            "type": "other",
+            "label": "note",
+            "text": "(เอกสารออกเป็นชุด)",
+            "bbox": [
+              0.004,
+              0.2509,
+              0.1169,
+              0.0143
+            ],
+            "confidence": 0.9,
+            "bbox_vlm": null,
+            "bbox_method": null
+          },
+          {
+            "type": "supplier",
+            "label": "supplier_branch",
+            "text": "สำนักงานใหญ่",
+            "bbox": [
+              0.6573,
+              0.1881,
+              0.1008,
+              0.0171
+            ],
+            "confidence": 0.9,
+            "bbox_vlm": null,
+            "bbox_method": null
+          },
+          {
+            "type": "other",
+            "label": "note_2",
+            "text": "AHP",
+            "bbox": [
+              0.0887,
+              0.305,
+              0.0282,
+              0.0114
+            ],
+            "confidence": 0.9,
+            "bbox_vlm": null,
+            "bbox_method": null
+          }
+        ],
+        "4": [
+          {
+            "type": "supplier",
+            "label": "supplier_name",
+            "text": "AHP - Aapico Hitech Parts",
+            "bbox": [
+              0.2532,
+              0.0388,
+              0.2371,
+              0.0097
+            ],
+            "confidence": 0.98,
+            "bbox_vlm": null,
+            "bbox_method": null
+          },
+          {
+            "type": "header",
+            "label": "doc_title",
+            "text": "Purchase Order Shipping Confirm (PSC)",
+            "bbox": [
+              0.2669,
+              0.0507,
+              0.2218,
+              0.0074
+            ],
+            "confidence": 0.98,
+            "bbox_vlm": null,
+            "bbox_method": null
+          },
+          {
+            "type": "header",
+            "label": "doc_no",
+            "text": "IV2609014",
+            "bbox": [
+              0.2113,
+              0.0696,
+              0.0605,
+              0.0063
+            ],
+            "confidence": 0.98,
+            "bbox_vlm": null,
+            "bbox_method": null
+          },
+          {
+            "type": "header",
+            "label": "doc_date",
+            "text": "2026-09-02",
+            "bbox": [
+              0.1871,
+              0.0798,
+              0.0694,
+              0.0068
+            ],
+            "confidence": 0.98,
+            "bbox_vlm": null,
+            "bbox_method": null
+          },
+          {
+            "type": "header",
+            "label": "doc_date",
+            "text": "2026-08-31",
+            "bbox": [
+              0.1871,
+              0.1003,
+              0.0661,
+              0.0063
+            ],
+            "confidence": 0.98,
+            "bbox_vlm": null,
+            "bbox_method": null
+          },
+          {
+            "type": "total",
+            "label": "grand_total",
+            "text": "20,790.00",
+            "bbox": [
+              0.4758,
+              0.1214,
+              0.0605,
+              0.0063
+            ],
+            "confidence": 0.98,
+            "bbox_vlm": null,
+            "bbox_method": null
+          },
+          {
+            "type": "header",
+            "label": "doc_set_flag",
+            "text": "(Copied)",
+            "bbox": [
+              0.3548,
+              0.0291,
+              0.0468,
+              0.0074
+            ],
+            "confidence": 0.97,
+            "bbox_vlm": null,
+            "bbox_method": null
+          },
+          {
+            "type": "header",
+            "label": "page_no",
+            "text": "Page 2",
+            "bbox": [
+              0.8556,
+              0.0148,
+              0.0637,
+              0.0074
+            ],
+            "confidence": 0.97,
+            "bbox_vlm": null,
+            "bbox_method": null
+          },
+          {
+            "type": "supplier",
+            "label": "supplier_branch",
+            "text": "CHONBURI",
+            "bbox": [
+              0.1871,
+              0.1209,
+              0.0613,
+              0.0068
+            ],
+            "confidence": 0.97,
+            "bbox_vlm": null,
+            "bbox_method": null
+          },
+          {
+            "type": "header",
+            "label": "po_number",
+            "text": "43039142, 40",
+            "bbox": [
+              0.4766,
+              0.0696,
+              0.0758,
+              0.0074
+            ],
+            "confidence": 0.97,
+            "bbox_vlm": null,
+            "bbox_method": null
+          },
+          {
+            "type": "header",
+            "label": "delivery_no",
+            "text": "2026-09-02",
+            "bbox": [
+              0.4766,
+              0.0798,
+              0.0685,
+              0.0074
+            ],
+            "confidence": 0.97,
+            "bbox_vlm": null,
+            "bbox_method": null
+          },
+          {
+            "type": "header",
+            "label": "credit_term",
+            "text": "90 Days",
+            "bbox": [
+              0.4766,
+              0.0901,
+              0.0468,
+              0.0074
+            ],
+            "confidence": 0.97,
+            "bbox_vlm": null,
+            "bbox_method": null
+          },
+          {
+            "type": "header",
+            "label": "due_date",
+            "text": "02-SEP-2026",
+            "bbox": [
+              0.4847,
+              0.1562,
+              0.0758,
+              0.0074
+            ],
+            "confidence": 0.97,
+            "bbox_vlm": null,
+            "bbox_method": null
+          },
+          {
+            "type": "total",
+            "label": "total_qty",
+            "text": "9000",
+            "bbox": [
+              0.5331,
+              0.1876,
+              0.0315,
+              0.0068
+            ],
+            "confidence": 0.97,
+            "bbox_vlm": null,
+            "bbox_method": null
+          },
+          {
+            "type": "other",
+            "label": "note",
+            "text": "--- End of Document ---",
+            "bbox": [
+              0.3315,
+              0.2241,
+              0.146,
+              0.0074
+            ],
+            "confidence": 0.97,
+            "bbox_vlm": null,
+            "bbox_method": null
+          },
+          {
+            "type": "stamp",
+            "label": "received_stamp",
+            "text": "stamped",
+            "bbox": [
+              0.4492,
+              0.2395,
+              0.175,
+              0.0513
+            ],
+            "confidence": 0.97,
+            "bbox_vlm": null,
+            "bbox_method": null
+          },
+          {
+            "type": "supplier",
+            "label": "supplier_address",
+            "text": "188/5 moo 1, t.mapphai, a.banbung,chon-buri,20170,th",
+            "bbox": [
+              0.0887,
+              0.1311,
+              0.229,
+              0.0148
+            ],
+            "confidence": 0.96,
+            "bbox_vlm": null,
+            "bbox_method": null
+          },
+          {
+            "type": "other",
+            "label": "remark",
+            "text": "QST-AHP-NISSAN;H60A (CR-2025)",
+            "bbox": [
+              0.4758,
+              0.1317,
+              0.1331,
+              0.0148
+            ],
+            "confidence": 0.96,
+            "bbox_vlm": null,
+            "bbox_method": null
+          },
+          {
+            "type": "other",
+            "label": "note",
+            "text": "TF-04-05, Oct 01,2020 (Rev.0)",
+            "bbox": [
+              0.5766,
+              0.0279,
+              0.1169,
+              0.0057
+            ],
+            "confidence": 0.95,
+            "bbox_vlm": null,
+            "bbox_method": null
+          },
+          {
+            "type": "header",
+            "label": "invoice_ref",
+            "text": "IV2609014|43039142",
+            "bbox": [
+              0.6073,
+              0.0684,
+              0.1008,
+              0.0057
+            ],
+            "confidence": 0.95,
+            "bbox_vlm": null,
+            "bbox_method": null
+          },
+          {
+            "type": "table",
+            "label": "item_table",
+            "text": "1 Item Code: PCP3000264A Description: 80498JR20A BOLT SPECIAL (CR3+) Lot Sup Unit Price: 2.31 Due Date: 02-SEP-2026 Std. Qty/Pack: 900 Packs: 10 Total Quantity Del.: 9000 Amount: 20,790.00",
+            "bbox": [
+              0.0871,
+              0.1551,
+              0.629,
+              0.0502
+            ],
+            "confidence": 0.95,
+            "bbox_vlm": null,
+            "bbox_method": null
+          },
+          {
+            "type": "line",
+            "label": "line_1",
+            "text": "1 Item Code: PCP3000264A Description: 80498JR20A BOLT SPECIAL (CR3+) Lot Sup Unit Price: 2.31 Due Date: 02-SEP-2026 Std. Qty/Pack: 900 Packs: 10 Total Quantity Del.: 9000 Amount: 20,790.00",
+            "bbox": [
+              0.0871,
+              0.1551,
+              0.629,
+              0.0502
+            ],
+            "confidence": 0.95,
+            "bbox_vlm": null,
+            "bbox_method": null
+          },
+          {
+            "type": "header",
+            "label": "invoice_ref",
+            "text": "IV2609014|43039142",
+            "bbox": [
+              0.6331,
+              0.1608,
+              0.0823,
+              0.0057
+            ],
+            "confidence": 0.95,
+            "bbox_vlm": null,
+            "bbox_method": null
+          },
+          {
+            "type": "other",
+            "label": "logo_text",
+            "text": "AHP",
+            "bbox": [
+              0.0742,
+              0.0268,
+              0.0734,
+              0.0376
+            ],
+            "confidence": 0.9,
+            "bbox_vlm": null,
+            "bbox_method": null
+          },
+          {
+            "type": "other",
+            "label": "qr_code",
+            "text": "2026-08-31 17:03",
+            "bbox": [
+              0.6234,
+              0.0775,
+              0.0685,
+              0.0399
+            ],
+            "confidence": 0.9,
+            "bbox_vlm": null,
+            "bbox_method": null
+          },
+          {
+            "type": "other",
+            "label": "qr_code",
+            "text": "qr_code",
+            "bbox": [
+              0.6395,
+              0.1705,
+              0.0629,
+              0.0319
+            ],
+            "confidence": 0.9,
+            "bbox_vlm": null,
+            "bbox_method": null
+          },
+          {
+            "type": "header",
+            "label": "receipt_no",
+            "text": "Receiving Number:",
+            "bbox": [
+              0.5403,
+              0.0336,
+              0.1895,
+              0.0268
+            ],
+            "confidence": 0.85,
+            "bbox_vlm": null,
+            "bbox_method": null
+          }
+        ]
+      },
+      "dropped_items": [
+        {
+          "type": "total",
+          "label": "vat",
+          "text": "1,455.30",
+          "bbox_2d": [
+            880,
+            1795,
+            945,
+            1815
+          ],
+          "drop_reason": "zero_area_or_out_of_page",
+          "page": 1
+        },
+        {
+          "type": "total",
+          "label": "grand_total",
+          "text": "22,245.30",
+          "bbox_2d": [
+            870,
+            1860,
+            945,
+            1880
+          ],
+          "drop_reason": "zero_area_or_out_of_page",
+          "page": 1
+        },
+        {
+          "type": "total",
+          "label": "amount_in_words",
+          "text": "Twenty Two Thousand Two Hundred Forty Five Baht and Thirty Satang",
+          "bbox_2d": [
+            30,
+            1810,
+            595,
+            1830
+          ],
+          "drop_reason": "zero_area_or_out_of_page",
+          "page": 1
+        },
+        {
+          "type": "signature",
+          "label": "receiver_signature",
+          "text": "signed",
+          "bbox_2d": [
+            5,
+            1880,
+            500,
+            2130
+          ],
+          "drop_reason": "zero_area_or_out_of_page",
+          "page": 1
+        },
+        {
+          "type": "signature",
+          "label": "deliverer_signature",
+          "text": "signed",
+          "bbox_2d": [
+            500,
+            1880,
+            630,
+            2130
+          ],
+          "drop_reason": "zero_area_or_out_of_page",
+          "page": 1
+        },
+        {
+          "type": "signature",
+          "label": "authorized_signature",
+          "text": "signed",
+          "bbox_2d": [
+            630,
+            1880,
+            955,
+            2130
+          ],
+          "drop_reason": "zero_area_or_out_of_page",
+          "page": 1
+        },
+        {
+          "type": "other",
+          "label": "handwriting_2",
+          "text": "2/9/26",
+          "bbox_2d": [
+            110,
+            2130,
+            250,
+            2180
+          ],
+          "drop_reason": "zero_area_or_out_of_page",
+          "page": 1
+        },
+        {
+          "type": "other",
+          "label": "handwriting_3",
+          "text": "2/9/26",
+          "bbox_2d": [
+            400,
+            2130,
+            565,
+            2180
+          ],
+          "drop_reason": "zero_area_or_out_of_page",
+          "page": 1
+        },
+        {
+          "type": "other",
+          "label": "handwriting_4",
+          "text": "02/09/26",
+          "bbox_2d": [
+            740,
+            2130,
+            875,
+            2180
+          ],
+          "drop_reason": "zero_area_or_out_of_page",
+          "page": 1
+        },
+        {
+          "type": "supplier",
+          "label": "supplier_branch",
+          "text": "สำนักงานใหญ่",
+          "bbox_2d": [
+            1432,
+            340,
+            1652,
+            385
+          ],
+          "drop_reason": "zero_area_or_out_of_page",
+          "page": 2
+        },
+        {
+          "type": "header",
+          "label": "doc_set_flag",
+          "text": "Copy",
+          "bbox_2d": [
+            1462,
+            408,
+            1612,
+            462
+          ],
+          "drop_reason": "zero_area_or_out_of_page",
+          "page": 2
+        },
+        {
+          "type": "header",
+          "label": "po_number",
+          "text": "43039142-40",
+          "bbox_2d": [
+            1452,
+            582,
+            1622,
+            610
+          ],
+          "drop_reason": "zero_area_or_out_of_page",
+          "page": 2
+        },
+        {
+          "type": "header",
+          "label": "invoice_ref",
+          "text": "IV2609014",
+          "bbox_2d": [
+            1462,
+            668,
+            1612,
+            695
+          ],
+          "drop_reason": "zero_area_or_out_of_page",
+          "page": 2
+        },
+        {
+          "type": "header",
+          "label": "doc_date",
+          "text": "02/09/2026",
+          "bbox_2d": [
+            1462,
+            745,
+            1612,
+            772
+          ],
+          "drop_reason": "zero_area_or_out_of_page",
+          "page": 2
+        },
+        {
+          "type": "header",
+          "label": "credit_term",
+          "text": "90 Days",
+          "bbox_2d": [
+            1482,
+            828,
+            1592,
+            855
+          ],
+          "drop_reason": "zero_area_or_out_of_page",
+          "page": 2
+        },
+        {
+          "type": "total",
+          "label": "sub_total",
+          "text": "20,790.00",
+          "bbox_2d": [
+            1532,
+            1838,
+            1662,
+            1865
+          ],
+          "drop_reason": "zero_area_or_out_of_page",
+          "page": 2
+        },
+        {
+          "type": "total",
+          "label": "vat",
+          "text": "1,455.30",
+          "bbox_2d": [
+            1552,
+            1918,
+            1662,
+            1945
+          ],
+          "drop_reason": "zero_area_or_out_of_page",
+          "page": 2
+        },
+        {
+          "type": "total",
+          "label": "grand_total",
+          "text": "22,245.30",
+          "bbox_2d": [
+            1532,
+            1998,
+            1662,
+            2025
+          ],
+          "drop_reason": "zero_area_or_out_of_page",
+          "page": 2
+        },
+        {
+          "type": "total",
+          "label": "amount_in_words",
+          "text": "Twenty Two Thousand Two Hundred Forty Five Baht and Thirty Satang",
+          "bbox_2d": [
+            62,
+            1995,
+            1042,
+            2025
+          ],
+          "drop_reason": "zero_area_or_out_of_page",
+          "page": 2
+        },
+        {
+          "type": "signature",
+          "label": "receiver_signature",
+          "text": "signed",
+          "bbox_2d": [
+            10,
+            2092,
+            512,
+            2275
+          ],
+          "drop_reason": "zero_area_or_out_of_page",
+          "page": 2
+        },
+        {
+          "type": "signature",
+          "label": "deliverer_signature",
+          "text": "signed",
+          "bbox_2d": [
+            512,
+            2092,
+            1102,
+            2275
+          ],
+          "drop_reason": "zero_area_or_out_of_page",
+          "page": 2
+        },
+        {
+          "type": "signature",
+          "label": "authorized_signature",
+          "text": "signed",
+          "bbox_2d": [
+            1102,
+            2092,
+            1682,
+            2275
+          ],
+          "drop_reason": "zero_area_or_out_of_page",
+          "page": 2
+        },
+        {
+          "type": "other",
+          "label": "note",
+          "text": "2/9/26",
+          "bbox_2d": [
+            192,
+            2130,
+            452,
+            2330
+          ],
+          "drop_reason": "zero_area_or_out_of_page",
+          "page": 2
+        },
+        {
+          "type": "other",
+          "label": "note_2",
+          "text": "2/9/26",
+          "bbox_2d": [
+            712,
+            2275,
+            992,
+            2340
+          ],
+          "drop_reason": "zero_area_or_out_of_page",
+          "page": 2
+        },
+        {
+          "type": "other",
+          "label": "note_3",
+          "text": "02/09/26",
+          "bbox_2d": [
+            1312,
+            2275,
+            1552,
+            2340
+          ],
+          "drop_reason": "zero_area_or_out_of_page",
+          "page": 2
+        },
+        {
+          "type": "total",
+          "label": "vat",
+          "text": "1,455.30",
+          "bbox_2d": [
+            885,
+            1820,
+            952,
+            1840
+          ],
+          "drop_reason": "zero_area_or_out_of_page",
+          "page": 3
+        },
+        {
+          "type": "total",
+          "label": "grand_total",
+          "text": "22,245.30",
+          "bbox_2d": [
+            875,
+            1910,
+            952,
+            1930
+          ],
+          "drop_reason": "zero_area_or_out_of_page",
+          "page": 3
+        },
+        {
+          "type": "total",
+          "label": "amount_in_words",
+          "text": "Twenty Two Thousand Two Hundred Forty Five Baht and Thirty Satang",
+          "bbox_2d": [
+            35,
+            1910,
+            575,
+            1930
+          ],
+          "drop_reason": "zero_area_or_out_of_page",
+          "page": 3
+        },
+        {
+          "type": "signature",
+          "label": "receiver_signature",
+          "text": "signed",
+          "bbox_2d": [
+            3,
+            1980,
+            300,
+            2200
+          ],
+          "drop_reason": "zero_area_or_out_of_page",
+          "page": 3
+        },
+        {
+          "type": "signature",
+          "label": "deliverer_signature",
+          "text": "signed",
+          "bbox_2d": [
+            300,
+            1980,
+            635,
+            2200
+          ],
+          "drop_reason": "zero_area_or_out_of_page",
+          "page": 3
+        },
+        {
+          "type": "signature",
+          "label": "authorized_signature",
+          "text": "signed",
+          "bbox_2d": [
+            635,
+            1980,
+            960,
+            2200
+          ],
+          "drop_reason": "zero_area_or_out_of_page",
+          "page": 3
+        },
+        {
+          "type": "other",
+          "label": "handwriting",
+          "text": "2/9/26",
+          "bbox_2d": [
+            115,
+            2210,
+            255,
+            2270
+          ],
+          "drop_reason": "zero_area_or_out_of_page",
+          "page": 3
+        },
+        {
+          "type": "other",
+          "label": "handwriting_2",
+          "text": "2/9/26",
+          "bbox_2d": [
+            405,
+            2210,
+            570,
+            2270
+          ],
+          "drop_reason": "zero_area_or_out_of_page",
+          "page": 3
+        },
+        {
+          "type": "other",
+          "label": "handwriting_3",
+          "text": "02/09/26",
+          "bbox_2d": [
+            748,
+            2210,
+            885,
+            2260
+          ],
+          "drop_reason": "zero_area_or_out_of_page",
+          "page": 3
+        }
+      ],
+      "page_errors": {},
+      "row_errors": [],
+      "lines_source": {
+        "table_rows": 3,
+        "line_items": 0,
+        "lines": 3
+      },
+      "crop_reads": [
+        {
+          "field": "po_number",
+          "page": 1,
+          "vlm": "43039142-40",
+          "text_layer": null,
+          "text_layer_abstained": false,
+          "votes_rejected_by_shape": [],
+          "crop": null,
+          "value": "43039142",
+          "value_rule": "pattern:(?<!\\d)\\d{6,10}(?!\\d)",
+          "readers_similarity": null,
+          "bbox_method": null,
+          "bbox_vlm": null,
+          "judged": "exact",
+          "agreed": false,
+          "confidence": 0.7,
+          "source": "vlm"
+        },
+        {
+          "field": "invoice_date",
+          "page": 1,
+          "vlm": "02/09/2026",
+          "text_layer": null,
+          "text_layer_abstained": false,
+          "votes_rejected_by_shape": [],
+          "crop": null,
+          "value": "02/09/2026",
+          "value_rule": "pattern:(?<!\\d)(?:\\d{4}[/.\\-]\\d{1,2}[/.\\-]\\d{1,2}|\\d{1,2}[/.\\-]\\d{1,2}[/.\\-](?:\\d{4}|\\d{2}))(?!\\d)",
+          "readers_similarity": null,
+          "bbox_method": null,
+          "bbox_vlm": null,
+          "judged": "exact",
+          "agreed": false,
+          "confidence": 0.7,
+          "source": "vlm"
+        },
+        {
+          "field": "supplier_name",
+          "page": 1,
+          "vlm": "QST (THAILAND) CO., LTD. บริษัท คิวเอสที (ไทยแลนด์) จำกัด",
+          "text_layer": null,
+          "text_layer_abstained": false,
+          "votes_rejected_by_shape": [],
+          "crop": "QST (THAILAND) C",
+          "value": "QST (THAILAND) C",
+          "value_rule": "crop_value_inside_region",
+          "readers_similarity": 1.0,
+          "bbox_method": null,
+          "bbox_vlm": null,
+          "judged": "similarity",
+          "agreed": true,
+          "confidence": 0.96,
+          "source": "consensus"
+        },
+        {
+          "field": "supplier_tax_id",
+          "page": 1,
+          "vlm": "0205545000583",
+          "text_layer": null,
+          "text_layer_abstained": false,
+          "votes_rejected_by_shape": [],
+          "crop": null,
+          "value": "0205545000583",
+          "value_rule": "pattern:(?<!\\d)\\d{13}(?!\\d)",
+          "readers_similarity": null,
+          "bbox_method": null,
+          "bbox_vlm": null,
+          "judged": "exact",
+          "agreed": false,
+          "confidence": 0.7,
+          "source": "vlm"
+        },
+        {
+          "field": "customer_name",
+          "page": 1,
+          "vlm": "Aapico Hitech Parts Company Limited",
+          "text_layer": null,
+          "text_layer_abstained": false,
+          "votes_rejected_by_shape": [],
+          "crop": null,
+          "value": "Aapico Hitech Parts Company Limited",
+          "value_rule": "whole_region",
+          "readers_similarity": null,
+          "bbox_method": null,
+          "bbox_vlm": null,
+          "judged": "similarity",
+          "agreed": false,
+          "confidence": 0.7,
+          "source": "vlm"
+        },
+        {
+          "field": "customer_tax_id",
+          "page": 1,
+          "vlm": "0145548001549",
+          "text_layer": null,
+          "text_layer_abstained": false,
+          "votes_rejected_by_shape": [
+            "crop"
+          ],
+          "crop": "a 13160 Thailand",
+          "value": "0145548001549",
+          "value_rule": "pattern:(?<!\\d)\\d{13}(?!\\d)",
+          "readers_similarity": 0.074,
+          "bbox_method": null,
+          "bbox_vlm": null,
+          "judged": "exact",
+          "agreed": false,
+          "confidence": 0.7,
+          "source": "vlm"
+        },
+        {
+          "field": "sub_total",
+          "page": 1,
+          "vlm": "20,790.00",
+          "text_layer": null,
+          "text_layer_abstained": false,
+          "votes_rejected_by_shape": [],
+          "crop": null,
+          "value": "20,790.00",
+          "value_rule": "pattern:\\d[\\d.,]*\\d|\\d",
+          "readers_similarity": null,
+          "bbox_method": null,
+          "bbox_vlm": null,
+          "judged": "exact",
+          "agreed": false,
+          "confidence": 0.7,
+          "source": "vlm"
+        },
+        {
+          "field": "supplier_address",
+          "page": 1,
+          "vlm": "188/5 Moo 1 T.Mapphai A.Banbueng Chonburi 20170 188/5 ม.1 ต.มาบไผ่ อ.บ้านบึง จ.ชลบุรี 20170",
+          "text_layer": null,
+          "text_layer_abstained": false,
+          "votes_rejected_by_shape": [],
+          "crop": null,
+          "value": "188/5 Moo 1 T.Mapphai A.Banbueng Chonburi 20170 188/5 ม.1 ต.มาบไผ่ อ.บ้านบึง จ.ชลบุรี 20170",
+          "value_rule": "whole_region",
+          "readers_similarity": null,
+          "bbox_method": null,
+          "bbox_vlm": null,
+          "judged": "similarity",
+          "agreed": false,
+          "confidence": 0.7,
+          "source": "vlm"
+        },
+        {
+          "field": "customer_address",
+          "page": 1,
+          "vlm": "99/2 Moo. 1 Hi-tech Industrial Estate T.Banlane A.Bang Pa-in , Ayuthaya 13160 Thailand",
+          "text_layer": null,
+          "text_layer_abstained": false,
+          "votes_rejected_by_shape": [],
+          "crop": null,
+          "value": "99/2 Moo. 1 Hi-tech Industrial Estate T.Banlane A.Bang Pa-in , Ayuthaya 13160 Thailand",
+          "value_rule": "whole_region",
+          "readers_similarity": null,
+          "bbox_method": null,
+          "bbox_vlm": null,
+          "judged": "similarity",
+          "agreed": false,
+          "confidence": 0.7,
+          "source": "vlm"
+        },
+        {
+          "field": "invoice_num",
+          "page": 4,
+          "vlm": "IV2609014",
+          "text_layer": null,
+          "text_layer_abstained": false,
+          "votes_rejected_by_shape": [],
+          "crop": null,
+          "value": "IV2609014",
+          "value_rule": "whole_region",
+          "readers_similarity": null,
+          "bbox_method": null,
+          "bbox_vlm": null,
+          "judged": "exact",
+          "agreed": false,
+          "confidence": 0.7,
+          "source": "vlm"
+        },
+        {
+          "field": "grand_total",
+          "page": 4,
+          "vlm": "20,790.00",
+          "text_layer": null,
+          "text_layer_abstained": false,
+          "votes_rejected_by_shape": [],
+          "crop": null,
+          "value": "20,790.00",
+          "value_rule": "pattern:\\d[\\d.,]*\\d|\\d",
+          "readers_similarity": null,
+          "bbox_method": null,
+          "bbox_vlm": null,
+          "judged": "exact",
+          "agreed": false,
+          "confidence": 0.7,
+          "source": "vlm"
+        }
+      ],
+      "table_notes": [],
+      "corroborations": [
+        {
+          "line_no": 1,
+          "cells": [
+            "qty",
+            "unit_price",
+            "amount"
+          ],
+          "rule": "qty x unit_price = amount"
+        },
+        {
+          "line_no": 2,
+          "cells": [
+            "qty",
+            "unit_price",
+            "amount"
+          ],
+          "rule": "qty x unit_price = amount"
+        },
+        {
+          "line_no": 3,
+          "cells": [
+            "qty",
+            "unit_price",
+            "amount",
+            "uom"
+          ],
+          "rule": "qty x unit_price = amount"
+        }
+      ],
+      "calls": [
+        {
+          "kind": "page_items",
+          "page": 1,
+          "model": "nvidia/Qwen3.8-Flash-Next-NVFP4",
+          "ok": true,
+          "ms": 30802,
+          "usage": {
+            "completion_tokens": 4813,
+            "prompt_tokens": 3054,
+            "total_tokens": 7867
+          }
+        },
+        {
+          "kind": "classify",
+          "page": 1,
+          "model": "nvidia/Qwen3.8-Flash-Next-NVFP4",
+          "ok": true,
+          "ms": 3105,
+          "usage": {
+            "completion_tokens": 378,
+            "prompt_tokens": 2477,
+            "total_tokens": 2855
+          }
+        },
+        {
+          "kind": "page_items",
+          "page": 2,
+          "model": "nvidia/Qwen3.8-Flash-Next-NVFP4",
+          "ok": true,
+          "ms": 26342,
+          "usage": {
+            "completion_tokens": 4357,
+            "prompt_tokens": 3054,
+            "total_tokens": 7411
+          }
+        },
+        {
+          "kind": "classify",
+          "page": 2,
+          "model": "nvidia/Qwen3.8-Flash-Next-NVFP4",
+          "ok": true,
+          "ms": 1793,
+          "usage": {
+            "completion_tokens": 109,
+            "prompt_tokens": 2477,
+            "total_tokens": 2586
+          }
+        },
+        {
+          "kind": "page_items",
+          "page": 3,
+          "model": "nvidia/Qwen3.8-Flash-Next-NVFP4",
+          "ok": true,
+          "ms": 22228,
+          "usage": {
+            "completion_tokens": 3476,
+            "prompt_tokens": 3054,
+            "total_tokens": 6530
+          }
+        },
+        {
+          "kind": "classify",
+          "page": 3,
+          "model": "nvidia/Qwen3.8-Flash-Next-NVFP4",
+          "ok": true,
+          "ms": 1711,
+          "usage": {
+            "completion_tokens": 108,
+            "prompt_tokens": 2477,
+            "total_tokens": 2585
+          }
+        },
+        {
+          "kind": "page_items",
+          "page": 4,
+          "model": "nvidia/Qwen3.8-Flash-Next-NVFP4",
+          "ok": true,
+          "ms": 26913,
+          "usage": {
+            "completion_tokens": 4214,
+            "prompt_tokens": 3054,
+            "total_tokens": 7268
+          }
+        },
+        {
+          "kind": "classify",
+          "page": 4,
+          "model": "nvidia/Qwen3.8-Flash-Next-NVFP4",
+          "ok": true,
+          "ms": 4097,
+          "usage": {
+            "completion_tokens": 515,
+            "prompt_tokens": 2477,
+            "total_tokens": 2992
+          }
+        },
+        {
+          "kind": "crop_reread",
+          "page": 1,
+          "model": "nvidia/Qwen3.8-Flash-Next-NVFP4",
+          "ok": true,
+          "ms": 2473,
+          "usage": {
+            "completion_tokens": 339,
+            "prompt_tokens": 372,
+            "total_tokens": 711
+          }
+        },
+        {
+          "kind": "crop_reread",
+          "page": 1,
+          "model": "nvidia/Qwen3.8-Flash-Next-NVFP4",
+          "ok": true,
+          "ms": 2088,
+          "usage": {
+            "completion_tokens": 288,
+            "prompt_tokens": 379,
+            "total_tokens": 667
+          }
+        },
+        {
+          "kind": "crop_reread",
+          "page": 1,
+          "model": "nvidia/Qwen3.8-Flash-Next-NVFP4",
+          "ok": true,
+          "ms": 7771,
+          "usage": {
+            "completion_tokens": 958,
+            "prompt_tokens": 539,
+            "total_tokens": 1497
+          }
+        },
+        {
+          "kind": "crop_reread",
+          "page": 1,
+          "model": "nvidia/Qwen3.8-Flash-Next-NVFP4",
+          "ok": true,
+          "ms": 834,
+          "usage": {
+            "completion_tokens": 93,
+            "prompt_tokens": 384,
+            "total_tokens": 477
+          }
+        },
+        {
+          "kind": "crop_reread",
+          "page": 1,
+          "model": "nvidia/Qwen3.8-Flash-Next-NVFP4",
+          "ok": true,
+          "ms": 819,
+          "usage": {
+            "completion_tokens": 93,
+            "prompt_tokens": 387,
+            "total_tokens": 480
+          }
+        },
+        {
+          "kind": "crop_reread",
+          "page": 1,
+          "model": "nvidia/Qwen3.8-Flash-Next-NVFP4",
+          "ok": true,
+          "ms": 914,
+          "usage": {
+            "completion_tokens": 111,
+            "prompt_tokens": 383,
+            "total_tokens": 494
+          }
+        },
+        {
+          "kind": "crop_reread",
+          "page": 1,
+          "model": "nvidia/Qwen3.8-Flash-Next-NVFP4",
+          "ok": true,
+          "ms": 4510,
+          "usage": {
+            "completion_tokens": 646,
+            "prompt_tokens": 377,
+            "total_tokens": 1023
+          }
+        },
+        {
+          "kind": "crop_reread",
+          "page": 1,
+          "model": "nvidia/Qwen3.8-Flash-Next-NVFP4",
+          "ok": true,
+          "ms": 50470,
+          "usage": {
+            "completion_tokens": 7316,
+            "prompt_tokens": 523,
+            "total_tokens": 7839
+          }
+        },
+        {
+          "kind": "crop_reread",
+          "page": 4,
+          "model": "nvidia/Qwen3.8-Flash-Next-NVFP4",
+          "ok": true,
+          "ms": 1667,
+          "usage": {
+            "completion_tokens": 246,
+            "prompt_tokens": 385,
+            "total_tokens": 631
+          }
+        },
+        {
+          "kind": "crop_reread",
+          "page": 4,
+          "model": "nvidia/Qwen3.8-Flash-Next-NVFP4",
+          "ok": true,
+          "ms": 928,
+          "usage": {
+            "completion_tokens": 113,
+            "prompt_tokens": 385,
+            "total_tokens": 498
+          }
+        },
+        {
+          "kind": "table_rows",
+          "page": 1,
+          "model": "nvidia/Qwen3.8-Flash-Next-NVFP4",
+          "ok": true,
+          "ms": 4661,
+          "usage": {
+            "completion_tokens": 643,
+            "prompt_tokens": 3069,
+            "total_tokens": 3712
+          }
+        },
+        {
+          "kind": "table_rows",
+          "page": 2,
+          "model": "nvidia/Qwen3.8-Flash-Next-NVFP4",
+          "ok": true,
+          "ms": 6730,
+          "usage": {
+            "completion_tokens": 894,
+            "prompt_tokens": 3069,
+            "total_tokens": 3963
+          }
+        },
+        {
+          "kind": "table_rows",
+          "page": 3,
+          "model": "nvidia/Qwen3.8-Flash-Next-NVFP4",
+          "ok": true,
+          "ms": 9384,
+          "usage": {
+            "completion_tokens": 1266,
+            "prompt_tokens": 3069,
+            "total_tokens": 4335
+          }
+        }
+      ],
+      "words_capped_at": 2500,
+      "words_skipped": 0,
+      "truncated_pages": false,
+      "render_dpi": 150,
+      "crop_dpi": 300.0,
+      "invoice_pages": [
+        1,
+        2,
+        3
+      ],
+      "pages_total": 4
+    }
+  },
+  "normalized_fields": {
+    "po_number": "43039142",
+    "invoice_date": "2026-09-02",
+    "supplier_name": "QST (THAILAND) C",
+    "supplier_tax_id": "0205545000583",
+    "customer_name": "Aapico Hitech Parts Company Limited",
+    "customer_tax_id": "0145548001549",
+    "sub_total": "20790.00",
+    "supplier_address": "188/5 Moo 1 T.Mapphai A.Banbueng Chonburi 20170 188/5 ม.1 ต.มาบไผ่ อ.บ้านบึง จ.ชลบุรี 20170",
+    "customer_address": "99/2 Moo. 1 Hi-tech Industrial Estate T.Banlane A.Bang Pa-in , Ayuthaya 13160 Thailand",
+    "invoice_num": "IV2609014",
+    "grand_total": "20790.00",
+    "vat": null,
+    "release_num": null,
+    "items": [
+      {
+        "line_no": 1,
+        "element_id": "D1-L1",
+        "page_no": 1,
+        "bbox": [
+          0.004,
+          0.5188,
+          0.7661,
+          0.439
+        ],
+        "item_code": null,
+        "description": "M8-1.25x20.6,Weld Bolt (Cr3+) Lot.No. C5041380011A",
+        "qty": "9000",
+        "uom": null,
+        "uom_group": null,
+        "unit_price": "2.31",
+        "amount": "20790.00",
+        "cells_ok": {
+          "description": true,
+          "qty": true,
+          "unit_price": true,
+          "amount": true,
+          "uom": false
+        },
+        "cells_null_reason": {
+          "uom": "NOT_PRESENT"
+        },
+        "line_math": {
+          "qty_x_unit_price": "20790.00",
+          "amount": "20790.00",
+          "diff": "0.00",
+          "ok": true
+        },
+        "match": null,
+        "qty_check": null
+      }
+    ],
+    "items_summary": {
+      "line_count": 1,
+      "lines_usable": 0,
+      "lines_math_ok": 1,
+      "lines_matched": 0,
+      "sum_amount": "20790.00",
+      "sub_total": "20790.00",
+      "sum_vs_sub_total_diff": "0.00"
+    }
+  },
+  "oracle_snapshot": {
+    "queried": true,
+    "queried_at": "2026-10-07T03:08:43.233763+00:00",
+    "lookup_path": "PO-LIST",
+    "query_keys": {
+      "invoice_num": "IV2609014",
+      "invoice_variants": [
+        "IV2609014"
+      ],
+      "po_number": "43039142",
+      "supplier_tax_id": "0205545000583",
+      "supplier_tax_id_source": "ocr"
+    },
+    "row_cap_hit": true,
+    "fingerprint": "sha256:f2a305b0801199fead757a6910c812bdd2ff6bb83d06b1f201fb990dd9ab32a6",
+    "org_id": 176,
+    "receiver": "Oracle, Concurrent",
+    "receipt_nums": [
+      "530314153",
+      "530315058",
+      "530317018",
+      "530317995",
+      "530318862",
+      "530320244",
+      "530320245",
+      "530320894",
+      "530322880",
+      "530322881",
+      "530323717",
+      "530323718",
+      "530323719",
+      "530324753",
+      "530325481",
+      "530325990",
+      "530325991",
+      "530327119",
+      "530327689",
+      "530327690",
+      "530328759",
+      "530328760",
+      "530329561",
+      "530330950",
+      "530331460",
+      "530334201",
+      "530334202",
+      "530334890",
+      "530335182",
+      "530335535",
+      "530335536",
+      "530335849",
+      "530336012",
+      "530336578"
+    ],
+    "receipt_lines": [
+      {
+        "org_id": 176,
+        "receipt_num": "530314153",
+        "receiver": "Oracle, Concurrent",
+        "line": 1,
+        "item": "656984JA0A BOLT-SPL M8",
+        "qty": "18000",
+        "uom": "Piece",
+        "unit_price": "2.19",
+        "line_amount": "39420",
+        "extra": {
+          "PO_NUM": "43039142",
+          "ITEM_CODE": "PCP3000258A",
+          "SHIPMENT_NUM": "IV2503062",
+          "PACKING_SLIP": "IV2503062",
+          "QTY_BILLED": "18000"
+        },
+        "po_number": "43039142",
+        "item_code": "PCP3000258A",
+        "qty_billed": "18000",
+        "po_line_status": "CLOSED",
+        "line_status": "FULLY RECEIVED",
+        "supplier_tax_id": "20205545000583",
+        "supplier_name": "QST (THAILAND) CO., LTD.",
+        "customer_tax_id": "0145548001549",
+        "ou_org_id": 176,
+        "ou_name": "Aapico Hitech Parts Legal",
+        "shipment_num": "IV2503062",
+        "packing_slip": "IV2503062",
+        "rcv_line_id": "530314153-1",
+        "uom_group": "PCS"
+      },
+      {
+        "org_id": 176,
+        "receipt_num": "530314153",
+        "receiver": "Oracle, Concurrent",
+        "line": 2,
+        "item": "80498JR20A BOLT SPECIAL (CR3+)",
+        "qty": "54000",
+        "uom": "Piece",
+        "unit_price": "2.31",
+        "line_amount": "124740",
+        "extra": {
+          "PO_NUM": "43039142",
+          "ITEM_CODE": "PCP3000264A",
+          "SHIPMENT_NUM": "IV2503062",
+          "PACKING_SLIP": "IV2503062",
+          "QTY_BILLED": "54000"
+        },
+        "po_number": "43039142",
+        "item_code": "PCP3000264A",
+        "qty_billed": "54000",
+        "po_line_status": "CLOSED",
+        "line_status": "FULLY RECEIVED",
+        "supplier_tax_id": "20205545000583",
+        "supplier_name": "QST (THAILAND) CO., LTD.",
+        "customer_tax_id": "0145548001549",
+        "ou_org_id": 176,
+        "ou_name": "Aapico Hitech Parts Legal",
+        "shipment_num": "IV2503062",
+        "packing_slip": "IV2503062",
+        "rcv_line_id": "530314153-2",
+        "uom_group": "PCS"
+      },
+      {
+        "org_id": 176,
+        "receipt_num": "530315058",
+        "receiver": "Oracle, Concurrent",
+        "line": 1,
+        "item": "80498JR20A BOLT SPECIAL (CR3+)",
+        "qty": "90000",
+        "uom": "Piece",
+        "unit_price": "2.31",
+        "line_amount": "207900",
+        "extra": {
+          "PO_NUM": "43039142",
+          "ITEM_CODE": "PCP3000264A",
+          "SHIPMENT_NUM": "IV2504007",
+          "PACKING_SLIP": "IV2504007",
+          "QTY_BILLED": "90000"
+        },
+        "po_number": "43039142",
+        "item_code": "PCP3000264A",
+        "qty_billed": "90000",
+        "po_line_status": "CLOSED",
+        "line_status": "FULLY RECEIVED",
+        "supplier_tax_id": "20205545000583",
+        "supplier_name": "QST (THAILAND) CO., LTD.",
+        "customer_tax_id": "0145548001549",
+        "ou_org_id": 176,
+        "ou_name": "Aapico Hitech Parts Legal",
+        "shipment_num": "IV2504007",
+        "packing_slip": "IV2504007",
+        "rcv_line_id": "530315058-1",
+        "uom_group": "PCS"
+      },
+      {
+        "org_id": 176,
+        "receipt_num": "530317018",
+        "receiver": "Oracle, Concurrent",
+        "line": 1,
+        "item": "656984JA0A BOLT-SPL M8",
+        "qty": "15000",
+        "uom": "Piece",
+        "unit_price": "2.19",
+        "line_amount": "32850",
+        "extra": {
+          "PO_NUM": "43039142",
+          "ITEM_CODE": "PCP3000258A",
+          "SHIPMENT_NUM": "IV2505019",
+          "PACKING_SLIP": "IV2505019",
+          "QTY_BILLED": "15000"
+        },
+        "po_number": "43039142",
+        "item_code": "PCP3000258A",
+        "qty_billed": "15000",
+        "po_line_status": "CLOSED",
+        "line_status": "FULLY RECEIVED",
+        "supplier_tax_id": "20205545000583",
+        "supplier_name": "QST (THAILAND) CO., LTD.",
+        "customer_tax_id": "0145548001549",
+        "ou_org_id": 176,
+        "ou_name": "Aapico Hitech Parts Legal",
+        "shipment_num": "IV2505019",
+        "packing_slip": "IV2505019",
+        "rcv_line_id": "530317018-1",
+        "uom_group": "PCS"
+      },
+      {
+        "org_id": 176,
+        "receipt_num": "530317018",
+        "receiver": "Oracle, Concurrent",
+        "line": 2,
+        "item": "80498JR20A BOLT SPECIAL (CR3+)",
+        "qty": "63000",
+        "uom": "Piece",
+        "unit_price": "2.31",
+        "line_amount": "145530",
+        "extra": {
+          "PO_NUM": "43039142",
+          "ITEM_CODE": "PCP3000264A",
+          "SHIPMENT_NUM": "IV2505019",
+          "PACKING_SLIP": "IV2505019",
+          "QTY_BILLED": "63000"
+        },
+        "po_number": "43039142",
+        "item_code": "PCP3000264A",
+        "qty_billed": "63000",
+        "po_line_status": "CLOSED",
+        "line_status": "FULLY RECEIVED",
+        "supplier_tax_id": "20205545000583",
+        "supplier_name": "QST (THAILAND) CO., LTD.",
+        "customer_tax_id": "0145548001549",
+        "ou_org_id": 176,
+        "ou_name": "Aapico Hitech Parts Legal",
+        "shipment_num": "IV2505019",
+        "packing_slip": "IV2505019",
+        "rcv_line_id": "530317018-2",
+        "uom_group": "PCS"
+      },
+      {
+        "org_id": 176,
+        "receipt_num": "530317995",
+        "receiver": "Oracle, Concurrent",
+        "line": 1,
+        "item": "656984JA0A BOLT-SPL M8",
+        "qty": "8000",
+        "uom": "Piece",
+        "unit_price": "2.19",
+        "line_amount": "17520",
+        "extra": {
+          "PO_NUM": "43039142",
+          "ITEM_CODE": "PCP3000258A",
+          "SHIPMENT_NUM": "IV2505073",
+          "PACKING_SLIP": "IV2505073",
+          "QTY_BILLED": "8000"
+        },
+        "po_number": "43039142",
+        "item_code": "PCP3000258A",
+        "qty_billed": "8000",
+        "po_line_status": "CLOSED",
+        "line_status": "FULLY RECEIVED",
+        "supplier_tax_id": "20205545000583",
+        "supplier_name": "QST (THAILAND) CO., LTD.",
+        "customer_tax_id": "0145548001549",
+        "ou_org_id": 176,
+        "ou_name": "Aapico Hitech Parts Legal",
+        "shipment_num": "IV2505073",
+        "packing_slip": "IV2505073",
+        "rcv_line_id": "530317995-1",
+        "uom_group": "PCS"
+      },
+      {
+        "org_id": 176,
+        "receipt_num": "530317995",
+        "receiver": "Oracle, Concurrent",
+        "line": 2,
+        "item": "80498JR20A BOLT SPECIAL (CR3+)",
+        "qty": "54000",
+        "uom": "Piece",
+        "unit_price": "2.31",
+        "line_amount": "124740",
+        "extra": {
+          "PO_NUM": "43039142",
+          "ITEM_CODE": "PCP3000264A",
+          "SHIPMENT_NUM": "IV2505073",
+          "PACKING_SLIP": "IV2505073",
+          "QTY_BILLED": "54000"
+        },
+        "po_number": "43039142",
+        "item_code": "PCP3000264A",
+        "qty_billed": "54000",
+        "po_line_status": "CLOSED",
+        "line_status": "FULLY RECEIVED",
+        "supplier_tax_id": "20205545000583",
+        "supplier_name": "QST (THAILAND) CO., LTD.",
+        "customer_tax_id": "0145548001549",
+        "ou_org_id": 176,
+        "ou_name": "Aapico Hitech Parts Legal",
+        "shipment_num": "IV2505073",
+        "packing_slip": "IV2505073",
+        "rcv_line_id": "530317995-2",
+        "uom_group": "PCS"
+      },
+      {
+        "org_id": 176,
+        "receipt_num": "530318862",
+        "receiver": "Oracle, Concurrent",
+        "line": 1,
+        "item": "656984JA0A BOLT-SPL M8",
+        "qty": "8000",
+        "uom": "Piece",
+        "unit_price": "2.19",
+        "line_amount": "17520",
+        "extra": {
+          "PO_NUM": "43039142",
+          "ITEM_CODE": "PCP3000258A",
+          "SHIPMENT_NUM": "IV2506013",
+          "PACKING_SLIP": "IV2506013",
+          "QTY_BILLED": "8000"
+        },
+        "po_number": "43039142",
+        "item_code": "PCP3000258A",
+        "qty_billed": "8000",
+        "po_line_status": "CLOSED",
+        "line_status": "FULLY RECEIVED",
+        "supplier_tax_id": "20205545000583",
+        "supplier_name": "QST (THAILAND) CO., LTD.",
+        "customer_tax_id": "0145548001549",
+        "ou_org_id": 176,
+        "ou_name": "Aapico Hitech Parts Legal",
+        "shipment_num": "IV2506013",
+        "packing_slip": "IV2506013",
+        "rcv_line_id": "530318862-1",
+        "uom_group": "PCS"
+      },
+      {
+        "org_id": 176,
+        "receipt_num": "530318862",
+        "receiver": "Oracle, Concurrent",
+        "line": 2,
+        "item": "80498JR20A BOLT SPECIAL (CR3+)",
+        "qty": "54000",
+        "uom": "Piece",
+        "unit_price": "2.31",
+        "line_amount": "124740",
+        "extra": {
+          "PO_NUM": "43039142",
+          "ITEM_CODE": "PCP3000264A",
+          "SHIPMENT_NUM": "IV2506013",
+          "PACKING_SLIP": "IV2506013",
+          "QTY_BILLED": "54000"
+        },
+        "po_number": "43039142",
+        "item_code": "PCP3000264A",
+        "qty_billed": "54000",
+        "po_line_status": "CLOSED",
+        "line_status": "FULLY RECEIVED",
+        "supplier_tax_id": "20205545000583",
+        "supplier_name": "QST (THAILAND) CO., LTD.",
+        "customer_tax_id": "0145548001549",
+        "ou_org_id": 176,
+        "ou_name": "Aapico Hitech Parts Legal",
+        "shipment_num": "IV2506013",
+        "packing_slip": "IV2506013",
+        "rcv_line_id": "530318862-2",
+        "uom_group": "PCS"
+      },
+      {
+        "org_id": 176,
+        "receipt_num": "530320244",
+        "receiver": "Oracle, Concurrent",
+        "line": 1,
+        "item": "656984JA0A BOLT-SPL M8",
+        "qty": "6000",
+        "uom": "Piece",
+        "unit_price": "2.19",
+        "line_amount": "13140",
+        "extra": {
+          "PO_NUM": "43039142",
+          "ITEM_CODE": "PCP3000258A",
+          "SHIPMENT_NUM": "IV2506086",
+          "PACKING_SLIP": "IV2506086",
+          "QTY_BILLED": "6000"
+        },
+        "po_number": "43039142",
+        "item_code": "PCP3000258A",
+        "qty_billed": "6000",
+        "po_line_status": "CLOSED",
+        "line_status": "FULLY RECEIVED",
+        "supplier_tax_id": "20205545000583",
+        "supplier_name": "QST (THAILAND) CO., LTD.",
+        "customer_tax_id": "0145548001549",
+        "ou_org_id": 176,
+        "ou_name": "Aapico Hitech Parts Legal",
+        "shipment_num": "IV2506086",
+        "packing_slip": "IV2506086",
+        "rcv_line_id": "530320244-1",
+        "uom_group": "PCS"
+      },
+      {
+        "org_id": 176,
+        "receipt_num": "530320245",
+        "receiver": "Oracle, Concurrent",
+        "line": 1,
+        "item": "656984JA0A BOLT-SPL M8",
+        "qty": "6000",
+        "uom": "Piece",
+        "unit_price": "2.19",
+        "line_amount": "13140",
+        "extra": {
+          "PO_NUM": "43039142",
+          "ITEM_CODE": "PCP3000258A",
+          "SHIPMENT_NUM": "IV2506085",
+          "PACKING_SLIP": "IV2506085",
+          "QTY_BILLED": "6000"
+        },
+        "po_number": "43039142",
+        "item_code": "PCP3000258A",
+        "qty_billed": "6000",
+        "po_line_status": "CLOSED",
+        "line_status": "FULLY RECEIVED",
+        "supplier_tax_id": "20205545000583",
+        "supplier_name": "QST (THAILAND) CO., LTD.",
+        "customer_tax_id": "0145548001549",
+        "ou_org_id": 176,
+        "ou_name": "Aapico Hitech Parts Legal",
+        "shipment_num": "IV2506085",
+        "packing_slip": "IV2506085",
+        "rcv_line_id": "530320245-1",
+        "uom_group": "PCS"
+      },
+      {
+        "org_id": 176,
+        "receipt_num": "530320894",
+        "receiver": "Oracle, Concurrent",
+        "line": 1,
+        "item": "80498JR20A BOLT SPECIAL (CR3+)",
+        "qty": "45000",
+        "uom": "Piece",
+        "unit_price": "2.31",
+        "line_amount": "103950",
+        "extra": {
+          "PO_NUM": "43039142",
+          "ITEM_CODE": "PCP3000264A",
+          "SHIPMENT_NUM": "IV2507038",
+          "PACKING_SLIP": "IV2507038",
+          "QTY_BILLED": "45000"
+        },
+        "po_number": "43039142",
+        "item_code": "PCP3000264A",
+        "qty_billed": "45000",
+        "po_line_status": "CLOSED",
+        "line_status": "FULLY RECEIVED",
+        "supplier_tax_id": "20205545000583",
+        "supplier_name": "QST (THAILAND) CO., LTD.",
+        "customer_tax_id": "0145548001549",
+        "ou_org_id": 176,
+        "ou_name": "Aapico Hitech Parts Legal",
+        "shipment_num": "IV2507038",
+        "packing_slip": "IV2507038",
+        "rcv_line_id": "530320894-1",
+        "uom_group": "PCS"
+      },
+      {
+        "org_id": 176,
+        "receipt_num": "530322880",
+        "receiver": "Oracle, Concurrent",
+        "line": 1,
+        "item": "80498JR20A BOLT SPECIAL (CR3+)",
+        "qty": "36000",
+        "uom": "Piece",
+        "unit_price": "2.31",
+        "line_amount": "83160",
+        "extra": {
+          "PO_NUM": "43039142",
+          "ITEM_CODE": "PCP3000264A",
+          "SHIPMENT_NUM": "IV2509016",
+          "PACKING_SLIP": "IV2509016",
+          "QTY_BILLED": "36000"
+        },
+        "po_number": "43039142",
+        "item_code": "PCP3000264A",
+        "qty_billed": "36000",
+        "po_line_status": "CLOSED",
+        "line_status": "FULLY RECEIVED",
+        "supplier_tax_id": "20205545000583",
+        "supplier_name": "QST (THAILAND) CO., LTD.",
+        "customer_tax_id": "0145548001549",
+        "ou_org_id": 176,
+        "ou_name": "Aapico Hitech Parts Legal",
+        "shipment_num": "IV2509016",
+        "packing_slip": "IV2509016",
+        "rcv_line_id": "530322880-1",
+        "uom_group": "PCS"
+      },
+      {
+        "org_id": 176,
+        "receipt_num": "530322881",
+        "receiver": "Oracle, Concurrent",
+        "line": 1,
+        "item": "656984JA0A BOLT-SPL M8",
+        "qty": "10000",
+        "uom": "Piece",
+        "unit_price": "2.19",
+        "line_amount": "21900",
+        "extra": {
+          "PO_NUM": "43039142",
+          "ITEM_CODE": "PCP3000258A",
+          "SHIPMENT_NUM": "IV2509017",
+          "PACKING_SLIP": "IV2509017",
+          "QTY_BILLED": "10000"
+        },
+        "po_number": "43039142",
+        "item_code": "PCP3000258A",
+        "qty_billed": "10000",
+        "po_line_status": "CLOSED",
+        "line_status": "FULLY RECEIVED",
+        "supplier_tax_id": "20205545000583",
+        "supplier_name": "QST (THAILAND) CO., LTD.",
+        "customer_tax_id": "0145548001549",
+        "ou_org_id": 176,
+        "ou_name": "Aapico Hitech Parts Legal",
+        "shipment_num": "IV2509017",
+        "packing_slip": "IV2509017",
+        "rcv_line_id": "530322881-1",
+        "uom_group": "PCS"
+      },
+      {
+        "org_id": 176,
+        "receipt_num": "530323717",
+        "receiver": "Oracle, Concurrent",
+        "line": 1,
+        "item": "656984JA0A BOLT-SPL M8",
+        "qty": "10000",
+        "uom": "Piece",
+        "unit_price": "2.19",
+        "line_amount": "21900",
+        "extra": {
+          "PO_NUM": "43039142",
+          "ITEM_CODE": "PCP3000258A",
+          "SHIPMENT_NUM": "IV2509069",
+          "PACKING_SLIP": "IV2509069",
+          "QTY_BILLED": "10000"
+        },
+        "po_number": "43039142",
+        "item_code": "PCP3000258A",
+        "qty_billed": "10000",
+        "po_line_status": "CLOSED",
+        "line_status": "FULLY RECEIVED",
+        "supplier_tax_id": "20205545000583",
+        "supplier_name": "QST (THAILAND) CO., LTD.",
+        "customer_tax_id": "0145548001549",
+        "ou_org_id": 176,
+        "ou_name": "Aapico Hitech Parts Legal",
+        "shipment_num": "IV2509069",
+        "packing_slip": "IV2509069",
+        "rcv_line_id": "530323717-1",
+        "uom_group": "PCS"
+      },
+      {
+        "org_id": 176,
+        "receipt_num": "530323718",
+        "receiver": "Oracle, Concurrent",
+        "line": 1,
+        "item": "656984JA0A BOLT-SPL M8",
+        "qty": "3000",
+        "uom": "Piece",
+        "unit_price": "2.19",
+        "line_amount": "6570",
+        "extra": {
+          "PO_NUM": "43039142",
+          "ITEM_CODE": "PCP3000258A",
+          "SHIPMENT_NUM": "IV2509070",
+          "PACKING_SLIP": "IV2509070",
+          "QTY_BILLED": "3000"
+        },
+        "po_number": "43039142",
+        "item_code": "PCP3000258A",
+        "qty_billed": "3000",
+        "po_line_status": "CLOSED",
+        "line_status": "FULLY RECEIVED",
+        "supplier_tax_id": "20205545000583",
+        "supplier_name": "QST (THAILAND) CO., LTD.",
+        "customer_tax_id": "0145548001549",
+        "ou_org_id": 176,
+        "ou_name": "Aapico Hitech Parts Legal",
+        "shipment_num": "IV2509070",
+        "packing_slip": "IV2509070",
+        "rcv_line_id": "530323718-1",
+        "uom_group": "PCS"
+      },
+      {
+        "org_id": 176,
+        "receipt_num": "530323718",
+        "receiver": "Oracle, Concurrent",
+        "line": 2,
+        "item": "80498JR20A BOLT SPECIAL (CR3+)",
+        "qty": "27000",
+        "uom": "Piece",
+        "unit_price": "2.31",
+        "line_amount": "62370",
+        "extra": {
+          "PO_NUM": "43039142",
+          "ITEM_CODE": "PCP3000264A",
+          "SHIPMENT_NUM": "IV2509070",
+          "PACKING_SLIP": "IV2509070",
+          "QTY_BILLED": "27000"
+        },
+        "po_number": "43039142",
+        "item_code": "PCP3000264A",
+        "qty_billed": "27000",
+        "po_line_status": "CLOSED",
+        "line_status": "FULLY RECEIVED",
+        "supplier_tax_id": "20205545000583",
+        "supplier_name": "QST (THAILAND) CO., LTD.",
+        "customer_tax_id": "0145548001549",
+        "ou_org_id": 176,
+        "ou_name": "Aapico Hitech Parts Legal",
+        "shipment_num": "IV2509070",
+        "packing_slip": "IV2509070",
+        "rcv_line_id": "530323718-2",
+        "uom_group": "PCS"
+      },
+      {
+        "org_id": 176,
+        "receipt_num": "530323719",
+        "receiver": "Oracle, Concurrent",
+        "line": 1,
+        "item": "80498JR20A BOLT SPECIAL (CR3+)",
+        "qty": "45000",
+        "uom": "Piece",
+        "unit_price": "2.31",
+        "line_amount": "103950",
+        "extra": {
+          "PO_NUM": "43039142",
+          "ITEM_CODE": "PCP3000264A",
+          "SHIPMENT_NUM": "IV2509068",
+          "PACKING_SLIP": "IV2509068",
+          "QTY_BILLED": "45000"
+        },
+        "po_number": "43039142",
+        "item_code": "PCP3000264A",
+        "qty_billed": "45000",
+        "po_line_status": "CLOSED",
+        "line_status": "FULLY RECEIVED",
+        "supplier_tax_id": "20205545000583",
+        "supplier_name": "QST (THAILAND) CO., LTD.",
+        "customer_tax_id": "0145548001549",
+        "ou_org_id": 176,
+        "ou_name": "Aapico Hitech Parts Legal",
+        "shipment_num": "IV2509068",
+        "packing_slip": "IV2509068",
+        "rcv_line_id": "530323719-1",
+        "uom_group": "PCS"
+      },
+      {
+        "org_id": 176,
+        "receipt_num": "530324753",
+        "receiver": "Oracle, Concurrent",
+        "line": 1,
+        "item": "656984JA0A BOLT-SPL M8",
+        "qty": "8000",
+        "uom": "Piece",
+        "unit_price": "2.19",
+        "line_amount": "17520",
+        "extra": {
+          "PO_NUM": "43039142",
+          "ITEM_CODE": "PCP3000258A",
+          "SHIPMENT_NUM": "IV2510038",
+          "PACKING_SLIP": "IV2510038",
+          "QTY_BILLED": "8000"
+        },
+        "po_number": "43039142",
+        "item_code": "PCP3000258A",
+        "qty_billed": "8000",
+        "po_line_status": "CLOSED",
+        "line_status": "FULLY RECEIVED",
+        "supplier_tax_id": "20205545000583",
+        "supplier_name": "QST (THAILAND) CO., LTD.",
+        "customer_tax_id": "0145548001549",
+        "ou_org_id": 176,
+        "ou_name": "Aapico Hitech Parts Legal",
+        "shipment_num": "IV2510038",
+        "packing_slip": "IV2510038",
+        "rcv_line_id": "530324753-1",
+        "uom_group": "PCS"
+      },
+      {
+        "org_id": 176,
+        "receipt_num": "530324753",
+        "receiver": "Oracle, Concurrent",
+        "line": 2,
+        "item": "80498JR20A BOLT SPECIAL (CR3+)",
+        "qty": "45000",
+        "uom": "Piece",
+        "unit_price": "2.31",
+        "line_amount": "103950",
+        "extra": {
+          "PO_NUM": "43039142",
+          "ITEM_CODE": "PCP3000264A",
+          "SHIPMENT_NUM": "IV2510038",
+          "PACKING_SLIP": "IV2510038",
+          "QTY_BILLED": "45000"
+        },
+        "po_number": "43039142",
+        "item_code": "PCP3000264A",
+        "qty_billed": "45000",
+        "po_line_status": "CLOSED",
+        "line_status": "FULLY RECEIVED",
+        "supplier_tax_id": "20205545000583",
+        "supplier_name": "QST (THAILAND) CO., LTD.",
+        "customer_tax_id": "0145548001549",
+        "ou_org_id": 176,
+        "ou_name": "Aapico Hitech Parts Legal",
+        "shipment_num": "IV2510038",
+        "packing_slip": "IV2510038",
+        "rcv_line_id": "530324753-2",
+        "uom_group": "PCS"
+      },
+      {
+        "org_id": 176,
+        "receipt_num": "530325481",
+        "receiver": "Oracle, Concurrent",
+        "line": 1,
+        "item": "80498JR20A BOLT SPECIAL (CR3+)",
+        "qty": "9900",
+        "uom": "Piece",
+        "unit_price": "2.31",
+        "line_amount": "22869",
+        "extra": {
+          "PO_NUM": "43039142",
+          "ITEM_CODE": "PCP3000264A",
+          "SHIPMENT_NUM": "IV2510085",
+          "PACKING_SLIP": "IV2510085",
+          "QTY_BILLED": "9900"
+        },
+        "po_number": "43039142",
+        "item_code": "PCP3000264A",
+        "qty_billed": "9900",
+        "po_line_status": "CLOSED",
+        "line_status": "FULLY RECEIVED",
+        "supplier_tax_id": "20205545000583",
+        "supplier_name": "QST (THAILAND) CO., LTD.",
+        "customer_tax_id": "0145548001549",
+        "ou_org_id": 176,
+        "ou_name": "Aapico Hitech Parts Legal",
+        "shipment_num": "IV2510085",
+        "packing_slip": "IV2510085",
+        "rcv_line_id": "530325481-1",
+        "uom_group": "PCS"
+      },
+      {
+        "org_id": 176,
+        "receipt_num": "530325990",
+        "receiver": "Oracle, Concurrent",
+        "line": 1,
+        "item": "656984JA0A BOLT-SPL M8",
+        "qty": "5000",
+        "uom": "Piece",
+        "unit_price": "2.19",
+        "line_amount": "10950",
+        "extra": {
+          "PO_NUM": "43039142",
+          "ITEM_CODE": "PCP3000258A",
+          "SHIPMENT_NUM": "IV2511017",
+          "PACKING_SLIP": "IV2511017",
+          "QTY_BILLED": "5000"
+        },
+        "po_number": "43039142",
+        "item_code": "PCP3000258A",
+        "qty_billed": "5000",
+        "po_line_status": "CLOSED",
+        "line_status": "FULLY RECEIVED",
+        "supplier_tax_id": "20205545000583",
+        "supplier_name": "QST (THAILAND) CO., LTD.",
+        "customer_tax_id": "0145548001549",
+        "ou_org_id": 176,
+        "ou_name": "Aapico Hitech Parts Legal",
+        "shipment_num": "IV2511017",
+        "packing_slip": "IV2511017",
+        "rcv_line_id": "530325990-1",
+        "uom_group": "PCS"
+      },
+      {
+        "org_id": 176,
+        "receipt_num": "530325990",
+        "receiver": "Oracle, Concurrent",
+        "line": 2,
+        "item": "80498JR20A BOLT SPECIAL (CR3+)",
+        "qty": "49500",
+        "uom": "Piece",
+        "unit_price": "2.31",
+        "line_amount": "114345",
+        "extra": {
+          "PO_NUM": "43039142",
+          "ITEM_CODE": "PCP3000264A",
+          "SHIPMENT_NUM": "IV2511017",
+          "PACKING_SLIP": "IV2511017",
+          "QTY_BILLED": "49500"
+        },
+        "po_number": "43039142",
+        "item_code": "PCP3000264A",
+        "qty_billed": "49500",
+        "po_line_status": "CLOSED",
+        "line_status": "FULLY RECEIVED",
+        "supplier_tax_id": "20205545000583",
+        "supplier_name": "QST (THAILAND) CO., LTD.",
+        "customer_tax_id": "0145548001549",
+        "ou_org_id": 176,
+        "ou_name": "Aapico Hitech Parts Legal",
+        "shipment_num": "IV2511017",
+        "packing_slip": "IV2511017",
+        "rcv_line_id": "530325990-2",
+        "uom_group": "PCS"
+      },
+      {
+        "org_id": 176,
+        "receipt_num": "530325991",
+        "receiver": "Oracle, Concurrent",
+        "line": 1,
+        "item": "656984JA0A BOLT-SPL M8",
+        "qty": "4000",
+        "uom": "Piece",
+        "unit_price": "2.19",
+        "line_amount": "8760",
+        "extra": {
+          "PO_NUM": "43039142",
+          "ITEM_CODE": "PCP3000258A",
+          "SHIPMENT_NUM": "IV2511016",
+          "PACKING_SLIP": "IV2511016",
+          "QTY_BILLED": "4000"
+        },
+        "po_number": "43039142",
+        "item_code": "PCP3000258A",
+        "qty_billed": "4000",
+        "po_line_status": "CLOSED",
+        "line_status": "FULLY RECEIVED",
+        "supplier_tax_id": "20205545000583",
+        "supplier_name": "QST (THAILAND) CO., LTD.",
+        "customer_tax_id": "0145548001549",
+        "ou_org_id": 176,
+        "ou_name": "Aapico Hitech Parts Legal",
+        "shipment_num": "IV2511016",
+        "packing_slip": "IV2511016",
+        "rcv_line_id": "530325991-1",
+        "uom_group": "PCS"
+      },
+      {
+        "org_id": 176,
+        "receipt_num": "530325991",
+        "receiver": "Oracle, Concurrent",
+        "line": 2,
+        "item": "80498JR20A BOLT SPECIAL (CR3+)",
+        "qty": "36000",
+        "uom": "Piece",
+        "unit_price": "2.31",
+        "line_amount": "83160",
+        "extra": {
+          "PO_NUM": "43039142",
+          "ITEM_CODE": "PCP3000264A",
+          "SHIPMENT_NUM": "IV2511016",
+          "PACKING_SLIP": "IV2511016",
+          "QTY_BILLED": "36000"
+        },
+        "po_number": "43039142",
+        "item_code": "PCP3000264A",
+        "qty_billed": "36000",
+        "po_line_status": "CLOSED",
+        "line_status": "FULLY RECEIVED",
+        "supplier_tax_id": "20205545000583",
+        "supplier_name": "QST (THAILAND) CO., LTD.",
+        "customer_tax_id": "0145548001549",
+        "ou_org_id": 176,
+        "ou_name": "Aapico Hitech Parts Legal",
+        "shipment_num": "IV2511016",
+        "packing_slip": "IV2511016",
+        "rcv_line_id": "530325991-2",
+        "uom_group": "PCS"
+      },
+      {
+        "org_id": 176,
+        "receipt_num": "530327119",
+        "receiver": "Oracle, Concurrent",
+        "line": 1,
+        "item": "656984JA0A BOLT-SPL M8",
+        "qty": "7000",
+        "uom": "Piece",
+        "unit_price": "2.19",
+        "line_amount": "15330",
+        "extra": {
+          "PO_NUM": "43039142",
+          "ITEM_CODE": "PCP3000258A",
+          "SHIPMENT_NUM": "IV2511093",
+          "PACKING_SLIP": "IV2511093",
+          "QTY_BILLED": "7000"
+        },
+        "po_number": "43039142",
+        "item_code": "PCP3000258A",
+        "qty_billed": "7000",
+        "po_line_status": "CLOSED",
+        "line_status": "FULLY RECEIVED",
+        "supplier_tax_id": "20205545000583",
+        "supplier_name": "QST (THAILAND) CO., LTD.",
+        "customer_tax_id": "0145548001549",
+        "ou_org_id": 176,
+        "ou_name": "Aapico Hitech Parts Legal",
+        "shipment_num": "IV2511093",
+        "packing_slip": "IV2511093",
+        "rcv_line_id": "530327119-1",
+        "uom_group": "PCS"
+      },
+      {
+        "org_id": 176,
+        "receipt_num": "530327119",
+        "receiver": "Oracle, Concurrent",
+        "line": 2,
+        "item": "80498JR20A BOLT SPECIAL (CR3+)",
+        "qty": "27000",
+        "uom": "Piece",
+        "unit_price": "2.31",
+        "line_amount": "62370",
+        "extra": {
+          "PO_NUM": "43039142",
+          "ITEM_CODE": "PCP3000264A",
+          "SHIPMENT_NUM": "IV2511093",
+          "PACKING_SLIP": "IV2511093",
+          "QTY_BILLED": "27000"
+        },
+        "po_number": "43039142",
+        "item_code": "PCP3000264A",
+        "qty_billed": "27000",
+        "po_line_status": "CLOSED",
+        "line_status": "FULLY RECEIVED",
+        "supplier_tax_id": "20205545000583",
+        "supplier_name": "QST (THAILAND) CO., LTD.",
+        "customer_tax_id": "0145548001549",
+        "ou_org_id": 176,
+        "ou_name": "Aapico Hitech Parts Legal",
+        "shipment_num": "IV2511093",
+        "packing_slip": "IV2511093",
+        "rcv_line_id": "530327119-2",
+        "uom_group": "PCS"
+      },
+      {
+        "org_id": 176,
+        "receipt_num": "530327689",
+        "receiver": "Oracle, Concurrent",
+        "line": 1,
+        "item": "656984JA0A BOLT-SPL M8",
+        "qty": "15000",
+        "uom": "Piece",
+        "unit_price": "2.19",
+        "line_amount": "32850",
+        "extra": {
+          "PO_NUM": "43039142",
+          "ITEM_CODE": "PCP3000258A",
+          "SHIPMENT_NUM": "IV2512040",
+          "PACKING_SLIP": "IV2512040",
+          "QTY_BILLED": "15000"
+        },
+        "po_number": "43039142",
+        "item_code": "PCP3000258A",
+        "qty_billed": "15000",
+        "po_line_status": "CLOSED",
+        "line_status": "FULLY RECEIVED",
+        "supplier_tax_id": "20205545000583",
+        "supplier_name": "QST (THAILAND) CO., LTD.",
+        "customer_tax_id": "0145548001549",
+        "ou_org_id": 176,
+        "ou_name": "Aapico Hitech Parts Legal",
+        "shipment_num": "IV2512040",
+        "packing_slip": "IV2512040",
+        "rcv_line_id": "530327689-1",
+        "uom_group": "PCS"
+      },
+      {
+        "org_id": 176,
+        "receipt_num": "530327689",
+        "receiver": "Oracle, Concurrent",
+        "line": 2,
+        "item": "80498JR20A BOLT SPECIAL (CR3+)",
+        "qty": "54000",
+        "uom": "Piece",
+        "unit_price": "2.31",
+        "line_amount": "124740",
+        "extra": {
+          "PO_NUM": "43039142",
+          "ITEM_CODE": "PCP3000264A",
+          "SHIPMENT_NUM": "IV2512040",
+          "PACKING_SLIP": "IV2512040",
+          "QTY_BILLED": "54000"
+        },
+        "po_number": "43039142",
+        "item_code": "PCP3000264A",
+        "qty_billed": "54000",
+        "po_line_status": "CLOSED",
+        "line_status": "FULLY RECEIVED",
+        "supplier_tax_id": "20205545000583",
+        "supplier_name": "QST (THAILAND) CO., LTD.",
+        "customer_tax_id": "0145548001549",
+        "ou_org_id": 176,
+        "ou_name": "Aapico Hitech Parts Legal",
+        "shipment_num": "IV2512040",
+        "packing_slip": "IV2512040",
+        "rcv_line_id": "530327689-2",
+        "uom_group": "PCS"
+      },
+      {
+        "org_id": 176,
+        "receipt_num": "530327690",
+        "receiver": "Oracle, Concurrent",
+        "line": 1,
+        "item": "656984JA0A BOLT-SPL M8",
+        "qty": "5000",
+        "uom": "Piece",
+        "unit_price": "2.19",
+        "line_amount": "10950",
+        "extra": {
+          "PO_NUM": "43039142",
+          "ITEM_CODE": "PCP3000258A",
+          "SHIPMENT_NUM": "IV2512046",
+          "PACKING_SLIP": "IV2512046",
+          "QTY_BILLED": "5000"
+        },
+        "po_number": "43039142",
+        "item_code": "PCP3000258A",
+        "qty_billed": "5000",
+        "po_line_status": "CLOSED",
+        "line_status": "FULLY RECEIVED",
+        "supplier_tax_id": "20205545000583",
+        "supplier_name": "QST (THAILAND) CO., LTD.",
+        "customer_tax_id": "0145548001549",
+        "ou_org_id": 176,
+        "ou_name": "Aapico Hitech Parts Legal",
+        "shipment_num": "IV2512046",
+        "packing_slip": "IV2512046",
+        "rcv_line_id": "530327690-1",
+        "uom_group": "PCS"
+      },
+      {
+        "org_id": 176,
+        "receipt_num": "530328759",
+        "receiver": "Oracle, Concurrent",
+        "line": 1,
+        "item": "656984JA0A BOLT-SPL M8",
+        "qty": "10000",
+        "uom": "Piece",
+        "unit_price": "2.19",
+        "line_amount": "21900",
+        "extra": {
+          "PO_NUM": "43039142",
+          "ITEM_CODE": "PCP3000258A",
+          "SHIPMENT_NUM": "IV2601015",
+          "PACKING_SLIP": "IV2601015",
+          "QTY_BILLED": "10000"
+        },
+        "po_number": "43039142",
+        "item_code": "PCP3000258A",
+        "qty_billed": "10000",
+        "po_line_status": "CLOSED",
+        "line_status": "FULLY RECEIVED",
+        "supplier_tax_id": "20205545000583",
+        "supplier_name": "QST (THAILAND) CO., LTD.",
+        "customer_tax_id": "0145548001549",
+        "ou_org_id": 176,
+        "ou_name": "Aapico Hitech Parts Legal",
+        "shipment_num": "IV2601015",
+        "packing_slip": "IV2601015",
+        "rcv_line_id": "530328759-1",
+        "uom_group": "PCS"
+      },
+      {
+        "org_id": 176,
+        "receipt_num": "530328760",
+        "receiver": "Oracle, Concurrent",
+        "line": 1,
+        "item": "80498JR20A BOLT SPECIAL (CR3+)",
+        "qty": "45000",
+        "uom": "Piece",
+        "unit_price": "2.31",
+        "line_amount": "103950",
+        "extra": {
+          "PO_NUM": "43039142",
+          "ITEM_CODE": "PCP3000264A",
+          "SHIPMENT_NUM": "IV2601016",
+          "PACKING_SLIP": "IV2601016",
+          "QTY_BILLED": "45000"
+        },
+        "po_number": "43039142",
+        "item_code": "PCP3000264A",
+        "qty_billed": "45000",
+        "po_line_status": "CLOSED",
+        "line_status": "FULLY RECEIVED",
+        "supplier_tax_id": "20205545000583",
+        "supplier_name": "QST (THAILAND) CO., LTD.",
+        "customer_tax_id": "0145548001549",
+        "ou_org_id": 176,
+        "ou_name": "Aapico Hitech Parts Legal",
+        "shipment_num": "IV2601016",
+        "packing_slip": "IV2601016",
+        "rcv_line_id": "530328760-1",
+        "uom_group": "PCS"
+      },
+      {
+        "org_id": 176,
+        "receipt_num": "530329561",
+        "receiver": "Oracle, Concurrent",
+        "line": 1,
+        "item": "656984JA0A BOLT-SPL M8",
+        "qty": "5000",
+        "uom": "Piece",
+        "unit_price": "2.19",
+        "line_amount": "10950",
+        "extra": {
+          "PO_NUM": "43039142",
+          "ITEM_CODE": "PCP3000258A",
+          "SHIPMENT_NUM": "IV2601070",
+          "PACKING_SLIP": "IV2601070",
+          "QTY_BILLED": "5000"
+        },
+        "po_number": "43039142",
+        "item_code": "PCP3000258A",
+        "qty_billed": "5000",
+        "po_line_status": "CLOSED",
+        "line_status": "FULLY RECEIVED",
+        "supplier_tax_id": "20205545000583",
+        "supplier_name": "QST (THAILAND) CO., LTD.",
+        "customer_tax_id": "0145548001549",
+        "ou_org_id": 176,
+        "ou_name": "Aapico Hitech Parts Legal",
+        "shipment_num": "IV2601070",
+        "packing_slip": "IV2601070",
+        "rcv_line_id": "530329561-1",
+        "uom_group": "PCS"
+      },
+      {
+        "org_id": 176,
+        "receipt_num": "530329561",
+        "receiver": "Oracle, Concurrent",
+        "line": 2,
+        "item": "80498JR20A BOLT SPECIAL (CR3+)",
+        "qty": "36000",
+        "uom": "Piece",
+        "unit_price": "2.31",
+        "line_amount": "83160",
+        "extra": {
+          "PO_NUM": "43039142",
+          "ITEM_CODE": "PCP3000264A",
+          "SHIPMENT_NUM": "IV2601070",
+          "PACKING_SLIP": "IV2601070",
+          "QTY_BILLED": "36000"
+        },
+        "po_number": "43039142",
+        "item_code": "PCP3000264A",
+        "qty_billed": "36000",
+        "po_line_status": "CLOSED",
+        "line_status": "FULLY RECEIVED",
+        "supplier_tax_id": "20205545000583",
+        "supplier_name": "QST (THAILAND) CO., LTD.",
+        "customer_tax_id": "0145548001549",
+        "ou_org_id": 176,
+        "ou_name": "Aapico Hitech Parts Legal",
+        "shipment_num": "IV2601070",
+        "packing_slip": "IV2601070",
+        "rcv_line_id": "530329561-2",
+        "uom_group": "PCS"
+      },
+      {
+        "org_id": 176,
+        "receipt_num": "530330950",
+        "receiver": "Oracle, Concurrent",
+        "line": 1,
+        "item": "656984JA0A BOLT-SPL M8",
+        "qty": "4000",
+        "uom": "Piece",
+        "unit_price": "2.19",
+        "line_amount": "8760",
+        "extra": {
+          "PO_NUM": "43039142",
+          "ITEM_CODE": "PCP3000258A",
+          "SHIPMENT_NUM": "IV2602081",
+          "PACKING_SLIP": "IV2602081",
+          "QTY_BILLED": "4000"
+        },
+        "po_number": "43039142",
+        "item_code": "PCP3000258A",
+        "qty_billed": "4000",
+        "po_line_status": "CLOSED",
+        "line_status": "FULLY RECEIVED",
+        "supplier_tax_id": "20205545000583",
+        "supplier_name": "QST (THAILAND) CO., LTD.",
+        "customer_tax_id": "0145548001549",
+        "ou_org_id": 176,
+        "ou_name": "Aapico Hitech Parts Legal",
+        "shipment_num": "IV2602081",
+        "packing_slip": "IV2602081",
+        "rcv_line_id": "530330950-1",
+        "uom_group": "PCS"
+      },
+      {
+        "org_id": 176,
+        "receipt_num": "530330950",
+        "receiver": "Oracle, Concurrent",
+        "line": 2,
+        "item": "80498JR20A BOLT SPECIAL (CR3+)",
+        "qty": "27000",
+        "uom": "Piece",
+        "unit_price": "2.31",
+        "line_amount": "62370",
+        "extra": {
+          "PO_NUM": "43039142",
+          "ITEM_CODE": "PCP3000264A",
+          "SHIPMENT_NUM": "IV2602081",
+          "PACKING_SLIP": "IV2602081",
+          "QTY_BILLED": "27000"
+        },
+        "po_number": "43039142",
+        "item_code": "PCP3000264A",
+        "qty_billed": "27000",
+        "po_line_status": "CLOSED",
+        "line_status": "FULLY RECEIVED",
+        "supplier_tax_id": "20205545000583",
+        "supplier_name": "QST (THAILAND) CO., LTD.",
+        "customer_tax_id": "0145548001549",
+        "ou_org_id": 176,
+        "ou_name": "Aapico Hitech Parts Legal",
+        "shipment_num": "IV2602081",
+        "packing_slip": "IV2602081",
+        "rcv_line_id": "530330950-2",
+        "uom_group": "PCS"
+      },
+      {
+        "org_id": 176,
+        "receipt_num": "530331460",
+        "receiver": "Oracle, Concurrent",
+        "line": 1,
+        "item": "656984JA0A BOLT-SPL M8",
+        "qty": "10000",
+        "uom": "Piece",
+        "unit_price": "2.19",
+        "line_amount": "21900",
+        "extra": {
+          "PO_NUM": "43039142",
+          "ITEM_CODE": "PCP3000258A",
+          "SHIPMENT_NUM": "IV2603032",
+          "PACKING_SLIP": "IV2603032",
+          "QTY_BILLED": "10000"
+        },
+        "po_number": "43039142",
+        "item_code": "PCP3000258A",
+        "qty_billed": "10000",
+        "po_line_status": "CLOSED",
+        "line_status": "FULLY RECEIVED",
+        "supplier_tax_id": "20205545000583",
+        "supplier_name": "QST (THAILAND) CO., LTD.",
+        "customer_tax_id": "0145548001549",
+        "ou_org_id": 176,
+        "ou_name": "Aapico Hitech Parts Legal",
+        "shipment_num": "IV2603032",
+        "packing_slip": "IV2603032",
+        "rcv_line_id": "530331460-1",
+        "uom_group": "PCS"
+      },
+      {
+        "org_id": 176,
+        "receipt_num": "530331460",
+        "receiver": "Oracle, Concurrent",
+        "line": 2,
+        "item": "80498JR20A BOLT SPECIAL (CR3+)",
+        "qty": "27000",
+        "uom": "Piece",
+        "unit_price": "2.31",
+        "line_amount": "62370",
+        "extra": {
+          "PO_NUM": "43039142",
+          "ITEM_CODE": "PCP3000264A",
+          "SHIPMENT_NUM": "IV2603032",
+          "PACKING_SLIP": "IV2603032",
+          "QTY_BILLED": "27000"
+        },
+        "po_number": "43039142",
+        "item_code": "PCP3000264A",
+        "qty_billed": "27000",
+        "po_line_status": "CLOSED",
+        "line_status": "FULLY RECEIVED",
+        "supplier_tax_id": "20205545000583",
+        "supplier_name": "QST (THAILAND) CO., LTD.",
+        "customer_tax_id": "0145548001549",
+        "ou_org_id": 176,
+        "ou_name": "Aapico Hitech Parts Legal",
+        "shipment_num": "IV2603032",
+        "packing_slip": "IV2603032",
+        "rcv_line_id": "530331460-2",
+        "uom_group": "PCS"
+      },
+      {
+        "org_id": 176,
+        "receipt_num": "530334201",
+        "receiver": "Oracle, Concurrent",
+        "line": 1,
+        "item": "80498JR20A BOLT SPECIAL (CR3+)",
+        "qty": "18000",
+        "uom": "Piece",
+        "unit_price": "2.31",
+        "line_amount": "41580",
+        "extra": {
+          "PO_NUM": "43039142",
+          "ITEM_CODE": "PCP3000264A",
+          "SHIPMENT_NUM": "IV2606033",
+          "PACKING_SLIP": "IV2606033",
+          "QTY_BILLED": "18000"
+        },
+        "po_number": "43039142",
+        "item_code": "PCP3000264A",
+        "qty_billed": "18000",
+        "po_line_status": "CLOSED",
+        "line_status": "FULLY RECEIVED",
+        "supplier_tax_id": "20205545000583",
+        "supplier_name": "QST (THAILAND) CO., LTD.",
+        "customer_tax_id": "0145548001549",
+        "ou_org_id": 176,
+        "ou_name": "Aapico Hitech Parts Legal",
+        "shipment_num": "IV2606033",
+        "packing_slip": "IV2606033",
+        "rcv_line_id": "530334201-1",
+        "uom_group": "PCS"
+      },
+      {
+        "org_id": 176,
+        "receipt_num": "530334202",
+        "receiver": "Oracle, Concurrent",
+        "line": 1,
+        "item": "656984JA0A BOLT-SPL M8",
+        "qty": "3000",
+        "uom": "Piece",
+        "unit_price": "2.19",
+        "line_amount": "6570",
+        "extra": {
+          "PO_NUM": "43039142",
+          "ITEM_CODE": "PCP3000258A",
+          "SHIPMENT_NUM": "IV2606028",
+          "PACKING_SLIP": "IV2606028",
+          "QTY_BILLED": "3000"
+        },
+        "po_number": "43039142",
+        "item_code": "PCP3000258A",
+        "qty_billed": "3000",
+        "po_line_status": "CLOSED",
+        "line_status": "FULLY RECEIVED",
+        "supplier_tax_id": "20205545000583",
+        "supplier_name": "QST (THAILAND) CO., LTD.",
+        "customer_tax_id": "0145548001549",
+        "ou_org_id": 176,
+        "ou_name": "Aapico Hitech Parts Legal",
+        "shipment_num": "IV2606028",
+        "packing_slip": "IV2606028",
+        "rcv_line_id": "530334202-1",
+        "uom_group": "PCS"
+      },
+      {
+        "org_id": 176,
+        "receipt_num": "530334890",
+        "receiver": "Oracle, Concurrent",
+        "line": 1,
+        "item": "656984JA0A BOLT-SPL M8",
+        "qty": "2000",
+        "uom": "Piece",
+        "unit_price": "2.19",
+        "line_amount": "4380",
+        "extra": {
+          "PO_NUM": "43039142",
+          "ITEM_CODE": "PCP3000258A",
+          "SHIPMENT_NUM": "IV2606090",
+          "PACKING_SLIP": "IV2606090",
+          "QTY_BILLED": "2000"
+        },
+        "po_number": "43039142",
+        "item_code": "PCP3000258A",
+        "qty_billed": "2000",
+        "po_line_status": "CLOSED",
+        "line_status": "FULLY RECEIVED",
+        "supplier_tax_id": "20205545000583",
+        "supplier_name": "QST (THAILAND) CO., LTD.",
+        "customer_tax_id": "0145548001549",
+        "ou_org_id": 176,
+        "ou_name": "Aapico Hitech Parts Legal",
+        "shipment_num": "IV2606090",
+        "packing_slip": "IV2606090",
+        "rcv_line_id": "530334890-1",
+        "uom_group": "PCS"
+      },
+      {
+        "org_id": 176,
+        "receipt_num": "530335182",
+        "receiver": "Oracle, Concurrent",
+        "line": 1,
+        "item": "656984JA0A BOLT-SPL M8",
+        "qty": "5000",
+        "uom": "Piece",
+        "unit_price": "2.19",
+        "line_amount": "10950",
+        "extra": {
+          "PO_NUM": "43039142",
+          "ITEM_CODE": "PCP3000258A",
+          "SHIPMENT_NUM": "IV2607035",
+          "PACKING_SLIP": "IV2607035",
+          "QTY_BILLED": "5000"
+        },
+        "po_number": "43039142",
+        "item_code": "PCP3000258A",
+        "qty_billed": "5000",
+        "po_line_status": "CLOSED",
+        "line_status": "FULLY RECEIVED",
+        "supplier_tax_id": "20205545000583",
+        "supplier_name": "QST (THAILAND) CO., LTD.",
+        "customer_tax_id": "0145548001549",
+        "ou_org_id": 176,
+        "ou_name": "Aapico Hitech Parts Legal",
+        "shipment_num": "IV2607035",
+        "packing_slip": "IV2607035",
+        "rcv_line_id": "530335182-1",
+        "uom_group": "PCS"
+      },
+      {
+        "org_id": 176,
+        "receipt_num": "530335535",
+        "receiver": "Oracle, Concurrent",
+        "line": 1,
+        "item": "656984JA0A BOLT-SPL M8",
+        "qty": "1000",
+        "uom": "Piece",
+        "unit_price": "2.19",
+        "line_amount": "2190",
+        "extra": {
+          "PO_NUM": "43039142",
+          "ITEM_CODE": "PCP3000258A",
+          "SHIPMENT_NUM": "IV2607075",
+          "PACKING_SLIP": "IV2607075",
+          "QTY_BILLED": "1000"
+        },
+        "po_number": "43039142",
+        "item_code": "PCP3000258A",
+        "qty_billed": "1000",
+        "po_line_status": "CLOSED",
+        "line_status": "FULLY RECEIVED",
+        "supplier_tax_id": "20205545000583",
+        "supplier_name": "QST (THAILAND) CO., LTD.",
+        "customer_tax_id": "0145548001549",
+        "ou_org_id": 176,
+        "ou_name": "Aapico Hitech Parts Legal",
+        "shipment_num": "IV2607075",
+        "packing_slip": "IV2607075",
+        "rcv_line_id": "530335535-1",
+        "uom_group": "PCS"
+      },
+      {
+        "org_id": 176,
+        "receipt_num": "530335536",
+        "receiver": "Oracle, Concurrent",
+        "line": 1,
+        "item": "656984JA0A BOLT-SPL M8",
+        "qty": "1000",
+        "uom": "Piece",
+        "unit_price": "2.19",
+        "line_amount": "2190",
+        "extra": {
+          "PO_NUM": "43039142",
+          "ITEM_CODE": "PCP3000258A",
+          "SHIPMENT_NUM": "IV2607074",
+          "PACKING_SLIP": "IV2607074",
+          "QTY_BILLED": "1000"
+        },
+        "po_number": "43039142",
+        "item_code": "PCP3000258A",
+        "qty_billed": "1000",
+        "po_line_status": "CLOSED",
+        "line_status": "FULLY RECEIVED",
+        "supplier_tax_id": "20205545000583",
+        "supplier_name": "QST (THAILAND) CO., LTD.",
+        "customer_tax_id": "0145548001549",
+        "ou_org_id": 176,
+        "ou_name": "Aapico Hitech Parts Legal",
+        "shipment_num": "IV2607074",
+        "packing_slip": "IV2607074",
+        "rcv_line_id": "530335536-1",
+        "uom_group": "PCS"
+      },
+      {
+        "org_id": 176,
+        "receipt_num": "530335536",
+        "receiver": "Oracle, Concurrent",
+        "line": 2,
+        "item": "80498JR20A BOLT SPECIAL (CR3+)",
+        "qty": "9000",
+        "uom": "Piece",
+        "unit_price": "2.31",
+        "line_amount": "20790",
+        "extra": {
+          "PO_NUM": "43039142",
+          "ITEM_CODE": "PCP3000264A",
+          "SHIPMENT_NUM": "IV2607074",
+          "PACKING_SLIP": "IV2607074",
+          "QTY_BILLED": "9000"
+        },
+        "po_number": "43039142",
+        "item_code": "PCP3000264A",
+        "qty_billed": "9000",
+        "po_line_status": "CLOSED",
+        "line_status": "FULLY RECEIVED",
+        "supplier_tax_id": "20205545000583",
+        "supplier_name": "QST (THAILAND) CO., LTD.",
+        "customer_tax_id": "0145548001549",
+        "ou_org_id": 176,
+        "ou_name": "Aapico Hitech Parts Legal",
+        "shipment_num": "IV2607074",
+        "packing_slip": "IV2607074",
+        "rcv_line_id": "530335536-2",
+        "uom_group": "PCS"
+      },
+      {
+        "org_id": 176,
+        "receipt_num": "530335849",
+        "receiver": "Oracle, Concurrent",
+        "line": 1,
+        "item": "656984JA0A BOLT-SPL M8",
+        "qty": "3000",
+        "uom": "Piece",
+        "unit_price": "2.19",
+        "line_amount": "6570",
+        "extra": {
+          "PO_NUM": "43039142",
+          "ITEM_CODE": "PCP3000258A",
+          "SHIPMENT_NUM": "IV2608017",
+          "PACKING_SLIP": "IV2608017",
+          "QTY_BILLED": "3000"
+        },
+        "po_number": "43039142",
+        "item_code": "PCP3000258A",
+        "qty_billed": "3000",
+        "po_line_status": "CLOSED",
+        "line_status": "FULLY RECEIVED",
+        "supplier_tax_id": "20205545000583",
+        "supplier_name": "QST (THAILAND) CO., LTD.",
+        "customer_tax_id": "0145548001549",
+        "ou_org_id": 176,
+        "ou_name": "Aapico Hitech Parts Legal",
+        "shipment_num": "IV2608017",
+        "packing_slip": "IV2608017",
+        "rcv_line_id": "530335849-1",
+        "uom_group": "PCS"
+      },
+      {
+        "org_id": 176,
+        "receipt_num": "530335849",
+        "receiver": "Oracle, Concurrent",
+        "line": 2,
+        "item": "80498JR20A BOLT SPECIAL (CR3+)",
+        "qty": "7200",
+        "uom": "Piece",
+        "unit_price": "2.31",
+        "line_amount": "16632",
+        "extra": {
+          "PO_NUM": "43039142",
+          "ITEM_CODE": "PCP3000264A",
+          "SHIPMENT_NUM": "IV2608017",
+          "PACKING_SLIP": "IV2608017",
+          "QTY_BILLED": "7200"
+        },
+        "po_number": "43039142",
+        "item_code": "PCP3000264A",
+        "qty_billed": "7200",
+        "po_line_status": "CLOSED",
+        "line_status": "FULLY RECEIVED",
+        "supplier_tax_id": "20205545000583",
+        "supplier_name": "QST (THAILAND) CO., LTD.",
+        "customer_tax_id": "0145548001549",
+        "ou_org_id": 176,
+        "ou_name": "Aapico Hitech Parts Legal",
+        "shipment_num": "IV2608017",
+        "packing_slip": "IV2608017",
+        "rcv_line_id": "530335849-2",
+        "uom_group": "PCS"
+      },
+      {
+        "org_id": 176,
+        "receipt_num": "530336012",
+        "receiver": "Oracle, Concurrent",
+        "line": 1,
+        "item": "656984JA0A BOLT-SPL M8",
+        "qty": "4000",
+        "uom": "Piece",
+        "unit_price": "2.19",
+        "line_amount": "8760",
+        "extra": {
+          "PO_NUM": "43039142",
+          "ITEM_CODE": "PCP3000258A",
+          "SHIPMENT_NUM": "IV2608033",
+          "PACKING_SLIP": "IV2608033",
+          "QTY_BILLED": "4000"
+        },
+        "po_number": "43039142",
+        "item_code": "PCP3000258A",
+        "qty_billed": "4000",
+        "po_line_status": "CLOSED",
+        "line_status": "FULLY RECEIVED",
+        "supplier_tax_id": "20205545000583",
+        "supplier_name": "QST (THAILAND) CO., LTD.",
+        "customer_tax_id": "0145548001549",
+        "ou_org_id": 176,
+        "ou_name": "Aapico Hitech Parts Legal",
+        "shipment_num": "IV2608033",
+        "packing_slip": "IV2608033",
+        "rcv_line_id": "530336012-1",
+        "uom_group": "PCS"
+      },
+      {
+        "org_id": 176,
+        "receipt_num": "530336012",
+        "receiver": "Oracle, Concurrent",
+        "line": 2,
+        "item": "80498JR20A BOLT SPECIAL (CR3+)",
+        "qty": "10800",
+        "uom": "Piece",
+        "unit_price": "2.31",
+        "line_amount": "24948",
+        "extra": {
+          "PO_NUM": "43039142",
+          "ITEM_CODE": "PCP3000264A",
+          "SHIPMENT_NUM": "IV2608033",
+          "PACKING_SLIP": "IV2608033",
+          "QTY_BILLED": "10800"
+        },
+        "po_number": "43039142",
+        "item_code": "PCP3000264A",
+        "qty_billed": "10800",
+        "po_line_status": "CLOSED",
+        "line_status": "FULLY RECEIVED",
+        "supplier_tax_id": "20205545000583",
+        "supplier_name": "QST (THAILAND) CO., LTD.",
+        "customer_tax_id": "0145548001549",
+        "ou_org_id": 176,
+        "ou_name": "Aapico Hitech Parts Legal",
+        "shipment_num": "IV2608033",
+        "packing_slip": "IV2608033",
+        "rcv_line_id": "530336012-2",
+        "uom_group": "PCS"
+      },
+      {
+        "org_id": 176,
+        "receipt_num": "530336578",
+        "receiver": "Oracle, Concurrent",
+        "line": 1,
+        "item": "656984JA0A BOLT-SPL M8",
+        "qty": "2000",
+        "uom": "Piece",
+        "unit_price": "2.19",
+        "line_amount": "4380",
+        "extra": {
+          "PO_NUM": "43039142",
+          "ITEM_CODE": "PCP3000258A",
+          "SHIPMENT_NUM": "IV2608080",
+          "PACKING_SLIP": "IV2608080",
+          "QTY_BILLED": "2000"
+        },
+        "po_number": "43039142",
+        "item_code": "PCP3000258A",
+        "qty_billed": "2000",
+        "po_line_status": "CLOSED",
+        "line_status": "FULLY RECEIVED",
+        "supplier_tax_id": "20205545000583",
+        "supplier_name": "QST (THAILAND) CO., LTD.",
+        "customer_tax_id": "0145548001549",
+        "ou_org_id": 176,
+        "ou_name": "Aapico Hitech Parts Legal",
+        "shipment_num": "IV2608080",
+        "packing_slip": "IV2608080",
+        "rcv_line_id": "530336578-1",
+        "uom_group": "PCS"
+      }
+    ],
+    "po_numbers": [
+      "43039142"
+    ]
+  },
+  "line_matching": {
+    "groups": [],
+    "ai_rejected": [],
+    "unmatched_rcv_line_ids": []
+  },
+  "rule_results": [
+    {
+      "rule_id": "V-01",
+      "rule_version": "1.1",
+      "result": "fail",
+      "detail": null,
+      "halted_by": null,
+      "evidence_ids": [
+        "X1"
+      ],
+      "data": {
+        "corroborated": {
+          "po_number": [
+            "oracle:po_on_receipt"
+          ],
+          "customer_name": [
+            "covered_by_customer_tax_id"
+          ],
+          "customer_tax_id": [
+            "oracle:customer_tax_id"
+          ],
+          "sub_total": [
+            "arith:sum(amount)=sub_total"
+          ],
+          "customer_address": [
+            "covered_by_customer_tax_id"
+          ]
+        },
+        "collapsed_copies": {
+          "copies": 3,
+          "kept_line_nos": [
+            1
+          ],
+          "dropped_line_nos": [
+            2,
+            3
+          ],
+          "rule": "k identical (qty, unit_price, amount) blocks and sum(amount) = k x sub_total"
+        }
+      }
+    },
+    {
+      "rule_id": "V-02",
+      "rule_version": "1.0",
+      "result": "pass",
+      "detail": "ตรวจ 1 บรรทัด",
+      "halted_by": null,
+      "evidence_ids": [],
+      "data": {}
+    },
+    {
+      "rule_id": "V-03",
+      "rule_version": "1.0",
+      "result": "not_evaluated",
+      "detail": "ยอดรวมหรือราคารวมต่อรายการอ่านไม่ได้",
+      "halted_by": "V-01",
+      "evidence_ids": [],
+      "data": {}
+    },
+    {
+      "rule_id": "V-04",
+      "rule_version": "2.0",
+      "result": "fail",
+      "detail": null,
+      "halted_by": null,
+      "evidence_ids": [
+        "X2"
+      ],
+      "data": {
+        "lookup_path": "PO-LIST",
+        "rows": 50,
+        "active_rows": 50,
+        "receipt_nums": [
+          "530314153",
+          "530315058",
+          "530317018",
+          "530317995",
+          "530318862",
+          "530320244",
+          "530320245",
+          "530320894",
+          "530322880",
+          "530322881",
+          "530323717",
+          "530323718",
+          "530323719",
+          "530324753",
+          "530325481",
+          "530325990",
+          "530325991",
+          "530327119",
+          "530327689",
+          "530327690",
+          "530328759",
+          "530328760",
+          "530329561",
+          "530330950",
+          "530331460",
+          "530334201",
+          "530334202",
+          "530334890",
+          "530335182",
+          "530335535",
+          "530335536",
+          "530335849",
+          "530336012",
+          "530336578"
+        ],
+        "po_numbers": [
+          "43039142"
+        ],
+        "matched_on_column": null
+      }
+    },
+    {
+      "rule_id": "V-05",
+      "rule_version": "2.0",
+      "result": "pass",
+      "detail": null,
+      "halted_by": null,
+      "evidence_ids": [],
+      "data": {
+        "org_id": 176,
+        "short_name": "AHP",
+        "intercompany": false,
+        "tax_id_match": true,
+        "name_match": null,
+        "name_check": "covered_by_customer_tax_id",
+        "address_match": null,
+        "address_check": "covered_by_customer_tax_id"
+      }
+    },
+    {
+      "rule_id": "V-06",
+      "rule_version": "1.1",
+      "result": "manual_review",
+      "detail": "ความมั่นใจต่ำ: ['receiver', 'deliverer']",
+      "halted_by": null,
+      "evidence_ids": [],
+      "data": {
+        "unsure_slots": [
+          "receiver",
+          "deliverer"
+        ]
+      }
+    },
+    {
+      "rule_id": "V-07",
+      "rule_version": "3.0",
+      "result": "not_evaluated",
+      "detail": "ข้ามตาม gate",
+      "halted_by": "V-04",
+      "evidence_ids": [],
+      "data": {}
+    },
+    {
+      "rule_id": "V-08",
+      "rule_version": "2.0",
+      "result": "not_evaluated",
+      "detail": "ข้ามตาม gate",
+      "halted_by": "V-04",
+      "evidence_ids": [],
+      "data": {}
+    },
+    {
+      "rule_id": "V-09",
+      "rule_version": "1.0",
+      "result": "not_evaluated",
+      "detail": "ข้ามตาม gate",
+      "halted_by": "V-04",
+      "evidence_ids": [],
+      "data": {}
+    }
+  ],
+  "evidence": [
+    {
+      "evidence_id": "X1",
+      "rule_id": "V-01",
+      "rule_version": "1.1",
+      "result": "fail",
+      "exception_code": "E01",
+      "severity": "Medium",
+      "actual_value": null,
+      "expected_value": null,
+      "source_document": {
+        "document_id": "D1",
+        "source": null
+      },
+      "page_no": [
+        4
+      ],
+      "related_element_ids": [
+        "D1-f-invoice_num",
+        "D1-f-vat",
+        "D1-f-grand_total",
+        "D1-L1-uom"
+      ],
+      "related_oracle_refs": [],
+      "bboxes": [
+        {
+          "element_id": "D1-f-invoice_num",
+          "page_no": 4,
+          "bbox": [
+            0.2113,
+            0.0696,
+            0.0605,
+            0.0063
+          ]
+        },
+        {
+          "element_id": "D1-f-grand_total",
+          "page_no": 4,
+          "bbox": [
+            0.4758,
+            0.1214,
+            0.0605,
+            0.0063
+          ]
+        }
+      ],
+      "bbox_missing_reason": {
+        "element_ids": [
+          "D1-f-vat",
+          "D1-L1-uom"
+        ],
+        "reason": "NOT_LOCATED"
+      },
+      "halted_by": null,
+      "evaluated_at": "2026-10-07T03:08:43.235678+00:00",
+      "message_th": "ฟิลด์บังคับอ่านไม่ได้หรือไม่ครบ: invoice_num(CONFLICT_BETWEEN_SOURCES), vat(NOT_PRESENT), grand_total(CONFLICT_BETWEEN_SOURCES), L1.uom(NOT_PRESENT)"
+    },
+    {
+      "evidence_id": "X2",
+      "rule_id": "V-04",
+      "rule_version": "2.0",
+      "result": "fail",
+      "exception_code": "E06",
+      "severity": "High",
+      "actual_value": null,
+      "expected_value": null,
+      "source_document": {
+        "document_id": "D1",
+        "source": null
+      },
+      "page_no": [
+        1,
+        4
+      ],
+      "related_element_ids": [
+        "D1-f-po_number",
+        "D1-f-invoice_num"
+      ],
+      "related_oracle_refs": [
+        "RCV:530314153",
+        "RCV:530315058",
+        "RCV:530317018",
+        "RCV:530317995",
+        "RCV:530318862",
+        "RCV:530320244",
+        "RCV:530320245",
+        "RCV:530320894",
+        "RCV:530322880",
+        "RCV:530322881",
+        "RCV:530323717",
+        "RCV:530323718",
+        "RCV:530323719",
+        "RCV:530324753",
+        "RCV:530325481",
+        "RCV:530325990",
+        "RCV:530325991",
+        "RCV:530327119",
+        "RCV:530327689",
+        "RCV:530327690",
+        "RCV:530328759",
+        "RCV:530328760",
+        "RCV:530329561",
+        "RCV:530330950",
+        "RCV:530331460",
+        "RCV:530334201",
+        "RCV:530334202",
+        "RCV:530334890",
+        "RCV:530335182",
+        "RCV:530335535",
+        "RCV:530335536",
+        "RCV:530335849",
+        "RCV:530336012",
+        "RCV:530336578"
+      ],
+      "bboxes": [
+        {
+          "element_id": "D1-f-po_number",
+          "page_no": 1,
+          "bbox": [
+            0.6613,
+            0.3307,
+            0.0847,
+            0.0114
+          ]
+        },
+        {
+          "element_id": "D1-f-invoice_num",
+          "page_no": 4,
+          "bbox": [
+            0.2113,
+            0.0696,
+            0.0605,
+            0.0063
+          ]
+        }
+      ],
+      "bbox_missing_reason": null,
+      "halted_by": null,
+      "evaluated_at": "2026-10-07T03:08:43.235678+00:00",
+      "message_th": "พบใบรับมากกว่า 1 ใบ: 530314153, 530315058, 530317018, 530317995, 530318862, 530320244, 530320245, 530320894, 530322880, 530322881, 530323717, 530323718, 530323719, 530324753, 530325481, 530325990, 530325991, 530327119, 530327689, 530327690, 530328759, 530328760, 530329561, 530330950, 530331460, 530334201, 530334202, 530334890, 530335182, 530335535, 530335536, 530335849, 530336012, 530336578"
+    }
+  ],
+  "exceptions": [
+    {
+      "exception_id": "X1",
+      "code": "E01",
+      "name": "Missing Field",
+      "severity": "Medium",
+      "rule_id": "V-01",
+      "evidence_ids": [
+        "X1"
+      ]
+    },
+    {
+      "exception_id": "X2",
+      "code": "E06",
+      "name": "Multiple Receipts",
+      "severity": "High",
+      "rule_id": "V-04",
+      "evidence_ids": [
+        "X2"
+      ]
+    }
+  ],
+  "recommendation": {
+    "value": "MANUAL_REVIEW",
+    "max_severity": "High",
+    "exception_codes": [
+      "E01",
+      "E06"
+    ],
+    "reasons": [
+      "V-06:manual_review",
+      "E01:Medium",
+      "E06:High"
+    ],
+    "halted_by": "V-04"
+  },
+  "system_errors": [],
+  "metrics": {
+    "duration_ms": {
+      "step1_ms": 0.34,
+      "oracle_ms": 1918.45,
+      "total_ms": 1919.59
+    },
+    "oracle_calls": 2,
+    "oracle_rejected": [],
+    "oracle_queries": [
+      "TAX-INV",
+      "PO-LIST"
+    ],
+    "oracle_lookup_mode": "tax_invoice",
+    "ai": {},
+    "ai_line_matcher_called": false
+  },
+  "integrity": {
+    "payload_sha256": "sha256:b9a6fce14a15f258d55f961b80261eb4d039ca403e4ccfffad0842253407cdca",
+    "excludes": [
+      "request",
+      "metrics",
+      "*evaluated_at",
+      "*queried_at"
+    ]
+  }
+}

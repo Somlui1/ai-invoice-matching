@@ -126,6 +126,9 @@ class NField:
     confidence: Optional[float]
     ok: bool                      # readable AND meets threshold
     null_reason: Optional[str] = None
+    # Why a value that failed the reader-agreement/confidence gate is still trusted
+    # (domain/evidence.py): "arith:...", "oracle:...", "covered_by_customer_tax_id", "derived:..."
+    evidence: tuple = ()
 
 
 @dataclass(frozen=True)
@@ -134,6 +137,9 @@ class NLine:
     element_id: str
     cells: dict                   # name -> NField
     uom_group: Optional[str]
+    # 8-digit PO numbers printed on this line (description / item code), in printed order.
+    # Candidates only: matching uses one when it equals a PO that Oracle returned for this invoice.
+    po_refs: tuple = ()
 
     def v(self, k):
         f = self.cells.get(k)
@@ -155,6 +161,11 @@ class InvoiceDoc:
     def v(self, k):
         f = self.fields.get(k)
         return f.value if f and f.ok else None
+
+    def value_any(self, k):
+        """The normalized value even when the field is not ``ok`` (lookup keys, corroboration)."""
+        f = self.fields.get(k)
+        return f.value if f is not None else None
 
     def ok(self, k) -> bool:
         f = self.fields.get(k)

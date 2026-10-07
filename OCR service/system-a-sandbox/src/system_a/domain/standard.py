@@ -5,6 +5,8 @@ from dataclasses import dataclass
 from decimal import Decimal
 from functools import lru_cache
 from pathlib import Path
+import re
+import unicodedata
 
 import yaml
 
@@ -45,10 +47,21 @@ class Standard:
         if u is None:
             return None
         x = str(u).strip().upper().replace(" ", "")
+        fx = _fold(x)
         for g, members in self.uom_groups.items():
             if x in {m.upper() for m in members} or x.rstrip(".") in {m.upper().rstrip(".") for m in members}:
                 return g
+            # Thai tone marks are dropped/duplicated by OCR (ชิ้่น / ชิน): compare without them
+            if fx and fx in {_fold(m.upper()) for m in members}:
+                return g
         return x.rstrip(".") or None
+
+
+_TONE = re.compile(r"[\u0E47-\u0E4C]")
+
+
+def _fold(s: str) -> str:
+    return _TONE.sub("", unicodedata.normalize("NFC", s)).rstrip(".")
 
 
 @lru_cache(maxsize=8)

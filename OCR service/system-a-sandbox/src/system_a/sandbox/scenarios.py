@@ -50,6 +50,7 @@ SUP_TAX = tax_id_of("123456789012")          # synthetic supplier A
 SUP_TAX_B = tax_id_of("987654321000")        # synthetic supplier B
 OTHER_TAX = tax_id_of("111111111111")        # a *wrong* buyer Tax ID -> E07
 PO_A, PO_B = "50000001", "50000002"
+RCV_A_B = ("RCV-0000038001", "RCV-0000038002")      # S38
 INV_A, INV_B = "SBX-INV-0001", "SBX-INV-0002"
 
 _BUYER = load_standard().entities[BUYER_ORG]
@@ -149,6 +150,7 @@ class Scenario:
     queries: Optional[int] = None                # expected Oracle queries per round (documentation)
     locked: bool = False                         # True: --force-mode / SYSTEM_A_LOOKUP_MODE never applies
     checks: dict = field(default_factory=dict)   # extra assertions (lookup_path, matched_on_column, ...)
+    evidence: dict = field(default_factory=dict)  # policy.evidence overrides for this scenario only
 
     @property
     def extraction_model(self) -> ExtractionResult:
@@ -174,6 +176,7 @@ def standard_for(sc: Scenario) -> Standard:
     policy = copy.deepcopy(std.policy)
     val = policy.setdefault("validation", {})
     val.update(sc.flags)
+    policy.setdefault("evidence", {}).update(sc.evidence)
     lookup = policy.setdefault("oracle", {}).setdefault("lookup", {})
     lookup["mode"] = effective_mode(sc)
     return replace(std, policy=policy)
@@ -295,7 +298,8 @@ def s11() -> Scenario:
     return Scenario("S11", "ชื่อลูกค้า AI ไม่มั่นใจ -> MANUAL_REVIEW",
                     doc(lines=lines, customer_name="APICO HITECH PARTS"),
                     DS([E(PO_A, INV_A, [R(PO_A, "RCV-0000012345", 1, BRACKET, 10, "EA", "100.00")])],
-                       {PO_A: SUP_TAX}), "MANUAL_REVIEW", (), queries=1)
+                       {PO_A: SUP_TAX}), "MANUAL_REVIEW", (), queries=1,
+                    evidence={"customer_name_advisory": False})   # pins the Standard behaviour
 
 
 def s12() -> Scenario:
@@ -380,11 +384,18 @@ LEGACY = [s01(), s02(), s03(), s04(), s05(), s06(), s07(), s08(), s09(), s10(), 
 
 def all_scenarios() -> list[Scenario]:
     """S01-S19 (legacy contract) + S20-S27 (Tax ID + Invoice), when implemented."""
+    out = list(LEGACY)
     try:
         from .multi_po import MULTI_PO           # noqa: WPS433 - optional until Phase 4
+        out += list(MULTI_PO)
     except ImportError:
-        return list(LEGACY)
-    return list(LEGACY) + list(MULTI_PO)
+        pass
+    try:
+        from .evidence_cases import EVIDENCE     # S30+ evidence-based acceptance
+        out += list(EVIDENCE)
+    except ImportError:
+        pass
+    return out
 
 
 # ============================================================================= runner

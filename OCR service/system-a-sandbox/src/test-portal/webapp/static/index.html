@@ -1,0 +1,66 @@
+<!doctype html><meta charset=utf-8><title>AIVA System A — test portal</title>
+<style>
+body{margin:0;font-family:Tahoma,sans-serif;font-size:13px;background:#fff}
+#top{position:sticky;top:0;z-index:5;background:#eee;border-bottom:1px solid #bbb;padding:6px 10px;display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+#stat{color:#333} #src{font-size:12px;color:#555} #src b{color:#111}
+#strip{font-size:12px;color:#06a} #strip .t{margin-right:10px} #strip .f{color:#c00}
+button{font-size:12px;padding:2px 8px} .run{font-weight:bold;padding:2px 12px}
+#wrap{display:flex}
+#side{width:270px;flex:none;height:calc(100vh - 44px);overflow:auto;border-right:1px solid #ccc;position:sticky;top:44px}
+#side .row{padding:4px 8px;cursor:pointer;border-bottom:1px solid #eee;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#side .row:hover{background:#f3f3f3} #side .row.cur{background:#dbe9ff}
+#side .d{color:#333} .step{color:#06a;font-size:11px}
+#main{flex:1;padding:10px;min-width:0}
+.card{border:1px solid #999;margin:0 0 16px}
+.ch{padding:5px 8px;background:#f4f4f4;border-bottom:1px solid #ccc;font-size:14px}
+.meta{padding:4px 8px;display:flex;gap:6px;flex-wrap:wrap;align-items:center;font-size:12px;color:#444;border-bottom:1px solid #eee}
+.chip{font-size:12px;border:1px solid #bbb;background:#fff;padding:0 6px;border-radius:9px}
+.pglink{font-size:12px;border:1px solid #bbb;background:#fff;padding:0 5px;border-radius:9px;cursor:pointer}
+.acts{padding:5px 8px;border-top:1px solid #ddd;border-bottom:1px solid #ddd;background:#fafafa;display:flex;gap:8px;align-items:center}
+.st{color:#666;font-size:12px}
+.pgs{padding:6px 8px}
+.pg{display:block;padding:4px 0 12px;border-top:1px dashed #ddd}
+.pgh{font-size:12px;color:#333;margin:0 0 4px}
+.imgbox{position:relative;width:60%;flex:none}
+.imgbox img{width:100%;display:block;border:1px solid #ccc}
+.bx{position:absolute;box-sizing:border-box;border:1px solid transparent;cursor:pointer}
+.bx span{position:absolute;left:-1px;top:-13px;font-size:9px;color:#fff;padding:0 2px;white-space:nowrap;overflow:hidden;max-width:100%}
+.bx.hl{border-width:3px;background:rgba(255,220,0,.30);z-index:3}
+.panel{padding:6px 9px;border-top:1px solid #ddd}
+table{border-collapse:collapse;width:100%;font-size:12px;margin:3px 0} td,th{border:1px solid #ddd;padding:2px 5px;vertical-align:top;text-align:left}
+th{background:#fafafa}
+.rt td:nth-child(1){white-space:nowrap}
+.ok{color:#2a2} .partial{color:#d80} .error{color:#c00} .idle{color:#999}
+.sec{margin:8px 0 3px} .err{color:#c00;font-size:12px;margin:4px 0} .ph{color:#888;font-size:12px;padding:16px 6px}
+.ocrsec{margin-top:10px} .ocrh{font-size:12px;color:#333;margin:6px 0 2px;font-weight:bold}
+.sw{display:inline-block;width:10px;height:10px;margin-right:4px}
+tr[data-ref]{cursor:pointer} tr[data-ref]:hover,td[data-ref]:hover{background:#fff8d5}
+tr.hl,td.hl{background:#fff8d5}
+details pre{font-size:11px;margin:3px 0;max-height:280px;overflow:auto;border:1px solid #ddd;padding:4px;white-space:pre-wrap}
+#types{display:flex;gap:4px;flex-wrap:wrap;align-items:center}
+.tg{font-size:12px;border:1px solid #bbb;background:#fff;padding:0 5px;border-radius:9px;cursor:pointer;user-select:none}
+.tg.on{background:#333;color:#fff}
+.tg input{display:none}
+#tip{position:fixed;z-index:50;display:none;max-width:460px;background:#111;color:#fff;font-size:12px;line-height:1.4;padding:6px 8px;border-radius:4px;pointer-events:none}
+#tip .big{font-size:14px;margin:2px 0}
+#pin{position:fixed;right:12px;bottom:12px;z-index:40;display:none;max-width:430px;background:#fff;border:2px solid #333;font-size:12px;line-height:1.4;padding:7px 26px 7px 9px;border-radius:5px;box-shadow:0 2px 10px #0006}
+#pin .ttl{font-size:12px;color:#444;border-bottom:1px solid #ddd;padding-bottom:3px;margin-bottom:4px}
+#pin .big{font-size:15px;margin:3px 0}
+.case{font-size:11px;color:#0a6}
+</style>
+<div id=top>
+ <b>AIVA System A</b>
+ <span id=stat></span>
+ <button id=run class=run>Process</button>
+ <input id=q placeholder="ค้น id / ชื่อ / ข้อความในผล" size=18>
+ <label>ชนิดกรอบ <select id=ft><option value="">ทั้งหมด</option></select></label>
+ <label><input type=checkbox id=ov checked> <b>แสดง bbox</b></label>
+ <span id=types></span>
+ <button id=rf title="อ่านรายการเอกสารจาก Paperless ใหม่">รีเฟรชรายการ</button>
+ <button id=clr title="ลบ case ทั้งหมดที่เก็บไว้ใน browser นี้">ล้าง case</button>
+ <span id=strip></span>
+ <span id=src></span>
+</div>
+<div id=wrap><div id=side></div><div id=main></div></div>
+<div id=tip></div><div id=pin></div>
+<script src="/static/app.js"></script>

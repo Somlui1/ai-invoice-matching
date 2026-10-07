@@ -32,10 +32,24 @@ confidence:            # OQ-09 provisional — recalibrate from eval set
   uom:     {fields: [uom], min: 0.85, require_agreement: false}
   optional: {fields: [supplier_name, supplier_tax_id, invoice_date, release_num, description, currency, item_code], min: 0.70, require_agreement: false}
 signature:
-  min_confidence: 0.85
+  min_confidence: 0.80          # 2026-10-07: 28/98 docs at 0.80 (deliverer) went to MANUAL_REVIEW at 0.85
 ai:
   v05_name_min_confidence: 0.85
   v05_address_ai_enabled: true
   v07_min_confidence: 0.80     # Table 6 part 2: < 0.80 = E13
   v08_votes: 3
   v08_consistency_guard: true
+
+# Evidence-based acceptance (domain/evidence.py) — 2026-10-07, from the 98-document Paperless run.
+# A value that failed reader agreement / confidence is still trusted when something independent
+# confirms it.  Every switch defaults to false when absent; set false to get the previous behaviour.
+evidence:
+  collapse_repeated_copies: true      # original+copy pages read twice: k identical blocks, sum = k x sub_total
+  arithmetic: true                    # B: qty*price=amount, sum(amount)=sub_total, sub+vat=grand
+  oracle: true                        # C: invoice/PO/Tax ID found in Oracle; matched line price/qty/amount
+  uom_from_number_cells: true         # "23,100.00 /PC", "2 PCS" -> unit taken from the same cell
+  uom_inherit_from_receipt: true      # no/unknown unit on the invoice -> unit of the matched receipt line
+  derive_qty_from_amount: true        # weight-billed line: amount/unit_price == receipt qty -> qty
+  customer_identity_by_tax_id: true   # D: unconfirmed customer name/address covered by an Oracle Tax ID
+  customer_name_advisory: true
+  deliverer_from_stamp: true         # deliverer slot undecided + company stamp region on an invoice page        # Tax ID + address match -> name mismatch is audit data, not E07/manual

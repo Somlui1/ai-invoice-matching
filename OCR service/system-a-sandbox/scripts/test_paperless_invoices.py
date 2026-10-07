@@ -22,6 +22,7 @@ import io
 import json
 import sys
 import time
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import asdict
 from datetime import datetime, timezone
 from pathlib import Path
@@ -70,6 +71,7 @@ def run_batch(
     skip_existing: bool = False,
     quick: bool = False,
     specific_doc_id: Optional[int] = None,
+    concurrency: int = 5,
 ) -> int:
     t_start = time.time()
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -82,6 +84,7 @@ def run_batch(
     print(f"Mode:        {mode}")
     print(f"Tag filter:  '{tag_name}'")
     print(f"Output dir:  {out_dir.resolve()}")
+    print(f"Concurrency: {concurrency} worker(s)")
     if limit:
         print(f"Limit:       {limit} documents")
     if quick:
@@ -131,7 +134,7 @@ def run_batch(
         return 0
 
     # 2. Process documents
-    print_banner(f"[3/3] Executing Verification for {total_count} document(s)")
+    print_banner(f"[3/3] Executing Verification for {total_count} document(s) (Workers: {concurrency})")
     cases: List[Dict[str, Any]] = []
     counts: Dict[str, int] = {
         "AUTO_PASS": 0,
@@ -144,75 +147,50 @@ def run_batch(
     }
     rules_counter: Dict[str, Dict[str, int]] = {}
 
-    for idx, item in enumerate(target_docs, start=1):
+    def process_item(item: dict) -> dict:
         doc_id = item["id"]
         doc_title = item.get("title", f"DMS-{doc_id}")
         out_file = out_dir / f"DMS-{doc_id}_result.json"
-
-        print(f"[{idx:3d}/{total_count:3d}] DMS-{doc_id:<5d} | {doc_title[:38]:<38}", end=" | ", flush=True)
 
         if skip_existing and out_file.exists():
             try:
                 cached_res = json.loads(out_file.read_text(encoding="utf-8"))
                 rec = (cached_res.get("recommendation") or {}).get("value", "UNKNOWN")
-                print(f"[SKIPPED] Reusing existing {out_file.name} ({rec})")
-                counts["SKIPPED"] += 1
-                counts[rec] = counts.get(rec, 0) + 1
-                cases.append({
+                return {
                     "doc_id": doc_id,
                     "title": doc_title,
                     "recommendation": rec,
                     "max_severity": (cached_res.get("recommendation") or {}).get("max_severity"),
+                    "invoice_num": (cached_res.get("normalized_fields") or {}).get("invoice_num") or "-",
+                    "grand_total": (cached_res.get("normalized_fields") or {}).get("grand_total"),
+                    "currency": (cached_res.get("normalized_fields") or {}).get("currency") or "THB",
                     "output_file": str(out_file.name),
                     "skipped": True,
-                })
-                continue
+                    "elapsed_s": 0.0,
+                    "rule_results": cached_res.get("rule_results") or [],
+                }
             except Exception:
                 pass  # Re-run if existing file is damaged
 
         t_doc_start = time.time()
         try:
-            with contextlib.redirect_stdout(io.StringIO()), contextlib.redirect_stderr(io.StringIO()):
-                result = process_pdf(
-                    dms_id=doc_id,
-                    output_path=out_file,
-                    mode=mode,
-                    quick=quick,
-                    json_only=False,
-                )
+            result = process_pdf(
+                dms_id=doc_id,
+                output_path=out_file,
+                mode=mode,
+                quick=quick,
+                json_only=False,
+                quiet=True,
+            )
             elapsed = time.time() - t_doc_start
             rec = (result.get("recommendation") or {}).get("value", "UNKNOWN")
             max_sev = (result.get("recommendation") or {}).get("max_severity", "-")
             exc_codes = (result.get("recommendation") or {}).get("exception_codes") or []
             fields = result.get("normalized_fields") or {}
             inv_num = fields.get("invoice_num") or "-"
-            total_val = format_currency(fields.get("grand_total"))
             curr = fields.get("currency") or "THB"
 
-            # Count recommendation
-            counts[rec] = counts.get(rec, 0) + 1
-
-            # Count rules
-            for r in result.get("rule_results") or []:
-                rid = r.get("rule_id", "UNKNOWN")
-                rres = r.get("result", "unknown")
-                if rid not in rules_counter:
-                    rules_counter[rid] = {"pass": 0, "fail": 0, "manual_review": 0, "not_evaluated": 0}
-                rules_counter[rid][rres] = rules_counter[rid].get(rres, 0) + 1
-
-            # Colored tag for terminal
-            color_tag = {
-                "AUTO_PASS": "\033[92mAUTO_PASS\033[0m",
-                "REVIEW": "\033[93mREVIEW\033[0m",
-                "HOLD": "\033[91mHOLD\033[0m",
-                "MANUAL_REVIEW": "\033[95mMANUAL_REVIEW\033[0m",
-                "SYSTEM_ERROR": "\033[41mSYSTEM_ERROR\033[0m",
-            }.get(rec, rec)
-
-            exc_str = f"({','.join(exc_codes)})" if exc_codes else ""
-            print(f"-> {color_tag:<18} {max_sev:<6} {inv_num:<14} {total_val:>12} {curr} ({elapsed:.1f}s) {exc_str}")
-
-            cases.append({
+            return {
                 "doc_id": doc_id,
                 "title": doc_title,
                 "recommendation": rec,
@@ -226,13 +204,13 @@ def run_batch(
                 "elapsed_s": round(elapsed, 2),
                 "output_file": str(out_file.name),
                 "error": None,
-            })
-
+                "rule_results": result.get("rule_results") or [],
+                "skipped": False,
+                "failed": False,
+            }
         except Exception as e:
             elapsed = time.time() - t_doc_start
-            counts["FAILED"] += 1
-            print(f"-> \033[91mFAILED\033[0m: {str(e)[:45]} ({elapsed:.1f}s)")
-            cases.append({
+            return {
                 "doc_id": doc_id,
                 "title": doc_title,
                 "recommendation": "SYSTEM_ERROR",
@@ -241,8 +219,58 @@ def run_batch(
                 "elapsed_s": round(elapsed, 2),
                 "output_file": str(out_file.name),
                 "error": str(e),
-            })
+                "skipped": False,
+                "failed": True,
+            }
 
+    completed_count = 0
+    actual_workers = max(1, min(concurrency, total_count))
+    with ThreadPoolExecutor(max_workers=actual_workers) as executor:
+        futures = {executor.submit(process_item, item): item for item in target_docs}
+        for future in as_completed(futures):
+            completed_count += 1
+            case = future.result()
+            cases.append(case)
+
+            doc_id = case["doc_id"]
+            doc_title = case.get("title", f"DMS-{doc_id}")
+            rec = case.get("recommendation", "UNKNOWN")
+
+            if case.get("skipped"):
+                counts["SKIPPED"] += 1
+                counts[rec] = counts.get(rec, 0) + 1
+                print(f"[{completed_count:3d}/{total_count:3d}] DMS-{doc_id:<5d} | {doc_title[:38]:<38} | [SKIPPED] ({rec})")
+            elif case.get("failed"):
+                counts["FAILED"] += 1
+                print(f"[{completed_count:3d}/{total_count:3d}] DMS-{doc_id:<5d} | {doc_title[:38]:<38} | -> \033[91mFAILED\033[0m: {str(case['error'])[:45]} ({case['elapsed_s']:.1f}s)")
+            else:
+                counts[rec] = counts.get(rec, 0) + 1
+                for r in case.get("rule_results") or []:
+                    rid = r.get("rule_id", "UNKNOWN")
+                    rres = r.get("result", "unknown")
+                    if rid not in rules_counter:
+                        rules_counter[rid] = {"pass": 0, "fail": 0, "manual_review": 0, "not_evaluated": 0}
+                    rules_counter[rid][rres] = rules_counter[rid].get(rres, 0) + 1
+
+                color_tag = {
+                    "AUTO_PASS": "\033[92mAUTO_PASS\033[0m",
+                    "REVIEW": "\033[93mREVIEW\033[0m",
+                    "HOLD": "\033[91mHOLD\033[0m",
+                    "MANUAL_REVIEW": "\033[95mMANUAL_REVIEW\033[0m",
+                    "SYSTEM_ERROR": "\033[41mSYSTEM_ERROR\033[0m",
+                }.get(rec, rec)
+
+                exc_codes = case.get("exception_codes") or []
+                exc_str = f"({','.join(exc_codes)})" if exc_codes else ""
+                max_sev = case.get("max_severity", "-")
+                inv_num = case.get("invoice_num", "-")
+                total_val = format_currency(case.get("grand_total"))
+                curr = case.get("currency", "THB")
+                elapsed = case.get("elapsed_s", 0.0)
+
+                print(f"[{completed_count:3d}/{total_count:3d}] DMS-{doc_id:<5d} | {doc_title[:38]:<38} | -> {color_tag:<18} {max_sev:<6} {inv_num:<14} {total_val:>12} {curr} ({elapsed:.1f}s) {exc_str}")
+
+    cases.sort(key=lambda c: c["doc_id"])
     total_elapsed = time.time() - t_start
 
     # 3. Build & save consolidated summary JSON
@@ -313,6 +341,13 @@ def main() -> int:
     parser.add_argument("--skip-existing", action="store_true", help="Skip documents that already have a result JSON in out-dir")
     parser.add_argument("--quick", action="store_true", help="Pass --quick flag to skip crop/table perception details")
     parser.add_argument("--doc-id", type=int, default=None, help="Verify a single specific Paperless document ID (e.g. 20)")
+    parser.add_argument(
+        "--concurrency",
+        "-c",
+        type=int,
+        default=5,
+        help="Number of concurrent worker threads (default: 5)",
+    )
 
     args = parser.parse_args()
 
@@ -324,6 +359,7 @@ def main() -> int:
         skip_existing=args.skip_existing,
         quick=args.quick,
         specific_doc_id=args.doc_id,
+        concurrency=args.concurrency,
     )
 
 

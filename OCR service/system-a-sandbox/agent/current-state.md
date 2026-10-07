@@ -2,25 +2,34 @@
 
 ## System Architecture Snapshot
 - **Core Engine**: `system-a/process_pdf.py` executing Contract 3.0 verification pipeline (`system_a.perception`, `system_a.application.orchestrator`, `system_a.domain`).
-- **Batch Test Tooling**: `scripts/test_paperless_invoices.py` and `scripts/run_test_invoices.bat` for automated testing across all Paperless-ngx documents with tag `invoice`, generating individual Contract 3.0 JSON results and batch summary JSON.
-- **Web Testing Portal**: FastAPI backend (`web/app.py`, `web/catalog.py`, `web/engine.py`) and Vanilla JS/CSS frontend (`web/static/index.html`, `web/static/styles.css`, `web/static/js/*`).
+- **Batch Test Tooling**: `scripts/test_paperless_invoices.py` and `scripts/run_test_invoices.bat` supporting multi-threaded parallel execution (default `--concurrency 5`), automated tag querying against Paperless-ngx API, and consolidated summary generation.
+- **Web Testing Portal**: `src/test-portal/` - a System A-only test screen.  Backend `webapp/` = `app.py` (FastAPI routes), `build.py`, `config.py`, `catalog.py` (the Paperless list, through System A's own reader), `sysa.py` (the only module that touches System A), `engine.py` (`inprocess` / `http`), `service.py` (per-document state machine), `store.py` (`state/view/payload.json`), `view.py` (the screen model built **only** from `aiva.system_a.result/3.0`), `static/index.html` + `static/app.js`.  Frontend is one JS file that renders that model; boxes are payload elements placed by their own `bbox` (no portal-side coordinate work).  System A is used as a library via `SYSTEM_A_HOME` - nothing of System A is copied here.  Its suite in `tests/` (`synth.py`, `doubles.py`, `conftest.py`, `system_a_stub/config` = stub Standard) drives System A's own sandbox `orchestrator.validate()` to obtain genuine payloads.
 - **Integration Points**: Paperless-ngx (DMS document catalog & download), LiteLLM / Qwen vision (perception/OCR/layout/bboxes), Oracle EBS MCP gateway (RCV receipts).
 
-## Verified Status (Updated: 2026-10-06T13:50:00+07:00)
-- `web/test_portal.py`: 32/32 tests passed (100%).
-- `web/test_ui_logic.mjs`: All checks passed.
-- `python -m webapp check`: Connected live to Paperless-ngx DMS (`http://dms.aapico.com/api/documents/`).
-- **Document Stream**: Left panel queries documents directly from Paperless-ngx live API.
-- **Pre-Process (ก่อน process)**:
-  - Selecting any document clears all BBoxes (`Overlay.setLayers([])`, `Overlay.render([])`).
-  - Middle panel displays clean PDF/page image with **zero BBoxes**.
-  - Right panel displays unverified state ("ยังไม่ได้ประมวลผล — กดปุ่ม 'ประมวลผลเอกสาร'").
-  - Server results from past runs are NOT auto-loaded upon document selection.
-- **Process & Post-Process (หลัง process)**:
-  - Middle panel features prominent "▶ ประมวลผลเอกสาร" button.
-  - When pressed, runs live System A processing pipeline.
-  - Once complete, renders freshly extracted BBoxes onto the document and displays Final Result + OCR Result + Validate Result in right panel.
-  - BBox display has a master toggle button (`👁️ แสดง/ซ่อน BBox`) and layer chips.
-- **Browser-Only Storage (เก็บ case ไว้ที่ browser เท่านั้น)**:
-  - All verified cases stored in client `localStorage` (`CaseStore`).
-  - Left panel provides "เคสในเบราว์เซอร์" tab with list, export JSON, import JSON, and clear cases.
+## Verified Status (Updated: 2026-10-07T10:24:00+07:00)
+- `pytest -q` (root): 36/36 tests passed (100%).
+- `pytest -q` (src/test-portal): **109/109 tests passed** in 6.6 s, offline (view 25, api 19, engine 18, config 16, catalog 12, service 12, ui_static 7).
+- `python -m webapp check` (src/test-portal): live against the DMS, exit 0 - 98 documents / 423 pages, tag `invoice` (id 5), Standard 6.6 / ruleset v6.6-r4, mode production, ai litellm, engine inprocess.
+- `SYSTEM_A_ENGINE=http python -m webapp check`: exit 0 against a running System A API (`python -m system_a.cli serve --port 8080`; `/health/ready` = ok, sandbox/sim/6.6/v6.6-r4).
+- **One real document end to end through the portal** (`inprocess`, production, real LiteLLM vision + real Oracle MCP): doc 15, one image page → `done` in 55.7 s (VLM 43.5 s, Oracle 1.85 s), payload 1155 elements / 1155 boxes / 0 without bbox, V-07 `fail` (2x E11 Medium) → recommendation `MANUAL_REVIEW`; every `final.items[].refs` bbox equals the stored payload's element bbox.
+- `scripts/test_paperless_invoices.py`: Verified multi-threaded execution with `--concurrency 2` in sandbox mode with live Paperless API downloads.
+- `process_pdf.py`: Verified `quiet=True` mode suppressing stdout for non-interfering parallel terminal streaming.
+- **What the portal shows (rework 2026-10-07)**:
+  - The document list is the DMS's own (tag `invoice`); nothing is listed from a local batch or report.
+  - Before a run: real page images only, no boxes.  After a run: boxes = `ocr.elements[]` of the payload, positioned by their own `bbox` under `pages[]` geometry, coloured by `element_type`, labelled by `field_name`; type chips select drawn types (`field`, `row`, `signature`, `stamp` default; `cell`, `section`, `table`, `word` opt-in; kept in `localStorage`).
+  - Right panel = Final Result (recommendation, `oracle_snapshot`, `normalized_fields` with `element_id` refs, `line_matching.groups`, signature elements, totals) + Verify Result (`rule_results`, `exceptions`, `evidence`) + element table per page.  Hover/click highlight is by `element_id` - there is **no IoU/Locator matching in the portal**.
+  - A System A exception is shown raw (type, message, traceback) and the document stays in `error`; there is no fallback path and no partial view.
+  - `incomplete` ("ผลไม่ครบ") is set only by `system_errors`; a rule-chain `halted_by` is normal System A behaviour and is not flagged.
+- **Storage**: `WEBAPP_PERSIST=false` in the live `.env` - the server writes nothing and the browser keeps the processed cases (`localStorage`, last 12).  With `WEBAPP_PERSIST=true` results live in `data/results/doc_<id>/{state,view,payload}.json` (`data/` is gitignored and re-created by `ResultStore`).
+- **`src/test-portal` contains no runtime artifacts (2026-10-07)**:
+  - `data/`, `webapp/__pycache__/`, `tests/__pycache__/`, `.pytest_cache/` are deleted; `data/results` is re-created by `ResultStore` when `WEBAPP_PERSIST=true`.
+  - After the cleanup `pytest -q` in `src/test-portal` still passes 93/93.
+  - `.venv/` remains (gitignored, recreated by `run.bat`); it has the runtime requirements only, no `pytest`.
+- **How the portal is started (fixed 2026-10-07, ERR-20261007-001)**:
+  - `run.bat` / `run.sh` call `.venv`'s interpreter **by full path** and no longer rely on `activate.bat`; `.venv` was rebuilt at the folder's real location with Python 3.14.2 and now contains `pytest` + `jsonschema` as well, so `make test` works from the venv.
+  - `python -m webapp serve` starts uvicorn with `ws="none"`: the portal is HTTP + polling only, so a mismatched `websockets` package in the interpreter it runs under can no longer prevent it from starting.
+  - Verified: `run.bat` reaches `.venv\Scripts\python.exe` (uvicorn 0.54.0) even when another venv is first in `PATH`; `serve` answers `GET /` 200 and `/api/health` `ok:true` (engine inprocess, mode production, ai litellm, standard 6.6 / v6.6-r4, source paperless).
+- **Limits / cautions**:
+  - `SYSTEM_A_ENGINE=http` moves only the validation: System A's `POST /v1/validations` needs an extraction in the body, so the reading (file → `container.build_perception`) still runs in the portal process.
+  - `python -m system_a.cli serve` does **not** load `<SYSTEM_A_HOME>/.env` by itself (`load_env()` is called by scripts only) - start the API for real Oracle/litellm work with those variables exported.
+  - Before testing a reworked API, check that no old instance still owns the port (`netstat -ano | grep :8090`) and that `/api/meta` answers with the new keys - ERR-20261007-003.

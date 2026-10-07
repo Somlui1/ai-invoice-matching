@@ -1,33 +1,300 @@
 {
   "metadata": {
     "title": "AIVA System A Batch Invoice Test Summary",
-    "executed_at": "2026-10-06T07:03:30.008091+00:00",
+    "executed_at": "2026-10-06T09:26:20.926916+00:00",
     "mode": "sandbox",
     "tag": "invoice",
-    "total_documents": 1,
-    "total_elapsed_s": 0.5,
-    "output_directory": "C:\\Users\\wajeepradit.p\\git\\Invoice-auto-matching\\OCR service\\system-a-sandbox\\system-a\\results\\test_run"
+    "total_documents": 2,
+    "total_elapsed_s": 73.8,
+    "output_directory": "C:\\Users\\wajeepradit.p\\git\\Invoice-auto-matching\\OCR service\\system-a-sandbox\\results\\test_run"
   },
   "statistics": {
     "counts": {
       "AUTO_PASS": 0,
-      "REVIEW": 0,
+      "REVIEW": 2,
       "HOLD": 0,
-      "MANUAL_REVIEW": 1,
+      "MANUAL_REVIEW": 0,
       "SYSTEM_ERROR": 0,
-      "SKIPPED": 1,
+      "SKIPPED": 0,
       "FAILED": 0
     },
-    "rules": {}
+    "rules": {
+      "V-01": {
+        "pass": 0,
+        "fail": 2,
+        "manual_review": 0,
+        "not_evaluated": 0
+      },
+      "V-02": {
+        "pass": 2,
+        "fail": 0,
+        "manual_review": 0,
+        "not_evaluated": 0
+      },
+      "V-03": {
+        "pass": 2,
+        "fail": 0,
+        "manual_review": 0,
+        "not_evaluated": 0
+      },
+      "V-04": {
+        "pass": 0,
+        "fail": 0,
+        "manual_review": 0,
+        "not_evaluated": 2
+      },
+      "V-05": {
+        "pass": 0,
+        "fail": 0,
+        "manual_review": 0,
+        "not_evaluated": 2
+      },
+      "V-06": {
+        "pass": 2,
+        "fail": 0,
+        "manual_review": 0,
+        "not_evaluated": 0
+      },
+      "V-07": {
+        "pass": 0,
+        "fail": 0,
+        "manual_review": 0,
+        "not_evaluated": 2
+      },
+      "V-08": {
+        "pass": 0,
+        "fail": 0,
+        "manual_review": 0,
+        "not_evaluated": 2
+      },
+      "V-09": {
+        "pass": 0,
+        "fail": 0,
+        "manual_review": 0,
+        "not_evaluated": 2
+      }
+    }
   },
   "cases": [
     {
       "doc_id": 15,
       "title": "AH_JRP_SQ26_071249_20260708",
-      "recommendation": "MANUAL_REVIEW",
+      "recommendation": "REVIEW",
       "max_severity": "Medium",
+      "exception_codes": [
+        "E01"
+      ],
+      "invoice_num": "SQ26/071249",
+      "po_number": "40117545",
+      "supplier_name": "บริษัท จรูญรัตน์ โพรดักส์ จำกัด JAROONRAT PRODUCTS CO.,LTD.",
+      "grand_total": "472.94",
+      "currency": "THB",
+      "elapsed_s": 25.57,
       "output_file": "DMS-15_result.json",
-      "skipped": true
+      "error": null,
+      "rule_results": [
+        {
+          "rule_id": "V-01",
+          "rule_version": "1.1",
+          "result": "fail",
+          "detail": null,
+          "halted_by": null,
+          "evidence_ids": [
+            "X1"
+          ],
+          "data": {}
+        },
+        {
+          "rule_id": "V-02",
+          "rule_version": "1.0",
+          "result": "pass",
+          "detail": "ตรวจ 2 บรรทัด",
+          "halted_by": null,
+          "evidence_ids": [],
+          "data": {}
+        },
+        {
+          "rule_id": "V-03",
+          "rule_version": "1.0",
+          "result": "pass",
+          "detail": null,
+          "halted_by": null,
+          "evidence_ids": [],
+          "data": {
+            "diffs": {
+              "lines_vs_sub_total": "0.00",
+              "vat_7pct": "0.00",
+              "sub_plus_vat_vs_grand": "0.00"
+            }
+          }
+        },
+        {
+          "rule_id": "V-04",
+          "rule_version": "2.0",
+          "result": "not_evaluated",
+          "detail": "ข้ามตาม gate",
+          "halted_by": "V-01",
+          "evidence_ids": [],
+          "data": {}
+        },
+        {
+          "rule_id": "V-05",
+          "rule_version": "2.0",
+          "result": "not_evaluated",
+          "detail": "ข้ามตาม gate",
+          "halted_by": "V-01",
+          "evidence_ids": [],
+          "data": {}
+        },
+        {
+          "rule_id": "V-06",
+          "rule_version": "1.1",
+          "result": "pass",
+          "detail": null,
+          "halted_by": null,
+          "evidence_ids": [],
+          "data": {}
+        },
+        {
+          "rule_id": "V-07",
+          "rule_version": "3.0",
+          "result": "not_evaluated",
+          "detail": "ข้ามตาม gate",
+          "halted_by": "V-01",
+          "evidence_ids": [],
+          "data": {}
+        },
+        {
+          "rule_id": "V-08",
+          "rule_version": "2.0",
+          "result": "not_evaluated",
+          "detail": "ข้ามตาม gate",
+          "halted_by": "V-01",
+          "evidence_ids": [],
+          "data": {}
+        },
+        {
+          "rule_id": "V-09",
+          "rule_version": "1.0",
+          "result": "not_evaluated",
+          "detail": "ข้ามตาม gate",
+          "halted_by": "V-01",
+          "evidence_ids": [],
+          "data": {}
+        }
+      ],
+      "skipped": false,
+      "failed": false
+    },
+    {
+      "doc_id": 19,
+      "title": "DOC100926-10092026155851",
+      "recommendation": "REVIEW",
+      "max_severity": "Medium",
+      "exception_codes": [
+        "E01"
+      ],
+      "invoice_num": "0851392",
+      "po_number": "42052696",
+      "supplier_name": "DAIDO DMS (THAILAND) CO., LTD.",
+      "grand_total": "27212.24",
+      "currency": "THB",
+      "elapsed_s": 73.17,
+      "output_file": "DMS-19_result.json",
+      "error": null,
+      "rule_results": [
+        {
+          "rule_id": "V-01",
+          "rule_version": "1.1",
+          "result": "fail",
+          "detail": null,
+          "halted_by": null,
+          "evidence_ids": [
+            "X1"
+          ],
+          "data": {}
+        },
+        {
+          "rule_id": "V-02",
+          "rule_version": "1.0",
+          "result": "pass",
+          "detail": "ตรวจ 2 บรรทัด",
+          "halted_by": null,
+          "evidence_ids": [],
+          "data": {}
+        },
+        {
+          "rule_id": "V-03",
+          "rule_version": "1.0",
+          "result": "pass",
+          "detail": null,
+          "halted_by": null,
+          "evidence_ids": [],
+          "data": {
+            "diffs": {
+              "lines_vs_sub_total": "0.00",
+              "vat_7pct": "0.00",
+              "sub_plus_vat_vs_grand": "0.00"
+            }
+          }
+        },
+        {
+          "rule_id": "V-04",
+          "rule_version": "2.0",
+          "result": "not_evaluated",
+          "detail": "ข้ามตาม gate",
+          "halted_by": "V-01",
+          "evidence_ids": [],
+          "data": {}
+        },
+        {
+          "rule_id": "V-05",
+          "rule_version": "2.0",
+          "result": "not_evaluated",
+          "detail": "ข้ามตาม gate",
+          "halted_by": "V-01",
+          "evidence_ids": [],
+          "data": {}
+        },
+        {
+          "rule_id": "V-06",
+          "rule_version": "1.1",
+          "result": "pass",
+          "detail": null,
+          "halted_by": null,
+          "evidence_ids": [],
+          "data": {}
+        },
+        {
+          "rule_id": "V-07",
+          "rule_version": "3.0",
+          "result": "not_evaluated",
+          "detail": "ข้ามตาม gate",
+          "halted_by": "V-01",
+          "evidence_ids": [],
+          "data": {}
+        },
+        {
+          "rule_id": "V-08",
+          "rule_version": "2.0",
+          "result": "not_evaluated",
+          "detail": "ข้ามตาม gate",
+          "halted_by": "V-01",
+          "evidence_ids": [],
+          "data": {}
+        },
+        {
+          "rule_id": "V-09",
+          "rule_version": "1.0",
+          "result": "not_evaluated",
+          "detail": "ข้ามตาม gate",
+          "halted_by": "V-01",
+          "evidence_ids": [],
+          "data": {}
+        }
+      ],
+      "skipped": false,
+      "failed": false
     }
   ]
 }

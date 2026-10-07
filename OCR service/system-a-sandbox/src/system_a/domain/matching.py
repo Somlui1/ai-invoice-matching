@@ -33,7 +33,22 @@ def _price_eq(a, b, std: Standard) -> bool:
     return a is not None and b is not None and abs(a - b) <= std.tol("price_exact")
 
 
-def inv_payload(doc: InvoiceDoc) -> list[dict]:
+def line_po(line, rows) -> Optional[str]:
+    """First PO printed on the line that Oracle also returned for this invoice (else None)."""
+    known = {r.po_number for r in rows if r.po_number}
+    return next((p for p in getattr(line, "po_refs", ()) if p in known), None)
+
+
+def inv_payload(doc: InvoiceDoc, rows=()) -> list[dict]:
+    out = _inv_payload(doc)
+    for d, l in zip(out, doc.lines):
+        po = line_po(l, rows)
+        if po:
+            d["po_number"] = po                    # only when confirmed by Oracle: legacy prompt unchanged
+    return out
+
+
+def _inv_payload(doc: InvoiceDoc) -> list[dict]:
     return [{"invoice_line_no": l.line_no, "item_code": l.v("item_code"), "description": l.v("description"),
              "qty": str(l.v("qty")) if l.v("qty") is not None else None, "uom": l.v("uom"), "uom_group": l.uom_group,
              "unit_price": str(l.v("unit_price")) if l.v("unit_price") is not None else None,
@@ -66,11 +81,22 @@ def resolve(doc: InvoiceDoc, active: tuple[ReceiptRow, ...], std: Standard,
     # ---- M1 (logic): price equals exactly one receipt line, mutually unique, same UOM group
     for n, l in list(inv.items()):
         p = l.v("unit_price")
-        cands = [r for r in rcv.values() if _price_eq(p, r.unit_price, std) and std.uom_group(r.uom) == l.uom_group]
+        # a line whose unit was not printed/read (uom_group None) is not excluded: the unit is
+        # inherited from the receipt afterwards (domain/evidence.corroborate_lines)
+        cands = [r for r in rcv.values() if _price_eq(p, r.unit_price, std)
+                 and (l.uom_group is None or std.uom_group(r.uom) == l.uom_group)]
+        if len(cands) > 1:
+            # 1 invoice -> several POs: the PO printed on the line decides between equal prices
+            po = line_po(l, rcv.values())
+            if po:
+                cands = [r for r in cands if r.po_number == po]
         if len(cands) != 1:
             continue
         r = cands[0]
         rivals = [x for x in inv.values() if x.line_no != n and _price_eq(x.v("unit_price"), r.unit_price, std)]
+        if rivals and r.po_number and line_po(l, active) == r.po_number:
+            # a rival with the same price but a different confirmed PO cannot claim this receipt line
+            rivals = [x for x in rivals if line_po(x, active) in (None, r.po_number)]
         if rivals:
             continue
         groups.append(MatchGroup(gid(), "1:1", "M1", (n,), (r.rcv_line_id,), 1.0, "logic", "ราคาตรงบรรทัดเดียว"))
@@ -80,7 +106,7 @@ def resolve(doc: InvoiceDoc, active: tuple[ReceiptRow, ...], std: Standard,
     if inv and rcv and ai is not None:
         trace["ai_called"] = True
         sub = InvoiceDoc(doc.document_id, doc.fields, tuple(inv.values()), doc.signatures, doc.pages_complete)
-        out = ai.propose(inv_payload(sub), rcv_payload(list(rcv.values()), std)) or {}
+        out = ai.propose(inv_payload(sub, active), rcv_payload(list(rcv.values()), std)) or {}
         for g in out.get("groups", []):
             ins = [int(x) for x in g.get("invoice_line_nos", [])]
             rids = [str(x) for x in g.get("rcv_line_ids", [])]

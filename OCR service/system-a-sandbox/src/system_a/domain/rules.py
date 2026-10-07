@@ -12,6 +12,7 @@ from typing import Optional
 from . import v08 as v08mod
 from .contracts import Finding, InvoiceDoc, OracleSnapshot, RuleOutcome
 from .matching import price_check
+from .evidence import is_covered
 from .normalize import addr_key, norm_name, thai_to_arabic
 from .ports import EntityJudgeAI, QtyJudgeAI
 from .standard import Standard
@@ -52,6 +53,11 @@ def _skip(rid, by, detail):
 def _flag(c: Ctx, name: str) -> bool:
     """AIVA-SYSA-ORA-01 Standard-change flags (``policy.validation``) — all default to False."""
     return bool((c.std.policy.get("validation") or {}).get(name, False))
+
+
+def _evidence_flag(c: Ctx, name: str) -> bool:
+    """policy.evidence switches (domain/evidence.py) — default False when absent."""
+    return bool((c.std.policy.get("evidence") or {}).get(name, False))
 
 
 def _tax_lookup(s) -> bool:
@@ -214,8 +220,15 @@ def v05_customer(c: Ctx) -> RuleOutcome:
                                  element_ids=fid("customer_tax_id"))], **base, tax_id_match=False)
     findings, data = [], {**base, "tax_id_match": True}
     th = c.std.policy["ai"]["v05_name_min_confidence"]
-    # ---- name: logic, then AI semantic (OQ-05)
-    if d.ok("customer_name"):
+    # ---- name: logic, then AI semantic (OQ-05).  A name problem is held in name_issue and applied
+    # after the address check, so policy.evidence.customer_name_advisory can turn it into audit data
+    # when the Tax ID (and the address, where readable) already prove the buyer entity.
+    name_issue = None                     # ("manual", detail) | Finding
+    if d.ok("customer_name") and is_covered(d.fields.get("customer_name")):
+        # the read name was not confirmed by a second reader, but the Tax ID equals Oracle:
+        # the legal entity is proven by the Tax ID, the garbled Thai name is not evidence against it
+        data.update(name_match=None, name_check="covered_by_customer_tax_id")
+    elif d.ok("customer_name"):
         cands = {"name_th": ent.get("name_th"), "name_en": ent.get("name_en"),
                  **{f"former_{i}": n for i, n in enumerate(ent.get("former") or [])}}
         hit = next((k for k, n in cands.items() if n and norm_name(n) == norm_name(d.v("customer_name"))), None)
@@ -228,18 +241,25 @@ def v05_customer(c: Ctx) -> RuleOutcome:
                 data.update(name_match=True, matched_on="ai_semantic:" + str(r.get("matched_candidate")))
             elif float(r.get("confidence", 0)) < th:
                 data.update(name_match=None)
-                return RuleOutcome("V-05", "manual_review", detail="AI ไม่มั่นใจเรื่องชื่อลูกค้า", data=data)
+                name_issue = ("manual", "AI ไม่มั่นใจเรื่องชื่อลูกค้า")
             else:
                 data.update(name_match=False)
-                findings.append(_f(c, "E07", "V-05", f"ชื่อลูกค้าไม่ตรงกับ ORG_ID {org}", "Medium",
-                                   actual=d.v("customer_name"), expected=ent.get("name_th"),
-                                   element_ids=fid("customer_name")))
+                name_issue = _f(c, "E07", "V-05", f"ชื่อลูกค้าไม่ตรงกับ ORG_ID {org}", "Medium",
+                                actual=d.v("customer_name"), expected=ent.get("name_th"),
+                                element_ids=fid("customer_name"))
         else:
             data.update(name_match=False)
-            findings.append(_f(c, "E07", "V-05", f"ชื่อลูกค้าไม่ตรงกับ ORG_ID {org}", "Medium",
-                               actual=d.v("customer_name"), expected=ent.get("name_th"), element_ids=fid("customer_name")))
+            name_issue = _f(c, "E07", "V-05", f"ชื่อลูกค้าไม่ตรงกับ ORG_ID {org}", "Medium",
+                            actual=d.v("customer_name"), expected=ent.get("name_th"), element_ids=fid("customer_name"))
+    if name_issue is not None and not _evidence_flag(c, "customer_name_advisory"):
+        if isinstance(name_issue, tuple):              # unchanged Standard behaviour
+            return RuleOutcome("V-05", "manual_review", detail=name_issue[1], data=data)
+        findings.append(name_issue)
+        name_issue = None
     # ---- address: house no + postal (X-03), AI parse when logic fails
-    if d.ok("customer_address"):
+    if d.ok("customer_address") and is_covered(d.fields.get("customer_address")):
+        data.update(address_match=None, address_check="covered_by_customer_tax_id")
+    elif d.ok("customer_address"):
         addrs = {"head_office_th": ent.get("addr_th"), "head_office_en": ent.get("addr_en"),
                  **{f"branch {k}": v for k, v in (ent.get("branches") or {}).items()}}
         keys = {k: addr_key(v) for k, v in addrs.items() if v}
@@ -261,6 +281,15 @@ def v05_customer(c: Ctx) -> RuleOutcome:
             findings.append(_f(c, "E07", "V-05", f"ที่อยู่ลูกค้า (เลขที่ {inv_key[0]}, รหัสไปรษณีย์ {inv_key[1]}) "
                                                  f"ไม่ตรงกับที่อยู่ของ ORG_ID {org}", "Medium",
                                actual=d.v("customer_address"), element_ids=fid("customer_address")))
+    if name_issue is not None:
+        address_ok = data.get("address_match") is True or data.get("address_check") == "covered_by_customer_tax_id"
+        if _evidence_flag(c, "customer_name_advisory") and address_ok:
+            data.update(name_check="advisory", name_issue=name_issue[1] if isinstance(name_issue, tuple)
+                        else name_issue.message_th)
+        elif isinstance(name_issue, tuple):
+            return RuleOutcome("V-05", "manual_review", tuple(findings), name_issue[1], data=data)
+        else:
+            findings.insert(0, name_issue)
     if not d.ok("customer_name") or not d.ok("customer_address"):
         if findings:
             return _fail("V-05", findings, **data)
@@ -298,7 +327,13 @@ def v07_line_match(c: Ctx) -> RuleOutcome:
                               element_ids=(l.element_id, l.cells["uom"].element_id), oracle_refs=refs))
                 continue
             p = l.v("unit_price")
-            pc = price_check(p, rcv_price, c.std) if p is not None else "over_tolerance"
+            if p is None:
+                # an unreadable price is E01 (V-01), not evidence of a price variance (E09 High)
+                if g.level == "M4":
+                    out.append(_f(c, "E11", "V-07", f"{_line_tag(l)}: จับคู่ด้วยคำบรรยาย ({g.rationale or ''})"[:200],
+                                  element_ids=(l.element_id,), oracle_refs=refs))
+                continue
+            pc = price_check(p, rcv_price, c.std)
             if pc == "over_tolerance":
                 out.append(_f(c, "E09", "V-07", f"{_line_tag(l)}: ราคาต่างเกินกรอบ (Inv: {p}, Rcv: {rcv_price})",
                               actual=str(p), expected=str(rcv_price), element_ids=eids, oracle_refs=refs))

@@ -1,0 +1,241 @@
+{
+  "metadata": {
+    "title": "AIVA System A Batch Invoice Test Summary",
+    "executed_at": "2026-10-07T03:05:15.606196+00:00",
+    "mode": "production",
+    "tag": "invoice",
+    "total_documents": 1,
+    "total_elapsed_s": 88.9,
+    "output_directory": "C:\\Users\\wajeepradit.p\\git\\Invoice-auto-matching\\OCR service\\system-a-sandbox\\results\\paperless_invoices"
+  },
+  "statistics": {
+    "counts": {
+      "AUTO_PASS": 0,
+      "REVIEW": 1,
+      "HOLD": 0,
+      "MANUAL_REVIEW": 0,
+      "SYSTEM_ERROR": 0,
+      "SKIPPED": 0,
+      "FAILED": 0
+    },
+    "rules": {
+      "V-01": {
+        "pass": 1,
+        "fail": 0,
+        "manual_review": 0,
+        "not_evaluated": 0
+      },
+      "V-02": {
+        "pass": 1,
+        "fail": 0,
+        "manual_review": 0,
+        "not_evaluated": 0
+      },
+      "V-03": {
+        "pass": 1,
+        "fail": 0,
+        "manual_review": 0,
+        "not_evaluated": 0
+      },
+      "V-04": {
+        "pass": 1,
+        "fail": 0,
+        "manual_review": 0,
+        "not_evaluated": 0
+      },
+      "V-05": {
+        "pass": 1,
+        "fail": 0,
+        "manual_review": 0,
+        "not_evaluated": 0
+      },
+      "V-06": {
+        "pass": 1,
+        "fail": 0,
+        "manual_review": 0,
+        "not_evaluated": 0
+      },
+      "V-07": {
+        "pass": 0,
+        "fail": 1,
+        "manual_review": 0,
+        "not_evaluated": 0
+      },
+      "V-08": {
+        "pass": 1,
+        "fail": 0,
+        "manual_review": 0,
+        "not_evaluated": 0
+      },
+      "V-09": {
+        "pass": 1,
+        "fail": 0,
+        "manual_review": 0,
+        "not_evaluated": 0
+      }
+    }
+  },
+  "cases": [
+    {
+      "doc_id": 15,
+      "title": "DMS-15",
+      "recommendation": "REVIEW",
+      "max_severity": "Medium",
+      "exception_codes": [
+        "E11"
+      ],
+      "invoice_num": "SQ26/071249",
+      "po_number": "40117545",
+      "supplier_name": "บริษัท จรูญรัตน์ โพรดักส์ จำกัด JAROONRAT PRODUCTS CO.,LTD.",
+      "grand_total": "472.94",
+      "currency": "THB",
+      "elapsed_s": 88.7,
+      "output_file": "DMS-15_result.json",
+      "error": null,
+      "rule_results": [
+        {
+          "rule_id": "V-01",
+          "rule_version": "1.1",
+          "result": "pass",
+          "detail": null,
+          "halted_by": null,
+          "evidence_ids": [],
+          "data": {}
+        },
+        {
+          "rule_id": "V-02",
+          "rule_version": "1.0",
+          "result": "pass",
+          "detail": "ตรวจ 2 บรรทัด",
+          "halted_by": null,
+          "evidence_ids": [],
+          "data": {}
+        },
+        {
+          "rule_id": "V-03",
+          "rule_version": "1.0",
+          "result": "pass",
+          "detail": null,
+          "halted_by": null,
+          "evidence_ids": [],
+          "data": {
+            "diffs": {
+              "lines_vs_sub_total": "0.00",
+              "vat_7pct": "0.00",
+              "sub_plus_vat_vs_grand": "0.00"
+            }
+          }
+        },
+        {
+          "rule_id": "V-04",
+          "rule_version": "2.0",
+          "result": "pass",
+          "detail": "ใบรับ 510517699 (TAX-INV)",
+          "halted_by": null,
+          "evidence_ids": [],
+          "data": {
+            "lookup_path": "TAX-INV",
+            "rows": 2,
+            "active_rows": 2,
+            "receipt_nums": [
+              "510517699"
+            ],
+            "po_numbers": [
+              "40117545"
+            ],
+            "matched_on_column": "SHIPMENT_NUM"
+          }
+        },
+        {
+          "rule_id": "V-05",
+          "rule_version": "2.0",
+          "result": "pass",
+          "detail": null,
+          "halted_by": null,
+          "evidence_ids": [],
+          "data": {
+            "org_id": 101,
+            "short_name": "APD",
+            "intercompany": false,
+            "tax_id_match": true,
+            "name_match": true,
+            "matched_on": "ai_semantic:name_en",
+            "address_match": true,
+            "address_matched": "head_office_th",
+            "address_method": "logic"
+          }
+        },
+        {
+          "rule_id": "V-06",
+          "rule_version": "1.1",
+          "result": "pass",
+          "detail": null,
+          "halted_by": null,
+          "evidence_ids": [],
+          "data": {}
+        },
+        {
+          "rule_id": "V-07",
+          "rule_version": "3.0",
+          "result": "fail",
+          "detail": null,
+          "halted_by": null,
+          "evidence_ids": [
+            "X1",
+            "X2"
+          ],
+          "data": {
+            "groups": 2,
+            "ai_rejected": 0
+          }
+        },
+        {
+          "rule_id": "V-08",
+          "rule_version": "2.0",
+          "result": "pass",
+          "detail": null,
+          "halted_by": null,
+          "evidence_ids": [],
+          "data": {
+            "line_results": [
+              {
+                "invoice_line_no": 1,
+                "group_id": "G1",
+                "result": "pass",
+                "code": null,
+                "severity": null,
+                "message": "จำนวนตรงกัน",
+                "qty_inv": "50",
+                "qty_rcv_compared": "50",
+                "qty_diff": "0"
+              },
+              {
+                "invoice_line_no": 2,
+                "group_id": "G2",
+                "result": "pass",
+                "code": null,
+                "severity": null,
+                "message": "จำนวนตรงกัน",
+                "qty_inv": "50",
+                "qty_rcv_compared": "50",
+                "qty_diff": "0"
+              }
+            ],
+            "prompt": "v08-qty@1.0.0"
+          }
+        },
+        {
+          "rule_id": "V-09",
+          "rule_version": "1.0",
+          "result": "pass",
+          "detail": "invoice 442.00 = receipt 442",
+          "halted_by": null,
+          "evidence_ids": [],
+          "data": {}
+        }
+      ],
+      "skipped": false,
+      "failed": false
+    }
+  ]
+}

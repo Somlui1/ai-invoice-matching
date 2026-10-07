@@ -1,0 +1,3028 @@
+{
+  "contract": "aiva.system_a.result/3.0",
+  "request": {
+    "validation_id": "VAL-DMS-85-1791336955",
+    "correlation_id": "c4700afa-4c87-4894-b510-74571e81ff0f",
+    "idempotency_key": null,
+    "document_revision": 1,
+    "validation_round": 1,
+    "source": "cli_process_pdf",
+    "run_id": "single",
+    "dms_doc_id": "DMS-85",
+    "content_kind": "pdf",
+    "declared_mime": "application/pdf",
+    "completed_at": "2026-10-07T01:37:09.165519+00:00"
+  },
+  "versions": {
+    "schema": "3.0",
+    "standard": "6.6",
+    "ruleset": "v6.6-r4",
+    "models": {
+      "line_matcher": "nvidia/Qwen3.8-Flash-Next-NVFP4",
+      "qty_judge": "nvidia/Qwen3.8-Flash-Next-NVFP4",
+      "entity_judge": "nvidia/Qwen3.8-Flash-Next-NVFP4",
+      "vision": "nvidia/Qwen3.8-Flash-Next-NVFP4"
+    },
+    "prompts": {
+      "V-08": "v08-qty@1.0.0",
+      "V-07": "v07-match@1.0.0",
+      "V-05": "v05-entity@1.0.0"
+    }
+  },
+  "package": {
+    "package_id": "PKG-DMS-85",
+    "dms_doc_id": "DMS-85",
+    "file_sha256": "sha256:ddaa81fce9a076a2c078a0e732bac55f45a7078fd8f7f31bc87e75226533a332",
+    "page_count": 2,
+    "pages_complete": true,
+    "coordinate_system": {
+      "origin": "top-left",
+      "unit": "normalized",
+      "range": [
+        0,
+        1
+      ],
+      "bbox_format": "[x, y, w, h]",
+      "reference": "rendered page after rotation correction (see pages[].rotation)"
+    }
+  },
+  "pages": [
+    {
+      "page_no": 1,
+      "width_pt": 595.0,
+      "height_pt": 842.0,
+      "rotation": 0,
+      "render_dpi": 150,
+      "page_type": "TAX_INVOICE",
+      "type_confidence": 1.0,
+      "ocr_quality": null
+    },
+    {
+      "page_no": 2,
+      "width_pt": 595.0,
+      "height_pt": 842.0,
+      "rotation": 0,
+      "render_dpi": 150,
+      "page_type": "DELIVERY_NOTE",
+      "type_confidence": 1.0,
+      "ocr_quality": null
+    }
+  ],
+  "documents": [
+    {
+      "document_id": "D1",
+      "document_type": "INVOICE",
+      "pages": [
+        1
+      ],
+      "confidence": 1.0
+    },
+    {
+      "document_id": "D2",
+      "document_type": "DELIVERY_NOTE",
+      "pages": [
+        2
+      ],
+      "confidence": 1.0
+    }
+  ],
+  "ocr": {
+    "elements": [
+      {
+        "element_id": "P1",
+        "document_id": "D1",
+        "document_type": "INVOICE",
+        "page_no": 1,
+        "element_type": "page",
+        "parent_id": null,
+        "field_name": null,
+        "raw_value": null,
+        "normalized_value": null,
+        "confidence": 1.0,
+        "bbox": [
+          0,
+          0,
+          1,
+          1
+        ],
+        "source_reference": {
+          "package_id": "PKG-DMS-85",
+          "dms_doc_id": "DMS-85",
+          "file_sha256": "sha256:ddaa81fce9a076a2c078a0e732bac55f45a7078fd8f7f31bc87e75226533a332",
+          "extractors": {
+            "vlm": "nvidia/Qwen3.8-Flash-Next-NVFP4",
+            "prompts": "vision-page-items@2.0.0+vision-page-classify@1.0.0+vision-table-rows@2.0.0+vision-crop-reread@1.0.0",
+            "ocr": "pdf-text-layer(pymupdf)",
+            "pipeline": "vision-pipeline/db0d4e577167"
+          }
+        }
+      },
+      {
+        "element_id": "P2",
+        "document_id": "D2",
+        "document_type": "DELIVERY_NOTE",
+        "page_no": 2,
+        "element_type": "page",
+        "parent_id": null,
+        "field_name": null,
+        "raw_value": null,
+        "normalized_value": null,
+        "confidence": 1.0,
+        "bbox": [
+          0,
+          0,
+          1,
+          1
+        ],
+        "source_reference": {
+          "package_id": "PKG-DMS-85",
+          "dms_doc_id": "DMS-85",
+          "file_sha256": "sha256:ddaa81fce9a076a2c078a0e732bac55f45a7078fd8f7f31bc87e75226533a332",
+          "extractors": {
+            "vlm": "nvidia/Qwen3.8-Flash-Next-NVFP4",
+            "prompts": "vision-page-items@2.0.0+vision-page-classify@1.0.0+vision-table-rows@2.0.0+vision-crop-reread@1.0.0",
+            "ocr": "pdf-text-layer(pymupdf)",
+            "pipeline": "vision-pipeline/db0d4e577167"
+          }
+        }
+      },
+      {
+        "element_id": "D1-f-customer_name",
+        "document_id": "D1",
+        "document_type": "INVOICE",
+        "page_no": 1,
+        "element_type": "field",
+        "parent_id": null,
+        "field_name": "customer_name",
+        "raw_value": "AAPICO HITECH PUBLIC CO.,LTD.",
+        "normalized_value": "AAPICO HITECH PUBLIC CO.,LTD.",
+        "confidence": 0.96,
+        "bbox": [
+          0.101,
+          0.204,
+          0.246,
+          0.012
+        ],
+        "source_reference": {
+          "package_id": "PKG-DMS-85",
+          "dms_doc_id": "DMS-85",
+          "file_sha256": "sha256:ddaa81fce9a076a2c078a0e732bac55f45a7078fd8f7f31bc87e75226533a332",
+          "extractors": {
+            "vlm": "nvidia/Qwen3.8-Flash-Next-NVFP4",
+            "prompts": "vision-page-items@2.0.0+vision-page-classify@1.0.0+vision-table-rows@2.0.0+vision-crop-reread@1.0.0",
+            "ocr": "pdf-text-layer(pymupdf)",
+            "pipeline": "vision-pipeline/db0d4e577167"
+          },
+          "word_ids": [],
+          "null_reason": null,
+          "agreement": true,
+          "source": "consensus"
+        }
+      },
+      {
+        "element_id": "D1-f-invoice_date",
+        "document_id": "D1",
+        "document_type": "INVOICE",
+        "page_no": 1,
+        "element_type": "field",
+        "parent_id": null,
+        "field_name": "invoice_date",
+        "raw_value": "11/09/2026",
+        "normalized_value": "2026-09-11",
+        "confidence": 0.96,
+        "bbox": [
+          0.72,
+          0.211,
+          0.075,
+          0.013
+        ],
+        "source_reference": {
+          "package_id": "PKG-DMS-85",
+          "dms_doc_id": "DMS-85",
+          "file_sha256": "sha256:ddaa81fce9a076a2c078a0e732bac55f45a7078fd8f7f31bc87e75226533a332",
+          "extractors": {
+            "vlm": "nvidia/Qwen3.8-Flash-Next-NVFP4",
+            "prompts": "vision-page-items@2.0.0+vision-page-classify@1.0.0+vision-table-rows@2.0.0+vision-crop-reread@1.0.0",
+            "ocr": "pdf-text-layer(pymupdf)",
+            "pipeline": "vision-pipeline/db0d4e577167"
+          },
+          "word_ids": [],
+          "null_reason": null,
+          "agreement": true,
+          "source": "consensus"
+        }
+      },
+      {
+        "element_id": "D1-f-invoice_num",
+        "document_id": "D1",
+        "document_type": "INVOICE",
+        "page_no": 1,
+        "element_type": "field",
+        "parent_id": null,
+        "field_name": "invoice_num",
+        "raw_value": "112603974",
+        "normalized_value": "112603974",
+        "confidence": 0.96,
+        "bbox": [
+          0.72,
+          0.239,
+          0.073,
+          0.013
+        ],
+        "source_reference": {
+          "package_id": "PKG-DMS-85",
+          "dms_doc_id": "DMS-85",
+          "file_sha256": "sha256:ddaa81fce9a076a2c078a0e732bac55f45a7078fd8f7f31bc87e75226533a332",
+          "extractors": {
+            "vlm": "nvidia/Qwen3.8-Flash-Next-NVFP4",
+            "prompts": "vision-page-items@2.0.0+vision-page-classify@1.0.0+vision-table-rows@2.0.0+vision-crop-reread@1.0.0",
+            "ocr": "pdf-text-layer(pymupdf)",
+            "pipeline": "vision-pipeline/db0d4e577167"
+          },
+          "word_ids": [],
+          "null_reason": null,
+          "agreement": true,
+          "source": "consensus"
+        }
+      },
+      {
+        "element_id": "D1-f-sub_total",
+        "document_id": "D1",
+        "document_type": "INVOICE",
+        "page_no": 1,
+        "element_type": "field",
+        "parent_id": null,
+        "field_name": "sub_total",
+        "raw_value": "2,288.00",
+        "normalized_value": "2288.00",
+        "confidence": 0.96,
+        "bbox": [
+          0.884,
+          0.755,
+          0.052,
+          0.011
+        ],
+        "source_reference": {
+          "package_id": "PKG-DMS-85",
+          "dms_doc_id": "DMS-85",
+          "file_sha256": "sha256:ddaa81fce9a076a2c078a0e732bac55f45a7078fd8f7f31bc87e75226533a332",
+          "extractors": {
+            "vlm": "nvidia/Qwen3.8-Flash-Next-NVFP4",
+            "prompts": "vision-page-items@2.0.0+vision-page-classify@1.0.0+vision-table-rows@2.0.0+vision-crop-reread@1.0.0",
+            "ocr": "pdf-text-layer(pymupdf)",
+            "pipeline": "vision-pipeline/db0d4e577167"
+          },
+          "word_ids": [],
+          "null_reason": null,
+          "agreement": true,
+          "source": "consensus"
+        }
+      },
+      {
+        "element_id": "D1-f-grand_total",
+        "document_id": "D1",
+        "document_type": "INVOICE",
+        "page_no": 1,
+        "element_type": "field",
+        "parent_id": null,
+        "field_name": "grand_total",
+        "raw_value": "2,288.00",
+        "normalized_value": "2288.00",
+        "confidence": 0.96,
+        "bbox": [
+          0.884,
+          0.81,
+          0.052,
+          0.011
+        ],
+        "source_reference": {
+          "package_id": "PKG-DMS-85",
+          "dms_doc_id": "DMS-85",
+          "file_sha256": "sha256:ddaa81fce9a076a2c078a0e732bac55f45a7078fd8f7f31bc87e75226533a332",
+          "extractors": {
+            "vlm": "nvidia/Qwen3.8-Flash-Next-NVFP4",
+            "prompts": "vision-page-items@2.0.0+vision-page-classify@1.0.0+vision-table-rows@2.0.0+vision-crop-reread@1.0.0",
+            "ocr": "pdf-text-layer(pymupdf)",
+            "pipeline": "vision-pipeline/db0d4e577167"
+          },
+          "word_ids": [],
+          "null_reason": null,
+          "agreement": true,
+          "source": "consensus"
+        }
+      },
+      {
+        "element_id": "D1-f-vat",
+        "document_id": "D1",
+        "document_type": "INVOICE",
+        "page_no": 1,
+        "element_type": "field",
+        "parent_id": null,
+        "field_name": "vat",
+        "raw_value": "160.16",
+        "normalized_value": "160.16",
+        "confidence": 0.96,
+        "bbox": [
+          0.895,
+          0.84,
+          0.041,
+          0.011
+        ],
+        "source_reference": {
+          "package_id": "PKG-DMS-85",
+          "dms_doc_id": "DMS-85",
+          "file_sha256": "sha256:ddaa81fce9a076a2c078a0e732bac55f45a7078fd8f7f31bc87e75226533a332",
+          "extractors": {
+            "vlm": "nvidia/Qwen3.8-Flash-Next-NVFP4",
+            "prompts": "vision-page-items@2.0.0+vision-page-classify@1.0.0+vision-table-rows@2.0.0+vision-crop-reread@1.0.0",
+            "ocr": "pdf-text-layer(pymupdf)",
+            "pipeline": "vision-pipeline/db0d4e577167"
+          },
+          "word_ids": [],
+          "null_reason": null,
+          "agreement": true,
+          "source": "consensus"
+        }
+      },
+      {
+        "element_id": "D1-f-customer_address",
+        "document_id": "D1",
+        "document_type": "INVOICE",
+        "page_no": 1,
+        "element_type": "field",
+        "parent_id": null,
+        "field_name": "customer_address",
+        "raw_value": "99 MOO 1, HI-TECH INDUSTRIAL ESTATE TAMBOL BANLANE AMPHUR BANG PA-IN  AYUTHAYA 13160",
+        "normalized_value": "99 MOO 1, HI-TECH INDUSTRIAL ESTATE TAMBOL BANLANE AMPHUR BANG PA-IN AYUTHAYA 13160",
+        "confidence": 0.96,
+        "bbox": [
+          0.101,
+          0.228,
+          0.513,
+          0.035
+        ],
+        "source_reference": {
+          "package_id": "PKG-DMS-85",
+          "dms_doc_id": "DMS-85",
+          "file_sha256": "sha256:ddaa81fce9a076a2c078a0e732bac55f45a7078fd8f7f31bc87e75226533a332",
+          "extractors": {
+            "vlm": "nvidia/Qwen3.8-Flash-Next-NVFP4",
+            "prompts": "vision-page-items@2.0.0+vision-page-classify@1.0.0+vision-table-rows@2.0.0+vision-crop-reread@1.0.0",
+            "ocr": "pdf-text-layer(pymupdf)",
+            "pipeline": "vision-pipeline/db0d4e577167"
+          },
+          "word_ids": [],
+          "null_reason": null,
+          "agreement": true,
+          "source": "consensus"
+        }
+      },
+      {
+        "element_id": "D1-f-customer_tax_id",
+        "document_id": "D1",
+        "document_type": "INVOICE",
+        "page_no": 1,
+        "element_type": "field",
+        "parent_id": null,
+        "field_name": "customer_tax_id",
+        "raw_value": "0107545000179",
+        "normalized_value": "0107545000179",
+        "confidence": 0.96,
+        "bbox": [
+          0.052,
+          0.275,
+          0.41,
+          0.017
+        ],
+        "source_reference": {
+          "package_id": "PKG-DMS-85",
+          "dms_doc_id": "DMS-85",
+          "file_sha256": "sha256:ddaa81fce9a076a2c078a0e732bac55f45a7078fd8f7f31bc87e75226533a332",
+          "extractors": {
+            "vlm": "nvidia/Qwen3.8-Flash-Next-NVFP4",
+            "prompts": "vision-page-items@2.0.0+vision-page-classify@1.0.0+vision-table-rows@2.0.0+vision-crop-reread@1.0.0",
+            "ocr": "pdf-text-layer(pymupdf)",
+            "pipeline": "vision-pipeline/db0d4e577167"
+          },
+          "word_ids": [],
+          "null_reason": null,
+          "agreement": true,
+          "source": "consensus"
+        }
+      },
+      {
+        "element_id": "D1-f-supplier_name",
+        "document_id": "D1",
+        "document_type": "INVOICE",
+        "page_no": 1,
+        "element_type": "field",
+        "parent_id": null,
+        "field_name": "supplier_name",
+        "raw_value": "บริษัท อาปิโก ฮิดเทค จำกัด",
+        "normalized_value": "บริษัท อาปิโก ฮิดเทค จำกัด",
+        "confidence": 0.85,
+        "bbox": [
+          0.241,
+          0.059,
+          0.193,
+          0.017
+        ],
+        "source_reference": {
+          "package_id": "PKG-DMS-85",
+          "dms_doc_id": "DMS-85",
+          "file_sha256": "sha256:ddaa81fce9a076a2c078a0e732bac55f45a7078fd8f7f31bc87e75226533a332",
+          "extractors": {
+            "vlm": "nvidia/Qwen3.8-Flash-Next-NVFP4",
+            "prompts": "vision-page-items@2.0.0+vision-page-classify@1.0.0+vision-table-rows@2.0.0+vision-crop-reread@1.0.0",
+            "ocr": "pdf-text-layer(pymupdf)",
+            "pipeline": "vision-pipeline/db0d4e577167"
+          },
+          "word_ids": [],
+          "null_reason": null,
+          "agreement": true,
+          "source": "consensus"
+        }
+      },
+      {
+        "element_id": "D1-f-supplier_address",
+        "document_id": "D1",
+        "document_type": "INVOICE",
+        "page_no": 1,
+        "element_type": "field",
+        "parent_id": null,
+        "field_name": "supplier_address",
+        "raw_value": "152 หมู่ที่ 1 ตำบลบ้านเลน อำเภอบางปะอิน จังหวัดพระนครศรีอยุธยา 13160",
+        "normalized_value": "152 หมู่ที่ 1 ตำบลบ้านเลน อำเภอบางปะอิน จังหวัดพระนครศรีอยุธยา 13160",
+        "confidence": 0.7,
+        "bbox": [
+          0.241,
+          0.082,
+          0.414,
+          0.013
+        ],
+        "source_reference": {
+          "package_id": "PKG-DMS-85",
+          "dms_doc_id": "DMS-85",
+          "file_sha256": "sha256:ddaa81fce9a076a2c078a0e732bac55f45a7078fd8f7f31bc87e75226533a332",
+          "extractors": {
+            "vlm": "nvidia/Qwen3.8-Flash-Next-NVFP4",
+            "prompts": "vision-page-items@2.0.0+vision-page-classify@1.0.0+vision-table-rows@2.0.0+vision-crop-reread@1.0.0",
+            "ocr": "pdf-text-layer(pymupdf)",
+            "pipeline": "vision-pipeline/db0d4e577167"
+          },
+          "word_ids": [],
+          "null_reason": null,
+          "agreement": false,
+          "source": "vlm"
+        }
+      },
+      {
+        "element_id": "D1-f-supplier_tax_id",
+        "document_id": "D1",
+        "document_type": "INVOICE",
+        "page_no": 1,
+        "element_type": "field",
+        "parent_id": null,
+        "field_name": "supplier_tax_id",
+        "raw_value": "0145556001111",
+        "normalized_value": "0145556001111",
+        "confidence": 0.96,
+        "bbox": [
+          0.241,
+          0.102,
+          0.321,
+          0.013
+        ],
+        "source_reference": {
+          "package_id": "PKG-DMS-85",
+          "dms_doc_id": "DMS-85",
+          "file_sha256": "sha256:ddaa81fce9a076a2c078a0e732bac55f45a7078fd8f7f31bc87e75226533a332",
+          "extractors": {
+            "vlm": "nvidia/Qwen3.8-Flash-Next-NVFP4",
+            "prompts": "vision-page-items@2.0.0+vision-page-classify@1.0.0+vision-table-rows@2.0.0+vision-crop-reread@1.0.0",
+            "ocr": "pdf-text-layer(pymupdf)",
+            "pipeline": "vision-pipeline/db0d4e577167"
+          },
+          "word_ids": [],
+          "null_reason": null,
+          "agreement": true,
+          "source": "consensus"
+        }
+      },
+      {
+        "element_id": "D1-f-po_number",
+        "document_id": "D1",
+        "document_type": "INVOICE",
+        "page_no": 2,
+        "element_type": "field",
+        "parent_id": null,
+        "field_name": "po_number",
+        "raw_value": "40121195",
+        "normalized_value": "40121195",
+        "confidence": 0.96,
+        "bbox": [
+          0.585,
+          0.131,
+          0.085,
+          0.012
+        ],
+        "source_reference": {
+          "package_id": "PKG-DMS-85",
+          "dms_doc_id": "DMS-85",
+          "file_sha256": "sha256:ddaa81fce9a076a2c078a0e732bac55f45a7078fd8f7f31bc87e75226533a332",
+          "extractors": {
+            "vlm": "nvidia/Qwen3.8-Flash-Next-NVFP4",
+            "prompts": "vision-page-items@2.0.0+vision-page-classify@1.0.0+vision-table-rows@2.0.0+vision-crop-reread@1.0.0",
+            "ocr": "pdf-text-layer(pymupdf)",
+            "pipeline": "vision-pipeline/db0d4e577167"
+          },
+          "word_ids": [],
+          "null_reason": null,
+          "agreement": true,
+          "source": "consensus"
+        }
+      },
+      {
+        "element_id": "D1-L1",
+        "document_id": "D1",
+        "document_type": "INVOICE",
+        "page_no": 1,
+        "element_type": "row",
+        "parent_id": null,
+        "field_name": "lines[1]",
+        "raw_value": null,
+        "normalized_value": null,
+        "confidence": null,
+        "bbox": [
+          0.068,
+          0.364,
+          0.867,
+          0.028
+        ],
+        "source_reference": {
+          "package_id": "PKG-DMS-85",
+          "dms_doc_id": "DMS-85",
+          "file_sha256": "sha256:ddaa81fce9a076a2c078a0e732bac55f45a7078fd8f7f31bc87e75226533a332",
+          "extractors": {
+            "vlm": "nvidia/Qwen3.8-Flash-Next-NVFP4",
+            "prompts": "vision-page-items@2.0.0+vision-page-classify@1.0.0+vision-table-rows@2.0.0+vision-crop-reread@1.0.0",
+            "ocr": "pdf-text-layer(pymupdf)",
+            "pipeline": "vision-pipeline/db0d4e577167"
+          }
+        }
+      },
+      {
+        "element_id": "D1-L1-description",
+        "document_id": "D1",
+        "document_type": "INVOICE",
+        "page_no": 1,
+        "element_type": "cell",
+        "parent_id": "D1-L1",
+        "field_name": "lines[1].description",
+        "raw_value": "PPR0001860B 44593-0D100 BRACKET BRAKE ACTUATOR, NO.3 40121195-34",
+        "normalized_value": "PPR0001860B 44593-0D100 BRACKET BRAKE ACTUATOR, NO.3 40121195-34",
+        "confidence": 0.7,
+        "bbox": [
+          0.068,
+          0.364,
+          0.867,
+          0.028
+        ],
+        "source_reference": {
+          "package_id": "PKG-DMS-85",
+          "dms_doc_id": "DMS-85",
+          "file_sha256": "sha256:ddaa81fce9a076a2c078a0e732bac55f45a7078fd8f7f31bc87e75226533a332",
+          "extractors": {
+            "vlm": "nvidia/Qwen3.8-Flash-Next-NVFP4",
+            "prompts": "vision-page-items@2.0.0+vision-page-classify@1.0.0+vision-table-rows@2.0.0+vision-crop-reread@1.0.0",
+            "ocr": "pdf-text-layer(pymupdf)",
+            "pipeline": "vision-pipeline/db0d4e577167"
+          },
+          "null_reason": null,
+          "agreement": false
+        }
+      },
+      {
+        "element_id": "D1-L1-qty",
+        "document_id": "D1",
+        "document_type": "INVOICE",
+        "page_no": 1,
+        "element_type": "cell",
+        "parent_id": "D1-L1",
+        "field_name": "lines[1].qty",
+        "raw_value": "320.00",
+        "normalized_value": "320.00",
+        "confidence": 0.95,
+        "bbox": [
+          0.068,
+          0.364,
+          0.867,
+          0.028
+        ],
+        "source_reference": {
+          "package_id": "PKG-DMS-85",
+          "dms_doc_id": "DMS-85",
+          "file_sha256": "sha256:ddaa81fce9a076a2c078a0e732bac55f45a7078fd8f7f31bc87e75226533a332",
+          "extractors": {
+            "vlm": "nvidia/Qwen3.8-Flash-Next-NVFP4",
+            "prompts": "vision-page-items@2.0.0+vision-page-classify@1.0.0+vision-table-rows@2.0.0+vision-crop-reread@1.0.0",
+            "ocr": "pdf-text-layer(pymupdf)",
+            "pipeline": "vision-pipeline/db0d4e577167"
+          },
+          "null_reason": null,
+          "agreement": true
+        }
+      },
+      {
+        "element_id": "D1-L1-unit_price",
+        "document_id": "D1",
+        "document_type": "INVOICE",
+        "page_no": 1,
+        "element_type": "cell",
+        "parent_id": "D1-L1",
+        "field_name": "lines[1].unit_price",
+        "raw_value": "7.15",
+        "normalized_value": "7.15",
+        "confidence": 0.95,
+        "bbox": [
+          0.068,
+          0.364,
+          0.867,
+          0.028
+        ],
+        "source_reference": {
+          "package_id": "PKG-DMS-85",
+          "dms_doc_id": "DMS-85",
+          "file_sha256": "sha256:ddaa81fce9a076a2c078a0e732bac55f45a7078fd8f7f31bc87e75226533a332",
+          "extractors": {
+            "vlm": "nvidia/Qwen3.8-Flash-Next-NVFP4",
+            "prompts": "vision-page-items@2.0.0+vision-page-classify@1.0.0+vision-table-rows@2.0.0+vision-crop-reread@1.0.0",
+            "ocr": "pdf-text-layer(pymupdf)",
+            "pipeline": "vision-pipeline/db0d4e577167"
+          },
+          "null_reason": null,
+          "agreement": true
+        }
+      },
+      {
+        "element_id": "D1-L1-amount",
+        "document_id": "D1",
+        "document_type": "INVOICE",
+        "page_no": 1,
+        "element_type": "cell",
+        "parent_id": "D1-L1",
+        "field_name": "lines[1].amount",
+        "raw_value": "2,288.00",
+        "normalized_value": "2288.00",
+        "confidence": 0.95,
+        "bbox": [
+          0.068,
+          0.364,
+          0.867,
+          0.028
+        ],
+        "source_reference": {
+          "package_id": "PKG-DMS-85",
+          "dms_doc_id": "DMS-85",
+          "file_sha256": "sha256:ddaa81fce9a076a2c078a0e732bac55f45a7078fd8f7f31bc87e75226533a332",
+          "extractors": {
+            "vlm": "nvidia/Qwen3.8-Flash-Next-NVFP4",
+            "prompts": "vision-page-items@2.0.0+vision-page-classify@1.0.0+vision-table-rows@2.0.0+vision-crop-reread@1.0.0",
+            "ocr": "pdf-text-layer(pymupdf)",
+            "pipeline": "vision-pipeline/db0d4e577167"
+          },
+          "null_reason": null,
+          "agreement": true
+        }
+      },
+      {
+        "element_id": "T1-001",
+        "document_id": "D1",
+        "document_type": "INVOICE",
+        "page_no": 1,
+        "element_type": "table",
+        "parent_id": "P1",
+        "field_name": "item_table",
+        "raw_value": null,
+        "normalized_value": null,
+        "confidence": 0.9,
+        "bbox": [
+          0.04,
+          0.31,
+          0.902,
+          0.439
+        ],
+        "source_reference": {
+          "package_id": "PKG-DMS-85",
+          "dms_doc_id": "DMS-85",
+          "file_sha256": "sha256:ddaa81fce9a076a2c078a0e732bac55f45a7078fd8f7f31bc87e75226533a332",
+          "extractors": {
+            "vlm": "nvidia/Qwen3.8-Flash-Next-NVFP4",
+            "prompts": "vision-page-items@2.0.0+vision-page-classify@1.0.0+vision-table-rows@2.0.0+vision-crop-reread@1.0.0",
+            "ocr": "pdf-text-layer(pymupdf)",
+            "pipeline": "vision-pipeline/db0d4e577167"
+          },
+          "region_kind": "table"
+        }
+      },
+      {
+        "element_id": "T1-C01",
+        "document_id": "D1",
+        "document_type": "INVOICE",
+        "page_no": 1,
+        "element_type": "section",
+        "parent_id": "P1",
+        "field_name": "column:description",
+        "raw_value": null,
+        "normalized_value": null,
+        "confidence": null,
+        "bbox": [
+          0.088,
+          0.31,
+          0.486,
+          0.048
+        ],
+        "source_reference": {
+          "package_id": "PKG-DMS-85",
+          "dms_doc_id": "DMS-85",
+          "file_sha256": "sha256:ddaa81fce9a076a2c078a0e732bac55f45a7078fd8f7f31bc87e75226533a332",
+          "extractors": {
+            "vlm": "nvidia/Qwen3.8-Flash-Next-NVFP4",
+            "prompts": "vision-page-items@2.0.0+vision-page-classify@1.0.0+vision-table-rows@2.0.0+vision-crop-reread@1.0.0",
+            "ocr": "pdf-text-layer(pymupdf)",
+            "pipeline": "vision-pipeline/db0d4e577167"
+          },
+          "region_kind": "section"
+        }
+      },
+      {
+        "element_id": "T1-C02",
+        "document_id": "D1",
+        "document_type": "INVOICE",
+        "page_no": 1,
+        "element_type": "section",
+        "parent_id": "P1",
+        "field_name": "column:qty",
+        "raw_value": null,
+        "normalized_value": null,
+        "confidence": null,
+        "bbox": [
+          0.574,
+          0.31,
+          0.092,
+          0.048
+        ],
+        "source_reference": {
+          "package_id": "PKG-DMS-85",
+          "dms_doc_id": "DMS-85",
+          "file_sha256": "sha256:ddaa81fce9a076a2c078a0e732bac55f45a7078fd8f7f31bc87e75226533a332",
+          "extractors": {
+            "vlm": "nvidia/Qwen3.8-Flash-Next-NVFP4",
+            "prompts": "vision-page-items@2.0.0+vision-page-classify@1.0.0+vision-table-rows@2.0.0+vision-crop-reread@1.0.0",
+            "ocr": "pdf-text-layer(pymupdf)",
+            "pipeline": "vision-pipeline/db0d4e577167"
+          },
+          "region_kind": "section"
+        }
+      },
+      {
+        "element_id": "T1-C03",
+        "document_id": "D1",
+        "document_type": "INVOICE",
+        "page_no": 1,
+        "element_type": "section",
+        "parent_id": "P1",
+        "field_name": "column:unit_price",
+        "raw_value": null,
+        "normalized_value": null,
+        "confidence": null,
+        "bbox": [
+          0.666,
+          0.31,
+          0.114,
+          0.048
+        ],
+        "source_reference": {
+          "package_id": "PKG-DMS-85",
+          "dms_doc_id": "DMS-85",
+          "file_sha256": "sha256:ddaa81fce9a076a2c078a0e732bac55f45a7078fd8f7f31bc87e75226533a332",
+          "extractors": {
+            "vlm": "nvidia/Qwen3.8-Flash-Next-NVFP4",
+            "prompts": "vision-page-items@2.0.0+vision-page-classify@1.0.0+vision-table-rows@2.0.0+vision-crop-reread@1.0.0",
+            "ocr": "pdf-text-layer(pymupdf)",
+            "pipeline": "vision-pipeline/db0d4e577167"
+          },
+          "region_kind": "section"
+        }
+      },
+      {
+        "element_id": "T1-C04",
+        "document_id": "D1",
+        "document_type": "INVOICE",
+        "page_no": 1,
+        "element_type": "section",
+        "parent_id": "P1",
+        "field_name": "column:amount",
+        "raw_value": null,
+        "normalized_value": null,
+        "confidence": null,
+        "bbox": [
+          0.78,
+          0.31,
+          0.162,
+          0.048
+        ],
+        "source_reference": {
+          "package_id": "PKG-DMS-85",
+          "dms_doc_id": "DMS-85",
+          "file_sha256": "sha256:ddaa81fce9a076a2c078a0e732bac55f45a7078fd8f7f31bc87e75226533a332",
+          "extractors": {
+            "vlm": "nvidia/Qwen3.8-Flash-Next-NVFP4",
+            "prompts": "vision-page-items@2.0.0+vision-page-classify@1.0.0+vision-table-rows@2.0.0+vision-crop-reread@1.0.0",
+            "ocr": "pdf-text-layer(pymupdf)",
+            "pipeline": "vision-pipeline/db0d4e577167"
+          },
+          "region_kind": "section"
+        }
+      },
+      {
+        "element_id": "S1-other",
+        "document_id": "D1",
+        "document_type": "INVOICE",
+        "page_no": 1,
+        "element_type": "section",
+        "parent_id": "P1",
+        "field_name": "other",
+        "raw_value": "AAPICO | เอกสารนี้ได้จัดทำและจัดส่งข้อมูลให้แก่กรมสรรพากรด้วยวิธีการทางอิเล็กทรอนิกส์ เอกสารฉบับนี้ได้จัดทำขึ้นอย่างสมบูรณ์แล้วโดยไม่ต้องมีลายเซ็นของเจ้าหน้าที่บริษัทแต่อย่างใด | 510521951",
+        "normalized_value": null,
+        "confidence": 0.97,
+        "bbox": [
+          0.091,
+          0.016,
+          0.666,
+          0.94
+        ],
+        "source_reference": {
+          "package_id": "PKG-DMS-85",
+          "dms_doc_id": "DMS-85",
+          "file_sha256": "sha256:ddaa81fce9a076a2c078a0e732bac55f45a7078fd8f7f31bc87e75226533a332",
+          "extractors": {
+            "vlm": "nvidia/Qwen3.8-Flash-Next-NVFP4",
+            "prompts": "vision-page-items@2.0.0+vision-page-classify@1.0.0+vision-table-rows@2.0.0+vision-crop-reread@1.0.0",
+            "ocr": "pdf-text-layer(pymupdf)",
+            "pipeline": "vision-pipeline/db0d4e577167"
+          },
+          "region_kind": "section"
+        }
+      },
+      {
+        "element_id": "S1-customer",
+        "document_id": "D1",
+        "document_type": "INVOICE",
+        "page_no": 1,
+        "element_type": "section",
+        "parent_id": "P1",
+        "field_name": "customer",
+        "raw_value": "AAPICO HITECH PUBLIC CO.,LTD. | 99 MOO 1, HI-TECH INDUSTRIAL ESTATE TAMBOL BANLANE AMPHUR BANG PA-IN AYUTHAYA 13160 | เลขประจำตัวผู้เสียภาษีอากร 0107545000179 (สำนักงานใหญ่)",
+        "normalized_value": null,
+        "confidence": 0.97,
+        "bbox": [
+          0.052,
+          0.204,
+          0.562,
+          0.088
+        ],
+        "source_reference": {
+          "package_id": "PKG-DMS-85",
+          "dms_doc_id": "DMS-85",
+          "file_sha256": "sha256:ddaa81fce9a076a2c078a0e732bac55f45a7078fd8f7f31bc87e75226533a332",
+          "extractors": {
+            "vlm": "nvidia/Qwen3.8-Flash-Next-NVFP4",
+            "prompts": "vision-page-items@2.0.0+vision-page-classify@1.0.0+vision-table-rows@2.0.0+vision-crop-reread@1.0.0",
+            "ocr": "pdf-text-layer(pymupdf)",
+            "pipeline": "vision-pipeline/db0d4e577167"
+          },
+          "region_kind": "section"
+        }
+      },
+      {
+        "element_id": "S1-header",
+        "document_id": "D1",
+        "document_type": "INVOICE",
+        "page_no": 1,
+        "element_type": "section",
+        "parent_id": "P1",
+        "field_name": "header",
+        "raw_value": "11/09/2026 | 112603974 | 30 days | Page 1 of 1 | ต้นฉบับใบกำกับภาษีในส่งของ",
+        "normalized_value": null,
+        "confidence": 0.97,
+        "bbox": [
+          0.372,
+          0.033,
+          0.571,
+          0.246
+        ],
+        "source_reference": {
+          "package_id": "PKG-DMS-85",
+          "dms_doc_id": "DMS-85",
+          "file_sha256": "sha256:ddaa81fce9a076a2c078a0e732bac55f45a7078fd8f7f31bc87e75226533a332",
+          "extractors": {
+            "vlm": "nvidia/Qwen3.8-Flash-Next-NVFP4",
+            "prompts": "vision-page-items@2.0.0+vision-page-classify@1.0.0+vision-table-rows@2.0.0+vision-crop-reread@1.0.0",
+            "ocr": "pdf-text-layer(pymupdf)",
+            "pipeline": "vision-pipeline/db0d4e577167"
+          },
+          "region_kind": "section"
+        }
+      },
+      {
+        "element_id": "S1-total",
+        "document_id": "D1",
+        "document_type": "INVOICE",
+        "page_no": 1,
+        "element_type": "section",
+        "parent_id": "P1",
+        "field_name": "total",
+        "raw_value": "2,288.00 | 0.00 | 2,288.00 | 160.16 | 2,448.16 | =สองพันสี่ร้อยสี่สิบแปดบาทสิบหกสตางค์=",
+        "normalized_value": null,
+        "confidence": 0.97,
+        "bbox": [
+          0.212,
+          0.755,
+          0.724,
+          0.126
+        ],
+        "source_reference": {
+          "package_id": "PKG-DMS-85",
+          "dms_doc_id": "DMS-85",
+          "file_sha256": "sha256:ddaa81fce9a076a2c078a0e732bac55f45a7078fd8f7f31bc87e75226533a332",
+          "extractors": {
+            "vlm": "nvidia/Qwen3.8-Flash-Next-NVFP4",
+            "prompts": "vision-page-items@2.0.0+vision-page-classify@1.0.0+vision-table-rows@2.0.0+vision-crop-reread@1.0.0",
+            "ocr": "pdf-text-layer(pymupdf)",
+            "pipeline": "vision-pipeline/db0d4e577167"
+          },
+          "region_kind": "section"
+        }
+      },
+      {
+        "element_id": "S1-supplier",
+        "document_id": "D1",
+        "document_type": "INVOICE",
+        "page_no": 1,
+        "element_type": "section",
+        "parent_id": "P1",
+        "field_name": "supplier",
+        "raw_value": "บริษัท อาปิโก ฮิดเทค จำกัด | 152 หมู่ที่ 1 ตำบลบ้านเลน อำเภอบางปะอิน จังหวัดพระนครศรีอยุธยา 13160 | เลขประจำตัวผู้เสียภาษีอากร 0145556001111 (สำนักงานใหญ่)",
+        "normalized_value": null,
+        "confidence": 0.95,
+        "bbox": [
+          0.241,
+          0.059,
+          0.414,
+          0.056
+        ],
+        "source_reference": {
+          "package_id": "PKG-DMS-85",
+          "dms_doc_id": "DMS-85",
+          "file_sha256": "sha256:ddaa81fce9a076a2c078a0e732bac55f45a7078fd8f7f31bc87e75226533a332",
+          "extractors": {
+            "vlm": "nvidia/Qwen3.8-Flash-Next-NVFP4",
+            "prompts": "vision-page-items@2.0.0+vision-page-classify@1.0.0+vision-table-rows@2.0.0+vision-crop-reread@1.0.0",
+            "ocr": "pdf-text-layer(pymupdf)",
+            "pipeline": "vision-pipeline/db0d4e577167"
+          },
+          "region_kind": "section"
+        }
+      },
+      {
+        "element_id": "S1-table",
+        "document_id": "D1",
+        "document_type": "INVOICE",
+        "page_no": 1,
+        "element_type": "table",
+        "parent_id": "P1",
+        "field_name": "table",
+        "raw_value": "ลำดับที่ NO. รายการสินค้า/บริการ DESCRIPTION จำนวน QUANTITY ราคาต่อหน่วย UNIT PRICE จำนวนเงิน AMOUNT",
+        "normalized_value": null,
+        "confidence": 0.95,
+        "bbox": [
+          0.052,
+          0.313,
+          0.843,
+          0.04
+        ],
+        "source_reference": {
+          "package_id": "PKG-DMS-85",
+          "dms_doc_id": "DMS-85",
+          "file_sha256": "sha256:ddaa81fce9a076a2c078a0e732bac55f45a7078fd8f7f31bc87e75226533a332",
+          "extractors": {
+            "vlm": "nvidia/Qwen3.8-Flash-Next-NVFP4",
+            "prompts": "vision-page-items@2.0.0+vision-page-classify@1.0.0+vision-table-rows@2.0.0+vision-crop-reread@1.0.0",
+            "ocr": "pdf-text-layer(pymupdf)",
+            "pipeline": "vision-pipeline/db0d4e577167"
+          },
+          "region_kind": "table"
+        }
+      },
+      {
+        "element_id": "S2-header",
+        "document_id": "D2",
+        "document_type": "DELIVERY_NOTE",
+        "page_no": 2,
+        "element_type": "section",
+        "parent_id": "P2",
+        "field_name": "header",
+        "raw_value": "Page 2 | (Copied) | Purchase Order Shipping Confirm (PSC) | 112603974 | 2026-09-11 | 2026-09-10 | 40121195, 34 | 2026-09-11 | Interco 30 Days",
+        "normalized_value": null,
+        "confidence": 0.95,
+        "bbox": [
+          0.229,
+          0.027,
+          0.676,
+          0.168
+        ],
+        "source_reference": {
+          "package_id": "PKG-DMS-85",
+          "dms_doc_id": "DMS-85",
+          "file_sha256": "sha256:ddaa81fce9a076a2c078a0e732bac55f45a7078fd8f7f31bc87e75226533a332",
+          "extractors": {
+            "vlm": "nvidia/Qwen3.8-Flash-Next-NVFP4",
+            "prompts": "vision-page-items@2.0.0+vision-page-classify@1.0.0+vision-table-rows@2.0.0+vision-crop-reread@1.0.0",
+            "ocr": "pdf-text-layer(pymupdf)",
+            "pipeline": "vision-pipeline/db0d4e577167"
+          },
+          "region_kind": "section"
+        }
+      },
+      {
+        "element_id": "S2-other",
+        "document_id": "D2",
+        "document_type": "DELIVERY_NOTE",
+        "page_no": 2,
+        "element_type": "section",
+        "parent_id": "P2",
+        "field_name": "other",
+        "raw_value": "AAPICO | --- End of Document --- | 510581951 | TF-04-05, Oct 01,2020 (Rev.0) | APD-ALD Adjust material price Effective date : 01/08/26 | qr_code | qr_code | Ref: 112603974|40121195 | 2026-09-10 16:18 | Receiving Number:",
+        "normalized_value": null,
+        "confidence": 0.95,
+        "bbox": [
+          0.093,
+          0.008,
+          0.773,
+          0.425
+        ],
+        "source_reference": {
+          "package_id": "PKG-DMS-85",
+          "dms_doc_id": "DMS-85",
+          "file_sha256": "sha256:ddaa81fce9a076a2c078a0e732bac55f45a7078fd8f7f31bc87e75226533a332",
+          "extractors": {
+            "vlm": "nvidia/Qwen3.8-Flash-Next-NVFP4",
+            "prompts": "vision-page-items@2.0.0+vision-page-classify@1.0.0+vision-table-rows@2.0.0+vision-crop-reread@1.0.0",
+            "ocr": "pdf-text-layer(pymupdf)",
+            "pipeline": "vision-pipeline/db0d4e577167"
+          },
+          "region_kind": "section"
+        }
+      },
+      {
+        "element_id": "S2-supplier",
+        "document_id": "D2",
+        "document_type": "DELIVERY_NOTE",
+        "page_no": 2,
+        "element_type": "section",
+        "parent_id": "P2",
+        "field_name": "supplier",
+        "raw_value": "AH - Aapico Hitech Ayutthaya | AYUTTHAYA | 152 m.1, hi-tech industrial es-tatet.ban-lane a.bang pa-inayut-thaya,13160,th",
+        "normalized_value": null,
+        "confidence": 0.95,
+        "bbox": [
+          0.108,
+          0.069,
+          0.514,
+          0.207
+        ],
+        "source_reference": {
+          "package_id": "PKG-DMS-85",
+          "dms_doc_id": "DMS-85",
+          "file_sha256": "sha256:ddaa81fce9a076a2c078a0e732bac55f45a7078fd8f7f31bc87e75226533a332",
+          "extractors": {
+            "vlm": "nvidia/Qwen3.8-Flash-Next-NVFP4",
+            "prompts": "vision-page-items@2.0.0+vision-page-classify@1.0.0+vision-table-rows@2.0.0+vision-crop-reread@1.0.0",
+            "ocr": "pdf-text-layer(pymupdf)",
+            "pipeline": "vision-pipeline/db0d4e577167"
+          },
+          "region_kind": "section"
+        }
+      },
+      {
+        "element_id": "S2-total",
+        "document_id": "D2",
+        "document_type": "DELIVERY_NOTE",
+        "page_no": 2,
+        "element_type": "section",
+        "parent_id": "P2",
+        "field_name": "total",
+        "raw_value": "2,288.00",
+        "normalized_value": null,
+        "confidence": 0.95,
+        "bbox": [
+          0.585,
+          0.219,
+          0.063,
+          0.012
+        ],
+        "source_reference": {
+          "package_id": "PKG-DMS-85",
+          "dms_doc_id": "DMS-85",
+          "file_sha256": "sha256:ddaa81fce9a076a2c078a0e732bac55f45a7078fd8f7f31bc87e75226533a332",
+          "extractors": {
+            "vlm": "nvidia/Qwen3.8-Flash-Next-NVFP4",
+            "prompts": "vision-page-items@2.0.0+vision-page-classify@1.0.0+vision-table-rows@2.0.0+vision-crop-reread@1.0.0",
+            "ocr": "pdf-text-layer(pymupdf)",
+            "pipeline": "vision-pipeline/db0d4e577167"
+          },
+          "region_kind": "section"
+        }
+      },
+      {
+        "element_id": "S2-stamp",
+        "document_id": "D2",
+        "document_type": "DELIVERY_NOTE",
+        "page_no": 2,
+        "element_type": "stamp",
+        "parent_id": "P2",
+        "field_name": "stamp",
+        "raw_value": "stamped",
+        "normalized_value": null,
+        "confidence": 0.95,
+        "bbox": [
+          0.505,
+          0.649,
+          0.213,
+          0.086
+        ],
+        "source_reference": {
+          "package_id": "PKG-DMS-85",
+          "dms_doc_id": "DMS-85",
+          "file_sha256": "sha256:ddaa81fce9a076a2c078a0e732bac55f45a7078fd8f7f31bc87e75226533a332",
+          "extractors": {
+            "vlm": "nvidia/Qwen3.8-Flash-Next-NVFP4",
+            "prompts": "vision-page-items@2.0.0+vision-page-classify@1.0.0+vision-table-rows@2.0.0+vision-crop-reread@1.0.0",
+            "ocr": "pdf-text-layer(pymupdf)",
+            "pipeline": "vision-pipeline/db0d4e577167"
+          },
+          "region_kind": "stamp"
+        }
+      },
+      {
+        "element_id": "S2-table",
+        "document_id": "D2",
+        "document_type": "DELIVERY_NOTE",
+        "page_no": 2,
+        "element_type": "table",
+        "parent_id": "P2",
+        "field_name": "table",
+        "raw_value": "1 Item Code: PPR0001860B Description: 44593-0D100 BRACK-ET BRAKE ACTUATOR, NO.3 (PRESS;SF-B) Lot Sup Unit Price: 7.15 Due Date: 11-SEP-2026 Std. Qty/Pack: 160 Packs: 2 Total Quantity Del.: 320 Amount: 2,288.00",
+        "normalized_value": null,
+        "confidence": 0.9,
+        "bbox": [
+          0.09,
+          0.286,
+          0.81,
+          0.109
+        ],
+        "source_reference": {
+          "package_id": "PKG-DMS-85",
+          "dms_doc_id": "DMS-85",
+          "file_sha256": "sha256:ddaa81fce9a076a2c078a0e732bac55f45a7078fd8f7f31bc87e75226533a332",
+          "extractors": {
+            "vlm": "nvidia/Qwen3.8-Flash-Next-NVFP4",
+            "prompts": "vision-page-items@2.0.0+vision-page-classify@1.0.0+vision-table-rows@2.0.0+vision-crop-reread@1.0.0",
+            "ocr": "pdf-text-layer(pymupdf)",
+            "pipeline": "vision-pipeline/db0d4e577167"
+          },
+          "region_kind": "table"
+        }
+      }
+    ]
+  },
+  "extraction": {
+    "invoice_document_id": "D1",
+    "fields": {
+      "customer_name": {
+        "raw_value": "AAPICO HITECH PUBLIC CO.,LTD.",
+        "normalized_value": "AAPICO HITECH PUBLIC CO.,LTD.",
+        "confidence": 0.96,
+        "ok": true,
+        "null_reason": null,
+        "element_id": "D1-f-customer_name"
+      },
+      "invoice_date": {
+        "raw_value": "11/09/2026",
+        "normalized_value": "2026-09-11",
+        "confidence": 0.96,
+        "ok": true,
+        "null_reason": null,
+        "element_id": "D1-f-invoice_date"
+      },
+      "invoice_num": {
+        "raw_value": "112603974",
+        "normalized_value": "112603974",
+        "confidence": 0.96,
+        "ok": true,
+        "null_reason": null,
+        "element_id": "D1-f-invoice_num"
+      },
+      "sub_total": {
+        "raw_value": "2,288.00",
+        "normalized_value": "2288.00",
+        "confidence": 0.96,
+        "ok": true,
+        "null_reason": null,
+        "element_id": "D1-f-sub_total"
+      },
+      "grand_total": {
+        "raw_value": "2,288.00",
+        "normalized_value": "2288.00",
+        "confidence": 0.96,
+        "ok": true,
+        "null_reason": null,
+        "element_id": "D1-f-grand_total"
+      },
+      "vat": {
+        "raw_value": "160.16",
+        "normalized_value": "160.16",
+        "confidence": 0.96,
+        "ok": true,
+        "null_reason": null,
+        "element_id": "D1-f-vat"
+      },
+      "customer_address": {
+        "raw_value": "99 MOO 1, HI-TECH INDUSTRIAL ESTATE TAMBOL BANLANE AMPHUR BANG PA-IN  AYUTHAYA 13160",
+        "normalized_value": "99 MOO 1, HI-TECH INDUSTRIAL ESTATE TAMBOL BANLANE AMPHUR BANG PA-IN AYUTHAYA 13160",
+        "confidence": 0.96,
+        "ok": true,
+        "null_reason": null,
+        "element_id": "D1-f-customer_address"
+      },
+      "customer_tax_id": {
+        "raw_value": "0107545000179",
+        "normalized_value": "0107545000179",
+        "confidence": 0.96,
+        "ok": true,
+        "null_reason": null,
+        "element_id": "D1-f-customer_tax_id"
+      },
+      "supplier_name": {
+        "raw_value": "บริษัท อาปิโก ฮิดเทค จำกัด",
+        "normalized_value": "บริษัท อาปิโก ฮิดเทค จำกัด",
+        "confidence": 0.85,
+        "ok": true,
+        "null_reason": null,
+        "element_id": "D1-f-supplier_name"
+      },
+      "supplier_address": {
+        "raw_value": "152 หมู่ที่ 1 ตำบลบ้านเลน อำเภอบางปะอิน จังหวัดพระนครศรีอยุธยา 13160",
+        "normalized_value": "152 หมู่ที่ 1 ตำบลบ้านเลน อำเภอบางปะอิน จังหวัดพระนครศรีอยุธยา 13160",
+        "confidence": 0.7,
+        "ok": true,
+        "null_reason": null,
+        "element_id": "D1-f-supplier_address"
+      },
+      "supplier_tax_id": {
+        "raw_value": "0145556001111",
+        "normalized_value": "0145556001111",
+        "confidence": 0.96,
+        "ok": true,
+        "null_reason": null,
+        "element_id": "D1-f-supplier_tax_id"
+      },
+      "po_number": {
+        "raw_value": "40121195",
+        "normalized_value": "40121195",
+        "confidence": 0.96,
+        "ok": true,
+        "null_reason": null,
+        "element_id": "D1-f-po_number"
+      }
+    },
+    "lines": [
+      {
+        "line_no": 1,
+        "element_id": "D1-L1",
+        "uom_group": null,
+        "cells": {
+          "description": {
+            "raw_value": "PPR0001860B 44593-0D100 BRACKET BRAKE ACTUATOR, NO.3 40121195-34",
+            "normalized_value": "PPR0001860B 44593-0D100 BRACKET BRAKE ACTUATOR, NO.3 40121195-34",
+            "ok": true,
+            "null_reason": null
+          },
+          "qty": {
+            "raw_value": "320.00",
+            "normalized_value": "320.00",
+            "ok": true,
+            "null_reason": null
+          },
+          "unit_price": {
+            "raw_value": "7.15",
+            "normalized_value": "7.15",
+            "ok": true,
+            "null_reason": null
+          },
+          "amount": {
+            "raw_value": "2,288.00",
+            "normalized_value": "2288.00",
+            "ok": true,
+            "null_reason": null
+          },
+          "uom": {
+            "raw_value": null,
+            "normalized_value": null,
+            "ok": false,
+            "null_reason": "NOT_PRESENT"
+          }
+        }
+      }
+    ],
+    "signatures": {},
+    "extra": {
+      "ocr_text_by_page": {
+        "1": "",
+        "2": ""
+      },
+      "text_layer_chars_by_page": {
+        "1": 0,
+        "2": 0
+      },
+      "doc_type_by_page": {
+        "1": "tax_invoice",
+        "2": "delivery_note"
+      },
+      "page_type_votes": {
+        "1": [
+          "TAX_INVOICE",
+          "TAX_INVOICE"
+        ],
+        "2": [
+          "DELIVERY_NOTE",
+          "DELIVERY_NOTE"
+        ]
+      },
+      "is_copy_by_page": {
+        "1": false,
+        "2": true
+      },
+      "coord_mode_by_page": {
+        "1": "norm1000",
+        "2": "norm1000"
+      },
+      "coord_overflow": {},
+      "ocr_quality_by_page": {
+        "1": null,
+        "2": null
+      },
+      "items_by_page": {
+        "1": [
+          {
+            "type": "other",
+            "label": "logo_text",
+            "text": "AAPICO",
+            "bbox": [
+              0.091,
+              0.123,
+              0.089,
+              0.013
+            ],
+            "confidence": 0.97,
+            "bbox_vlm": null,
+            "bbox_method": null
+          },
+          {
+            "type": "customer",
+            "label": "customer_name",
+            "text": "AAPICO HITECH PUBLIC CO.,LTD.",
+            "bbox": [
+              0.101,
+              0.204,
+              0.246,
+              0.012
+            ],
+            "confidence": 0.97,
+            "bbox_vlm": null,
+            "bbox_method": null
+          },
+          {
+            "type": "header",
+            "label": "doc_date",
+            "text": "11/09/2026",
+            "bbox": [
+              0.72,
+              0.211,
+              0.075,
+              0.013
+            ],
+            "confidence": 0.97,
+            "bbox_vlm": null,
+            "bbox_method": null
+          },
+          {
+            "type": "header",
+            "label": "doc_no",
+            "text": "112603974",
+            "bbox": [
+              0.72,
+              0.239,
+              0.073,
+              0.013
+            ],
+            "confidence": 0.97,
+            "bbox_vlm": null,
+            "bbox_method": null
+          },
+          {
+            "type": "total",
+            "label": "sub_total",
+            "text": "2,288.00",
+            "bbox": [
+              0.884,
+              0.755,
+              0.052,
+              0.011
+            ],
+            "confidence": 0.97,
+            "bbox_vlm": null,
+            "bbox_method": null
+          },
+          {
+            "type": "total",
+            "label": "discount",
+            "text": "0.00",
+            "bbox": [
+              0.911,
+              0.783,
+              0.025,
+              0.011
+            ],
+            "confidence": 0.97,
+            "bbox_vlm": null,
+            "bbox_method": null
+          },
+          {
+            "type": "total",
+            "label": "grand_total",
+            "text": "2,288.00",
+            "bbox": [
+              0.884,
+              0.81,
+              0.052,
+              0.011
+            ],
+            "confidence": 0.97,
+            "bbox_vlm": null,
+            "bbox_method": null
+          },
+          {
+            "type": "total",
+            "label": "vat",
+            "text": "160.16",
+            "bbox": [
+              0.895,
+              0.84,
+              0.041,
+              0.011
+            ],
+            "confidence": 0.97,
+            "bbox_vlm": null,
+            "bbox_method": null
+          },
+          {
+            "type": "total",
+            "label": "grand_total_2",
+            "text": "2,448.16",
+            "bbox": [
+              0.884,
+              0.868,
+              0.051,
+              0.011
+            ],
+            "confidence": 0.97,
+            "bbox_vlm": null,
+            "bbox_method": null
+          },
+          {
+            "type": "customer",
+            "label": "customer_address",
+            "text": "99 MOO 1, HI-TECH INDUSTRIAL ESTATE TAMBOL BANLANE AMPHUR BANG PA-IN AYUTHAYA 13160",
+            "bbox": [
+              0.101,
+              0.228,
+              0.513,
+              0.035
+            ],
+            "confidence": 0.96,
+            "bbox_vlm": null,
+            "bbox_method": null
+          },
+          {
+            "type": "customer",
+            "label": "customer_tax_id",
+            "text": "เลขประจำตัวผู้เสียภาษีอากร 0107545000179 (สำนักงานใหญ่)",
+            "bbox": [
+              0.052,
+              0.275,
+              0.41,
+              0.017
+            ],
+            "confidence": 0.96,
+            "bbox_vlm": null,
+            "bbox_method": null
+          },
+          {
+            "type": "header",
+            "label": "credit_term",
+            "text": "30 days",
+            "bbox": [
+              0.783,
+              0.266,
+              0.074,
+              0.013
+            ],
+            "confidence": 0.96,
+            "bbox_vlm": null,
+            "bbox_method": null
+          },
+          {
+            "type": "header",
+            "label": "page_no",
+            "text": "Page 1 of 1",
+            "bbox": [
+              0.891,
+              0.033,
+              0.052,
+              0.008
+            ],
+            "confidence": 0.95,
+            "bbox_vlm": null,
+            "bbox_method": null
+          },
+          {
+            "type": "supplier",
+            "label": "supplier_name",
+            "text": "บริษัท อาปิโก ฮิดเทค จำกัด",
+            "bbox": [
+              0.241,
+              0.059,
+              0.193,
+              0.017
+            ],
+            "confidence": 0.95,
+            "bbox_vlm": null,
+            "bbox_method": null
+          },
+          {
+            "type": "supplier",
+            "label": "supplier_address",
+            "text": "152 หมู่ที่ 1 ตำบลบ้านเลน อำเภอบางปะอิน จังหวัดพระนครศรีอยุธยา 13160",
+            "bbox": [
+              0.241,
+              0.082,
+              0.414,
+              0.013
+            ],
+            "confidence": 0.95,
+            "bbox_vlm": null,
+            "bbox_method": null
+          },
+          {
+            "type": "supplier",
+            "label": "supplier_tax_id",
+            "text": "เลขประจำตัวผู้เสียภาษีอากร 0145556001111 (สำนักงานใหญ่)",
+            "bbox": [
+              0.241,
+              0.102,
+              0.321,
+              0.013
+            ],
+            "confidence": 0.95,
+            "bbox_vlm": null,
+            "bbox_method": null
+          },
+          {
+            "type": "header",
+            "label": "doc_title",
+            "text": "ต้นฉบับใบกำกับภาษีในส่งของ",
+            "bbox": [
+              0.372,
+              0.163,
+              0.246,
+              0.018
+            ],
+            "confidence": 0.95,
+            "bbox_vlm": null,
+            "bbox_method": null
+          },
+          {
+            "type": "table",
+            "label": "table_header",
+            "text": "ลำดับที่ NO. รายการสินค้า/บริการ DESCRIPTION จำนวน QUANTITY ราคาต่อหน่วย UNIT PRICE จำนวนเงิน AMOUNT",
+            "bbox": [
+              0.052,
+              0.313,
+              0.843,
+              0.04
+            ],
+            "confidence": 0.95,
+            "bbox_vlm": null,
+            "bbox_method": null
+          },
+          {
+            "type": "line",
+            "label": "line_1",
+            "text": "1 PPR0001860B 44593-0D100 BRACKET BRAKE ACTUATOR, NO.3 40121195-34 320.00 7.15 2,288.00",
+            "bbox": [
+              0.068,
+              0.364,
+              0.867,
+              0.028
+            ],
+            "confidence": 0.95,
+            "bbox_vlm": null,
+            "bbox_method": null
+          },
+          {
+            "type": "total",
+            "label": "amount_in_words",
+            "text": "=สองพันสี่ร้อยสี่สิบแปดบาทสิบหกสตางค์=",
+            "bbox": [
+              0.212,
+              0.868,
+              0.259,
+              0.013
+            ],
+            "confidence": 0.95,
+            "bbox_vlm": null,
+            "bbox_method": null
+          },
+          {
+            "type": "other",
+            "label": "note",
+            "text": "เอกสารนี้ได้จัดทำและจัดส่งข้อมูลให้แก่กรมสรรพากรด้วยวิธีการทางอิเล็กทรอนิกส์ เอกสารฉบับนี้ได้จัดทำขึ้นอย่างสมบูรณ์แล้วโดยไม่ต้องมีลายเซ็นของเจ้าหน้าที่บริษัทแต่อย่างใด",
+            "bbox": [
+              0.217,
+              0.924,
+              0.507,
+              0.032
+            ],
+            "confidence": 0.95,
+            "bbox_vlm": null,
+            "bbox_method": null
+          },
+          {
+            "type": "other",
+            "label": "handwriting",
+            "text": "510521951",
+            "bbox": [
+              0.576,
+              0.016,
+              0.181,
+              0.028
+            ],
+            "confidence": 0.85,
+            "bbox_vlm": null,
+            "bbox_method": null
+          }
+        ],
+        "2": [
+          {
+            "type": "header",
+            "label": "page_no",
+            "text": "Page 2",
+            "bbox": [
+              0.852,
+              0.027,
+              0.053,
+              0.011
+            ],
+            "confidence": 0.95,
+            "bbox_vlm": null,
+            "bbox_method": null
+          },
+          {
+            "type": "header",
+            "label": "doc_set_flag",
+            "text": "(Copied)",
+            "bbox": [
+              0.435,
+              0.052,
+              0.058,
+              0.011
+            ],
+            "confidence": 0.95,
+            "bbox_vlm": null,
+            "bbox_method": null
+          },
+          {
+            "type": "other",
+            "label": "logo_text",
+            "text": "AAPICO",
+            "bbox": [
+              0.093,
+              0.107,
+              0.085,
+              0.012
+            ],
+            "confidence": 0.95,
+            "bbox_vlm": null,
+            "bbox_method": null
+          },
+          {
+            "type": "supplier",
+            "label": "supplier_name",
+            "text": "AH - Aapico Hitech Ayutthaya",
+            "bbox": [
+              0.289,
+              0.069,
+              0.333,
+              0.017
+            ],
+            "confidence": 0.95,
+            "bbox_vlm": null,
+            "bbox_method": null
+          },
+          {
+            "type": "header",
+            "label": "doc_title",
+            "text": "Purchase Order Shipping Confirm (PSC)",
+            "bbox": [
+              0.328,
+              0.089,
+              0.272,
+              0.013
+            ],
+            "confidence": 0.95,
+            "bbox_vlm": null,
+            "bbox_method": null
+          },
+          {
+            "type": "header",
+            "label": "doc_no",
+            "text": "112603974",
+            "bbox": [
+              0.259,
+              0.131,
+              0.071,
+              0.011
+            ],
+            "confidence": 0.95,
+            "bbox_vlm": null,
+            "bbox_method": null
+          },
+          {
+            "type": "header",
+            "label": "doc_date",
+            "text": "2026-09-11",
+            "bbox": [
+              0.229,
+              0.149,
+              0.078,
+              0.011
+            ],
+            "confidence": 0.95,
+            "bbox_vlm": null,
+            "bbox_method": null
+          },
+          {
+            "type": "total",
+            "label": "grand_total",
+            "text": "2,288.00",
+            "bbox": [
+              0.585,
+              0.219,
+              0.063,
+              0.012
+            ],
+            "confidence": 0.95,
+            "bbox_vlm": null,
+            "bbox_method": null
+          },
+          {
+            "type": "other",
+            "label": "note",
+            "text": "--- End of Document ---",
+            "bbox": [
+              0.406,
+              0.421,
+              0.179,
+              0.012
+            ],
+            "confidence": 0.95,
+            "bbox_vlm": null,
+            "bbox_method": null
+          },
+          {
+            "type": "stamp",
+            "label": "received_stamp",
+            "text": "stamped",
+            "bbox": [
+              0.505,
+              0.649,
+              0.213,
+              0.086
+            ],
+            "confidence": 0.95,
+            "bbox_vlm": null,
+            "bbox_method": null
+          },
+          {
+            "type": "other",
+            "label": "handwriting",
+            "text": "510581951",
+            "bbox": [
+              0.555,
+              0.008,
+              0.197,
+              0.03
+            ],
+            "confidence": 0.9,
+            "bbox_vlm": null,
+            "bbox_method": null
+          },
+          {
+            "type": "other",
+            "label": "note",
+            "text": "TF-04-05, Oct 01,2020 (Rev.0)",
+            "bbox": [
+              0.706,
+              0.05,
+              0.144,
+              0.009
+            ],
+            "confidence": 0.9,
+            "bbox_vlm": null,
+            "bbox_method": null
+          },
+          {
+            "type": "header",
+            "label": "doc_date",
+            "text": "2026-09-10",
+            "bbox": [
+              0.229,
+              0.183,
+              0.081,
+              0.012
+            ],
+            "confidence": 0.9,
+            "bbox_vlm": null,
+            "bbox_method": null
+          },
+          {
+            "type": "supplier",
+            "label": "supplier_branch",
+            "text": "AYUTTHAYA",
+            "bbox": [
+              0.229,
+              0.219,
+              0.081,
+              0.012
+            ],
+            "confidence": 0.9,
+            "bbox_vlm": null,
+            "bbox_method": null
+          },
+          {
+            "type": "header",
+            "label": "po_number",
+            "text": "40121195, 34",
+            "bbox": [
+              0.585,
+              0.131,
+              0.085,
+              0.012
+            ],
+            "confidence": 0.9,
+            "bbox_vlm": null,
+            "bbox_method": null
+          },
+          {
+            "type": "header",
+            "label": "delivery_no",
+            "text": "2026-09-11",
+            "bbox": [
+              0.585,
+              0.149,
+              0.077,
+              0.012
+            ],
+            "confidence": 0.9,
+            "bbox_vlm": null,
+            "bbox_method": null
+          },
+          {
+            "type": "header",
+            "label": "credit_term",
+            "text": "Interco 30 Days",
+            "bbox": [
+              0.585,
+              0.166,
+              0.108,
+              0.013
+            ],
+            "confidence": 0.9,
+            "bbox_vlm": null,
+            "bbox_method": null
+          },
+          {
+            "type": "other",
+            "label": "remark",
+            "text": "APD-ALD Adjust material price Effective date : 01/08/26",
+            "bbox": [
+              0.585,
+              0.238,
+              0.205,
+              0.025
+            ],
+            "confidence": 0.9,
+            "bbox_vlm": null,
+            "bbox_method": null
+          },
+          {
+            "type": "other",
+            "label": "qr_code",
+            "text": "qr_code",
+            "bbox": [
+              0.769,
+              0.144,
+              0.077,
+              0.054
+            ],
+            "confidence": 0.9,
+            "bbox_vlm": null,
+            "bbox_method": null
+          },
+          {
+            "type": "table",
+            "label": "item_table",
+            "text": "1 Item Code: PPR0001860B Description: 44593-0D100 BRACK-ET BRAKE ACTUATOR, NO.3 (PRESS;SF-B) Lot Sup Unit Price: 7.15 Due Date: 11-SEP-2026 Std. Qty/Pack: 160 Packs: 2 Total Quantity Del.: 320 Amount: 2,288.00",
+            "bbox": [
+              0.09,
+              0.286,
+              0.81,
+              0.109
+            ],
+            "confidence": 0.9,
+            "bbox_vlm": null,
+            "bbox_method": null
+          },
+          {
+            "type": "line",
+            "label": "line_1",
+            "text": "1 PPR0001860B 44593-0D100 BRACK-ET BRAKE ACTUATOR, NO.3 (PRESS;SF-B) Unit Price: 7.15 Due Date: 11-SEP-2026 Std. Qty/Pack: 160 Packs: 2 Total Quantity Del.: 320 Amount: 2,288.00",
+            "bbox": [
+              0.108,
+              0.293,
+              0.764,
+              0.093
+            ],
+            "confidence": 0.9,
+            "bbox_vlm": null,
+            "bbox_method": null
+          },
+          {
+            "type": "other",
+            "label": "qr_code",
+            "text": "qr_code",
+            "bbox": [
+              0.785,
+              0.323,
+              0.077,
+              0.055
+            ],
+            "confidence": 0.9,
+            "bbox_vlm": null,
+            "bbox_method": null
+          },
+          {
+            "type": "supplier",
+            "label": "supplier_address",
+            "text": "152 m.1, hi-tech industrial es-tatet.ban-lane a.bang pa-inayut-thaya,13160,th",
+            "bbox": [
+              0.108,
+              0.238,
+              0.224,
+              0.038
+            ],
+            "confidence": 0.85,
+            "bbox_vlm": null,
+            "bbox_method": null
+          },
+          {
+            "type": "other",
+            "label": "note",
+            "text": "Ref: 112603974|40121195",
+            "bbox": [
+              0.749,
+              0.129,
+              0.117,
+              0.009
+            ],
+            "confidence": 0.85,
+            "bbox_vlm": null,
+            "bbox_method": null
+          },
+          {
+            "type": "other",
+            "label": "note",
+            "text": "2026-09-10 16:18",
+            "bbox": [
+              0.765,
+              0.204,
+              0.084,
+              0.008
+            ],
+            "confidence": 0.85,
+            "bbox_vlm": null,
+            "bbox_method": null
+          },
+          {
+            "type": "other",
+            "label": "note",
+            "text": "Receiving Number:",
+            "bbox": [
+              0.725,
+              0.066,
+              0.103,
+              0.009
+            ],
+            "confidence": 0.6,
+            "bbox_vlm": null,
+            "bbox_method": null
+          }
+        ]
+      },
+      "dropped_items": [],
+      "page_errors": {},
+      "row_errors": [],
+      "lines_source": {
+        "table_rows": 1,
+        "line_items": 0,
+        "lines": 1
+      },
+      "crop_reads": [
+        {
+          "field": "customer_name",
+          "page": 1,
+          "vlm": "AAPICO HITECH PUBLIC CO.,LTD.",
+          "text_layer": null,
+          "text_layer_abstained": false,
+          "votes_rejected_by_shape": [],
+          "crop": "AAPICO HITECH PUBLIC CO.,LTD.",
+          "value": "AAPICO HITECH PUBLIC CO.,LTD.",
+          "value_rule": "crop_value_inside_region",
+          "readers_similarity": 1.0,
+          "bbox_method": null,
+          "bbox_vlm": null,
+          "judged": "similarity",
+          "agreed": true,
+          "confidence": 0.96,
+          "source": "consensus"
+        },
+        {
+          "field": "invoice_date",
+          "page": 1,
+          "vlm": "11/09/2026",
+          "text_layer": null,
+          "text_layer_abstained": false,
+          "votes_rejected_by_shape": [],
+          "crop": "11/09/2026",
+          "value": "11/09/2026",
+          "value_rule": "pattern:(?<!\\d)(?:\\d{4}[/.\\-]\\d{1,2}[/.\\-]\\d{1,2}|\\d{1,2}[/.\\-]\\d{1,2}[/.\\-](?:\\d{4}|\\d{2}))(?!\\d)",
+          "readers_similarity": 1.0,
+          "bbox_method": null,
+          "bbox_vlm": null,
+          "judged": "exact",
+          "agreed": true,
+          "confidence": 0.96,
+          "source": "consensus"
+        },
+        {
+          "field": "invoice_num",
+          "page": 1,
+          "vlm": "112603974",
+          "text_layer": null,
+          "text_layer_abstained": false,
+          "votes_rejected_by_shape": [],
+          "crop": "112603974",
+          "value": "112603974",
+          "value_rule": "crop_value_inside_region",
+          "readers_similarity": 1.0,
+          "bbox_method": null,
+          "bbox_vlm": null,
+          "judged": "exact",
+          "agreed": true,
+          "confidence": 0.96,
+          "source": "consensus"
+        },
+        {
+          "field": "sub_total",
+          "page": 1,
+          "vlm": "2,288.00",
+          "text_layer": null,
+          "text_layer_abstained": false,
+          "votes_rejected_by_shape": [],
+          "crop": "2,288.00",
+          "value": "2,288.00",
+          "value_rule": "pattern:\\d[\\d.,]*\\d|\\d",
+          "readers_similarity": 1.0,
+          "bbox_method": null,
+          "bbox_vlm": null,
+          "judged": "exact",
+          "agreed": true,
+          "confidence": 0.96,
+          "source": "consensus"
+        },
+        {
+          "field": "grand_total",
+          "page": 1,
+          "vlm": "2,288.00",
+          "text_layer": null,
+          "text_layer_abstained": false,
+          "votes_rejected_by_shape": [],
+          "crop": "2,288.00",
+          "value": "2,288.00",
+          "value_rule": "pattern:\\d[\\d.,]*\\d|\\d",
+          "readers_similarity": 1.0,
+          "bbox_method": null,
+          "bbox_vlm": null,
+          "judged": "exact",
+          "agreed": true,
+          "confidence": 0.96,
+          "source": "consensus"
+        },
+        {
+          "field": "vat",
+          "page": 1,
+          "vlm": "160.16",
+          "text_layer": null,
+          "text_layer_abstained": false,
+          "votes_rejected_by_shape": [],
+          "crop": "160.16",
+          "value": "160.16",
+          "value_rule": "pattern:\\d[\\d.,]*\\d|\\d",
+          "readers_similarity": 1.0,
+          "bbox_method": null,
+          "bbox_vlm": null,
+          "judged": "exact",
+          "agreed": true,
+          "confidence": 0.96,
+          "source": "consensus"
+        },
+        {
+          "field": "customer_address",
+          "page": 1,
+          "vlm": "99 MOO 1, HI-TECH INDUSTRIAL ESTATE TAMBOL BANLANE AMPHUR BANG PA-IN AYUTHAYA 13160",
+          "text_layer": null,
+          "text_layer_abstained": false,
+          "votes_rejected_by_shape": [],
+          "crop": "99 MOO 1, HI-TECH INDUSTRIAL ESTATE TAMBOL BANLANE AMPHUR BANG PA-IN  AYUTHAYA 13160",
+          "value": "99 MOO 1, HI-TECH INDUSTRIAL ESTATE TAMBOL BANLANE AMPHUR BANG PA-IN  AYUTHAYA 13160",
+          "value_rule": "crop_value_inside_region",
+          "readers_similarity": 1.0,
+          "bbox_method": null,
+          "bbox_vlm": null,
+          "judged": "similarity",
+          "agreed": true,
+          "confidence": 0.96,
+          "source": "consensus"
+        },
+        {
+          "field": "customer_tax_id",
+          "page": 1,
+          "vlm": "เลขประจำตัวผู้เสียภาษีอากร 0107545000179 (สำนักงานใหญ่)",
+          "text_layer": null,
+          "text_layer_abstained": false,
+          "votes_rejected_by_shape": [],
+          "crop": "0107545000179",
+          "value": "0107545000179",
+          "value_rule": "pattern:(?<!\\d)\\d{13}(?!\\d)",
+          "readers_similarity": 1.0,
+          "bbox_method": null,
+          "bbox_vlm": null,
+          "judged": "exact",
+          "agreed": true,
+          "confidence": 0.96,
+          "source": "consensus"
+        },
+        {
+          "field": "supplier_name",
+          "page": 1,
+          "vlm": "บริษัท อาปิโก ฮิดเทค จำกัด",
+          "text_layer": null,
+          "text_layer_abstained": false,
+          "votes_rejected_by_shape": [],
+          "crop": "บริษัท อาปิโก ลิซเทค จำกัด",
+          "value": "บริษัท อาปิโก ฮิดเทค จำกัด",
+          "value_rule": "whole_region",
+          "readers_similarity": 0.889,
+          "bbox_method": null,
+          "bbox_vlm": null,
+          "judged": "similarity",
+          "agreed": true,
+          "confidence": 0.85,
+          "source": "consensus"
+        },
+        {
+          "field": "supplier_address",
+          "page": 1,
+          "vlm": "152 หมู่ที่ 1 ตำบลบ้านเลน อำเภอบางปะอิน จังหวัดพระนครศรีอยุธยา 13160",
+          "text_layer": null,
+          "text_layer_abstained": false,
+          "votes_rejected_by_shape": [],
+          "crop": null,
+          "value": "152 หมู่ที่ 1 ตำบลบ้านเลน อำเภอบางปะอิน จังหวัดพระนครศรีอยุธยา 13160",
+          "value_rule": "whole_region",
+          "readers_similarity": null,
+          "bbox_method": null,
+          "bbox_vlm": null,
+          "judged": "similarity",
+          "agreed": false,
+          "confidence": 0.7,
+          "source": "vlm"
+        },
+        {
+          "field": "supplier_tax_id",
+          "page": 1,
+          "vlm": "เลขประจำตัวผู้เสียภาษีอากร 0145556001111 (สำนักงานใหญ่)",
+          "text_layer": null,
+          "text_layer_abstained": false,
+          "votes_rejected_by_shape": [],
+          "crop": "0145556001111",
+          "value": "0145556001111",
+          "value_rule": "pattern:(?<!\\d)\\d{13}(?!\\d)",
+          "readers_similarity": 1.0,
+          "bbox_method": null,
+          "bbox_vlm": null,
+          "judged": "exact",
+          "agreed": true,
+          "confidence": 0.96,
+          "source": "consensus"
+        },
+        {
+          "field": "po_number",
+          "page": 2,
+          "vlm": "40121195, 34",
+          "text_layer": null,
+          "text_layer_abstained": false,
+          "votes_rejected_by_shape": [],
+          "crop": "40121195, 34",
+          "value": "40121195",
+          "value_rule": "pattern:(?<!\\d)\\d{6,10}(?!\\d)",
+          "readers_similarity": 1.0,
+          "bbox_method": null,
+          "bbox_vlm": null,
+          "judged": "exact",
+          "agreed": true,
+          "confidence": 0.96,
+          "source": "consensus"
+        }
+      ],
+      "table_notes": [],
+      "corroborations": [
+        {
+          "line_no": 1,
+          "cells": [
+            "qty",
+            "unit_price",
+            "amount"
+          ],
+          "rule": "qty x unit_price = amount"
+        }
+      ],
+      "calls": [
+        {
+          "kind": "page_items",
+          "page": 1,
+          "model": "nvidia/Qwen3.8-Flash-Next-NVFP4",
+          "ok": true,
+          "ms": 14149,
+          "usage": {
+            "completion_tokens": 2114,
+            "prompt_tokens": 3054,
+            "total_tokens": 5168
+          }
+        },
+        {
+          "kind": "classify",
+          "page": 1,
+          "model": "nvidia/Qwen3.8-Flash-Next-NVFP4",
+          "ok": true,
+          "ms": 4943,
+          "usage": {
+            "completion_tokens": 563,
+            "prompt_tokens": 2477,
+            "total_tokens": 3040
+          }
+        },
+        {
+          "kind": "page_items",
+          "page": 2,
+          "model": "nvidia/Qwen3.8-Flash-Next-NVFP4",
+          "ok": true,
+          "ms": 23200,
+          "usage": {
+            "completion_tokens": 3373,
+            "prompt_tokens": 3054,
+            "total_tokens": 6427
+          }
+        },
+        {
+          "kind": "classify",
+          "page": 2,
+          "model": "nvidia/Qwen3.8-Flash-Next-NVFP4",
+          "ok": true,
+          "ms": 4062,
+          "usage": {
+            "completion_tokens": 530,
+            "prompt_tokens": 2477,
+            "total_tokens": 3007
+          }
+        },
+        {
+          "kind": "crop_reread",
+          "page": 1,
+          "model": "nvidia/Qwen3.8-Flash-Next-NVFP4",
+          "ok": true,
+          "ms": 892,
+          "usage": {
+            "completion_tokens": 86,
+            "prompt_tokens": 387,
+            "total_tokens": 473
+          }
+        },
+        {
+          "kind": "crop_reread",
+          "page": 1,
+          "model": "nvidia/Qwen3.8-Flash-Next-NVFP4",
+          "ok": true,
+          "ms": 817,
+          "usage": {
+            "completion_tokens": 102,
+            "prompt_tokens": 379,
+            "total_tokens": 481
+          }
+        },
+        {
+          "kind": "crop_reread",
+          "page": 1,
+          "model": "nvidia/Qwen3.8-Flash-Next-NVFP4",
+          "ok": true,
+          "ms": 954,
+          "usage": {
+            "completion_tokens": 121,
+            "prompt_tokens": 379,
+            "total_tokens": 500
+          }
+        },
+        {
+          "kind": "crop_reread",
+          "page": 1,
+          "model": "nvidia/Qwen3.8-Flash-Next-NVFP4",
+          "ok": true,
+          "ms": 1025,
+          "usage": {
+            "completion_tokens": 98,
+            "prompt_tokens": 373,
+            "total_tokens": 471
+          }
+        },
+        {
+          "kind": "crop_reread",
+          "page": 1,
+          "model": "nvidia/Qwen3.8-Flash-Next-NVFP4",
+          "ok": true,
+          "ms": 835,
+          "usage": {
+            "completion_tokens": 93,
+            "prompt_tokens": 373,
+            "total_tokens": 466
+          }
+        },
+        {
+          "kind": "crop_reread",
+          "page": 1,
+          "model": "nvidia/Qwen3.8-Flash-Next-NVFP4",
+          "ok": true,
+          "ms": 667,
+          "usage": {
+            "completion_tokens": 61,
+            "prompt_tokens": 383,
+            "total_tokens": 444
+          }
+        },
+        {
+          "kind": "crop_reread",
+          "page": 1,
+          "model": "nvidia/Qwen3.8-Flash-Next-NVFP4",
+          "ok": true,
+          "ms": 2538,
+          "usage": {
+            "completion_tokens": 321,
+            "prompt_tokens": 559,
+            "total_tokens": 880
+          }
+        },
+        {
+          "kind": "crop_reread",
+          "page": 1,
+          "model": "nvidia/Qwen3.8-Flash-Next-NVFP4",
+          "ok": true,
+          "ms": 1410,
+          "usage": {
+            "completion_tokens": 173,
+            "prompt_tokens": 444,
+            "total_tokens": 617
+          }
+        },
+        {
+          "kind": "crop_reread",
+          "page": 1,
+          "model": "nvidia/Qwen3.8-Flash-Next-NVFP4",
+          "ok": true,
+          "ms": 1056,
+          "usage": {
+            "completion_tokens": 91,
+            "prompt_tokens": 375,
+            "total_tokens": 466
+          }
+        },
+        {
+          "kind": "crop_reread",
+          "page": 1,
+          "model": "nvidia/Qwen3.8-Flash-Next-NVFP4",
+          "ok": true,
+          "ms": 3549,
+          "usage": {
+            "completion_tokens": 420,
+            "prompt_tokens": 416,
+            "total_tokens": 836
+          }
+        },
+        {
+          "kind": "crop_reread",
+          "page": 2,
+          "model": "nvidia/Qwen3.8-Flash-Next-NVFP4",
+          "ok": true,
+          "ms": 810,
+          "usage": {
+            "completion_tokens": 97,
+            "prompt_tokens": 385,
+            "total_tokens": 482
+          }
+        },
+        {
+          "kind": "table_rows",
+          "page": 1,
+          "model": "nvidia/Qwen3.8-Flash-Next-NVFP4",
+          "ok": true,
+          "ms": 4159,
+          "usage": {
+            "completion_tokens": 593,
+            "prompt_tokens": 3069,
+            "total_tokens": 3662
+          }
+        }
+      ],
+      "words_capped_at": 2500,
+      "words_skipped": 0,
+      "truncated_pages": false,
+      "render_dpi": 150,
+      "crop_dpi": 300.0,
+      "invoice_pages": [
+        1
+      ],
+      "pages_total": 2
+    }
+  },
+  "normalized_fields": {
+    "customer_name": "AAPICO HITECH PUBLIC CO.,LTD.",
+    "invoice_date": "2026-09-11",
+    "invoice_num": "112603974",
+    "sub_total": "2288.00",
+    "grand_total": "2288.00",
+    "vat": "160.16",
+    "customer_address": "99 MOO 1, HI-TECH INDUSTRIAL ESTATE TAMBOL BANLANE AMPHUR BANG PA-IN AYUTHAYA 13160",
+    "customer_tax_id": "0107545000179",
+    "supplier_name": "บริษัท อาปิโก ฮิดเทค จำกัด",
+    "supplier_address": "152 หมู่ที่ 1 ตำบลบ้านเลน อำเภอบางปะอิน จังหวัดพระนครศรีอยุธยา 13160",
+    "supplier_tax_id": "0145556001111",
+    "po_number": "40121195",
+    "release_num": null,
+    "items": [
+      {
+        "line_no": 1,
+        "element_id": "D1-L1",
+        "page_no": 1,
+        "bbox": [
+          0.068,
+          0.364,
+          0.867,
+          0.028
+        ],
+        "item_code": null,
+        "description": "PPR0001860B 44593-0D100 BRACKET BRAKE ACTUATOR, NO.3 40121195-34",
+        "qty": "320.00",
+        "uom": null,
+        "uom_group": null,
+        "unit_price": "7.15",
+        "amount": "2288.00",
+        "cells_ok": {
+          "description": true,
+          "qty": true,
+          "unit_price": true,
+          "amount": true,
+          "uom": false
+        },
+        "cells_null_reason": {
+          "uom": "NOT_PRESENT"
+        },
+        "line_math": {
+          "qty_x_unit_price": "2288.00",
+          "amount": "2288.00",
+          "diff": "0.00",
+          "ok": true
+        },
+        "match": {
+          "group_id": "G1",
+          "relation": "1:1",
+          "level": "M3",
+          "confidence": 0.9,
+          "rcv_line_ids": [
+            "510521951-1"
+          ],
+          "receipt": [
+            {
+              "rcv_line_id": "510521951-1",
+              "item": "44593-0D100 BRACKET BRAKE ACTUATOR, NO.3 (PRESS;SF-B)",
+              "qty": "320",
+              "uom": "Piece",
+              "unit_price": "7.15",
+              "po_number": "40121195"
+            }
+          ]
+        },
+        "qty_check": {
+          "result": "manual_review",
+          "code": null,
+          "qty_inv": "320.00",
+          "qty_rcv_compared": "320",
+          "qty_diff": "0.00"
+        }
+      }
+    ],
+    "items_summary": {
+      "line_count": 1,
+      "lines_usable": 0,
+      "lines_math_ok": 1,
+      "lines_matched": 1,
+      "sum_amount": "2288.00",
+      "sub_total": "2288.00",
+      "sum_vs_sub_total_diff": "0.00"
+    }
+  },
+  "oracle_snapshot": {
+    "queried": true,
+    "queried_at": "2026-10-07T01:35:56.322854+00:00",
+    "lookup_path": "TAX-INV",
+    "query_keys": {
+      "invoice_num": "112603974",
+      "invoice_variants": [
+        "112603974"
+      ],
+      "po_number": "40121195",
+      "supplier_tax_id": "0145556001111",
+      "supplier_tax_id_source": "ocr"
+    },
+    "row_cap_hit": false,
+    "fingerprint": "sha256:1767eda1886f4682c537e76f97250b9b05099585d72e07f61b70e33840832c60",
+    "org_id": 101,
+    "receiver": "Oracle, Concurrent",
+    "receipt_nums": [
+      "510521951"
+    ],
+    "receipt_lines": [
+      {
+        "org_id": 101,
+        "receipt_num": "510521951",
+        "receiver": "Oracle, Concurrent",
+        "line": 1,
+        "item": "44593-0D100 BRACKET BRAKE ACTUATOR, NO.3 (PRESS;SF-B)",
+        "qty": "320",
+        "uom": "Piece",
+        "unit_price": "7.15",
+        "line_amount": "2288",
+        "extra": {
+          "PO_NUM": "40121195",
+          "ITEM_CODE": "PPR0001860B",
+          "SHIPMENT_NUM": "112603974",
+          "PACKING_SLIP": "112603974",
+          "QTY_BILLED": "320"
+        },
+        "po_number": "40121195",
+        "item_code": "PPR0001860B",
+        "qty_billed": "320",
+        "po_line_status": "CLOSED",
+        "line_status": "FULLY RECEIVED",
+        "supplier_tax_id": "0145556001111",
+        "supplier_name": "AAPICO LEADTECH CO., LTD.",
+        "customer_tax_id": "0107545000179",
+        "ou_org_id": 101,
+        "ou_name": "AH - Aapico Hitech",
+        "shipment_num": "112603974",
+        "packing_slip": "112603974",
+        "rcv_line_id": "510521951-1",
+        "uom_group": "PCS"
+      }
+    ],
+    "po_numbers": [
+      "40121195"
+    ],
+    "matched_on_column": "SHIPMENT_NUM"
+  },
+  "line_matching": {
+    "groups": [
+      {
+        "group_id": "G1",
+        "relation": "1:1",
+        "level": "M3",
+        "invoice_line_nos": [
+          1
+        ],
+        "rcv_line_ids": [
+          "510521951-1"
+        ],
+        "confidence": 0.9,
+        "source": "ai",
+        "rationale": "ITEM PPR0001860B/44593-0D100 ตรง, qty 320, amount 2288, price 7.15"
+      }
+    ],
+    "ai_rejected": [],
+    "unmatched_rcv_line_ids": []
+  },
+  "rule_results": [
+    {
+      "rule_id": "V-01",
+      "rule_version": "1.1",
+      "result": "fail",
+      "detail": null,
+      "halted_by": null,
+      "evidence_ids": [
+        "X1"
+      ],
+      "data": {}
+    },
+    {
+      "rule_id": "V-02",
+      "rule_version": "1.0",
+      "result": "pass",
+      "detail": "ตรวจ 1 บรรทัด",
+      "halted_by": null,
+      "evidence_ids": [],
+      "data": {}
+    },
+    {
+      "rule_id": "V-03",
+      "rule_version": "1.0",
+      "result": "fail",
+      "detail": null,
+      "halted_by": null,
+      "evidence_ids": [
+        "X2"
+      ],
+      "data": {
+        "diffs": {
+          "lines_vs_sub_total": "0.00",
+          "vat_7pct": "0.00",
+          "sub_plus_vat_vs_grand": "160.16"
+        }
+      }
+    },
+    {
+      "rule_id": "V-04",
+      "rule_version": "2.0",
+      "result": "pass",
+      "detail": "ใบรับ 510521951 (TAX-INV)",
+      "halted_by": null,
+      "evidence_ids": [],
+      "data": {
+        "lookup_path": "TAX-INV",
+        "rows": 1,
+        "active_rows": 1,
+        "receipt_nums": [
+          "510521951"
+        ],
+        "po_numbers": [
+          "40121195"
+        ],
+        "matched_on_column": "SHIPMENT_NUM"
+      }
+    },
+    {
+      "rule_id": "V-05",
+      "rule_version": "2.0",
+      "result": "pass",
+      "detail": null,
+      "halted_by": null,
+      "evidence_ids": [],
+      "data": {
+        "org_id": 101,
+        "short_name": "APD",
+        "intercompany": true,
+        "tax_id_match": true,
+        "name_match": true,
+        "matched_on": "name_en",
+        "address_match": true,
+        "address_matched": "head_office_th",
+        "address_method": "logic"
+      }
+    },
+    {
+      "rule_id": "V-06",
+      "rule_version": "1.1",
+      "result": "manual_review",
+      "detail": "ความมั่นใจต่ำ: ['receiver', 'deliverer']",
+      "halted_by": null,
+      "evidence_ids": [],
+      "data": {
+        "unsure_slots": [
+          "receiver",
+          "deliverer"
+        ]
+      }
+    },
+    {
+      "rule_id": "V-07",
+      "rule_version": "3.0",
+      "result": "fail",
+      "detail": null,
+      "halted_by": null,
+      "evidence_ids": [
+        "X3"
+      ],
+      "data": {
+        "groups": 1,
+        "ai_rejected": 0
+      }
+    },
+    {
+      "rule_id": "V-08",
+      "rule_version": "2.0",
+      "result": "manual_review",
+      "detail": "AI/facts ไม่สอดคล้อง หรือเทียบจำนวนไม่ได้",
+      "halted_by": null,
+      "evidence_ids": [],
+      "data": {
+        "line_results": [
+          {
+            "invoice_line_no": 1,
+            "group_id": "G1",
+            "result": "manual_review",
+            "code": null,
+            "severity": null,
+            "qty_inv": "320.00",
+            "qty_rcv_compared": "320",
+            "qty_diff": "0.00",
+            "reason": "หน่วยนับต่างกลุ่ม เทียบจำนวนไม่ได้ (ดู V-07)",
+            "message": null
+          }
+        ],
+        "prompt": "v08-qty@1.0.0"
+      }
+    },
+    {
+      "rule_id": "V-09",
+      "rule_version": "1.0",
+      "result": "pass",
+      "detail": "invoice 2,288.00 = receipt 2,288",
+      "halted_by": null,
+      "evidence_ids": [],
+      "data": {}
+    }
+  ],
+  "evidence": [
+    {
+      "evidence_id": "X1",
+      "rule_id": "V-01",
+      "rule_version": "1.1",
+      "result": "fail",
+      "exception_code": "E01",
+      "severity": "Medium",
+      "actual_value": null,
+      "expected_value": null,
+      "source_document": {
+        "document_id": "D1",
+        "source": null
+      },
+      "page_no": [],
+      "related_element_ids": [
+        "D1-L1-uom"
+      ],
+      "related_oracle_refs": [],
+      "bboxes": [],
+      "bbox_missing_reason": {
+        "element_ids": [
+          "D1-L1-uom"
+        ],
+        "reason": "NOT_LOCATED"
+      },
+      "halted_by": null,
+      "evaluated_at": "2026-10-07T01:37:09.165519+00:00",
+      "message_th": "ฟิลด์บังคับอ่านไม่ได้หรือไม่ครบ: L1.uom(NOT_PRESENT)"
+    },
+    {
+      "evidence_id": "X2",
+      "rule_id": "V-03",
+      "rule_version": "1.0",
+      "result": "fail",
+      "exception_code": "E03",
+      "severity": "High",
+      "actual_value": "2288.00",
+      "expected_value": "2288.00",
+      "source_document": {
+        "document_id": "D1",
+        "source": "invoice"
+      },
+      "page_no": [
+        1
+      ],
+      "related_element_ids": [
+        "D1-f-sub_total",
+        "D1-f-vat",
+        "D1-f-grand_total"
+      ],
+      "related_oracle_refs": [],
+      "bboxes": [
+        {
+          "element_id": "D1-f-sub_total",
+          "page_no": 1,
+          "bbox": [
+            0.884,
+            0.755,
+            0.052,
+            0.011
+          ]
+        },
+        {
+          "element_id": "D1-f-vat",
+          "page_no": 1,
+          "bbox": [
+            0.895,
+            0.84,
+            0.041,
+            0.011
+          ]
+        },
+        {
+          "element_id": "D1-f-grand_total",
+          "page_no": 1,
+          "bbox": [
+            0.884,
+            0.81,
+            0.052,
+            0.011
+          ]
+        }
+      ],
+      "bbox_missing_reason": null,
+      "halted_by": null,
+      "evaluated_at": "2026-10-07T01:37:09.165519+00:00",
+      "message_th": "ยอดรวมภายในใบแจ้งหนี้ไม่สอดคล้อง {'lines_vs_sub_total': '0.00', 'vat_7pct': '0.00', 'sub_plus_vat_vs_grand': '160.16'}"
+    },
+    {
+      "evidence_id": "X3",
+      "rule_id": "V-07",
+      "rule_version": "3.0",
+      "result": "fail",
+      "exception_code": "E10",
+      "severity": "Medium",
+      "actual_value": "None",
+      "expected_value": "PCS",
+      "source_document": {
+        "document_id": "D1",
+        "source": null
+      },
+      "page_no": [
+        1
+      ],
+      "related_element_ids": [
+        "D1-L1",
+        "D1-L1-uom"
+      ],
+      "related_oracle_refs": [
+        "RCV:510521951-1"
+      ],
+      "bboxes": [
+        {
+          "element_id": "D1-L1",
+          "page_no": 1,
+          "bbox": [
+            0.068,
+            0.364,
+            0.867,
+            0.028
+          ]
+        }
+      ],
+      "bbox_missing_reason": {
+        "element_ids": [
+          "D1-L1-uom"
+        ],
+        "reason": "NOT_LOCATED"
+      },
+      "halted_by": null,
+      "evaluated_at": "2026-10-07T01:37:09.165519+00:00",
+      "message_th": "บรรทัดที่ 1 (Invoice: PPR0001860B 44593-0D100 BRACKET BRAKE ACTUATOR, NO.3 40121195-34): หน่วยนับต่างกลุ่มหลังแปลง (Inv: None→None, Rcv: Piece→PCS)"
+    }
+  ],
+  "exceptions": [
+    {
+      "exception_id": "X1",
+      "code": "E01",
+      "name": "Missing Field",
+      "severity": "Medium",
+      "rule_id": "V-01",
+      "evidence_ids": [
+        "X1"
+      ]
+    },
+    {
+      "exception_id": "X2",
+      "code": "E03",
+      "name": "Total Mismatch",
+      "severity": "High",
+      "rule_id": "V-03",
+      "evidence_ids": [
+        "X2"
+      ]
+    },
+    {
+      "exception_id": "X3",
+      "code": "E10",
+      "name": "UOM Mismatch",
+      "severity": "Medium",
+      "rule_id": "V-07",
+      "evidence_ids": [
+        "X3"
+      ]
+    }
+  ],
+  "recommendation": {
+    "value": "MANUAL_REVIEW",
+    "max_severity": "High",
+    "exception_codes": [
+      "E01",
+      "E03",
+      "E10"
+    ],
+    "reasons": [
+      "V-06:manual_review",
+      "V-08:manual_review",
+      "E01:Medium",
+      "E03:High",
+      "E10:Medium"
+    ],
+    "halted_by": null
+  },
+  "system_errors": [],
+  "metrics": {
+    "duration_ms": {
+      "step1_ms": 0.22,
+      "oracle_ms": 1128.01,
+      "step3_ms": 72850.62,
+      "total_ms": 73978.99
+    },
+    "oracle_calls": 1,
+    "oracle_rejected": [],
+    "oracle_queries": [
+      "TAX-INV"
+    ],
+    "oracle_lookup_mode": "tax_invoice",
+    "ai": {
+      "v08": {
+        "votes": 3,
+        "majority": true,
+        "disagreements": []
+      }
+    },
+    "ai_line_matcher_called": true
+  },
+  "integrity": {
+    "payload_sha256": "sha256:c0a928d222e2d2ba11ffd853425fdf356709c0e8563cef93f68f53e3ffcdd2d3",
+    "excludes": [
+      "request",
+      "metrics",
+      "*evaluated_at",
+      "*queried_at"
+    ]
+  }
+}

@@ -117,6 +117,7 @@ def process_pdf(
     mode: str = "production",
     quick: bool = False,
     json_only: bool = False,
+    quiet: bool = False,
 ) -> dict:
     t0 = time.time()
     load_env()
@@ -136,7 +137,7 @@ def process_pdf(
         cache_dir.mkdir(parents=True, exist_ok=True)
         pdf_path = cache_dir / f"DMS-{dms_id}.pdf"
         if not pdf_path.exists():
-            if not json_only:
+            if not json_only and not quiet:
                 print(f"Fetching DMS-{dms_id} from Paperless-ngx ({settings.paperless_url})...")
             from system_a.container import build_paperless
             reader = build_paperless(settings)
@@ -154,11 +155,11 @@ def process_pdf(
     if not pdf_bytes:
         raise ValueError(f"Cannot read file as PDF or supported image: {pdf_path}")
 
-    if not json_only:
+    if not json_only and not quiet:
         print(f"Processing '{pdf_path.name}' ({len(pdf_bytes):,} bytes, mode={mode})...")
 
     # 1. Perception
-    if not json_only:
+    if not json_only and not quiet:
         print(" [1/3] Running Perception (OCR + Layout + BBoxes)...")
     pipe = build_perception(settings)
     doc_id = pdf_path.stem
@@ -173,11 +174,11 @@ def process_pdf(
     if ext is None:
         ext = pipe.extract(pdf_bytes, package_id=f"PKG-{doc_id}", dms_doc_id=doc_id)
         cache.save(key, ext)
-    elif not json_only:
+    elif not json_only and not quiet:
         print("       (Reusing cached OCR perception result)")
 
     # 2. Services & Validation
-    if not json_only:
+    if not json_only and not quiet:
         print(" [2/3] Querying Oracle EBS & Evaluating Rules V-01..V-09...")
     svc = build_services(settings)
 
@@ -195,7 +196,7 @@ def process_pdf(
     }
 
     # 3. Assemble Final Result
-    if not json_only:
+    if not json_only and not quiet:
         print(" [3/3] Assembling final recommendation...")
     result = validate(ext, svc, request=request)
     elapsed = time.time() - t0
@@ -203,13 +204,13 @@ def process_pdf(
     # Output handling
     if json_only:
         print(json.dumps(result, ensure_ascii=False, indent=2))
-    else:
+    elif not quiet:
         print_summary(result, pdf_path, elapsed)
 
     if output_path:
         output_path.parent.mkdir(parents=True, exist_ok=True)
         output_path.write_text(json.dumps(result, ensure_ascii=False, indent=2), encoding="utf-8")
-        if not json_only:
+        if not json_only and not quiet:
             print(f"Result written to: {output_path.resolve()}\n")
 
     return result
@@ -231,6 +232,7 @@ def main() -> int:
     )
     parser.add_argument("--quick", action="store_true", help="Skip detail crops/tables for faster dry-run")
     parser.add_argument("--json-only", action="store_true", help="Output only the final JSON to stdout")
+    parser.add_argument("--quiet", "-q", action="store_true", help="Suppress all stdout printing except errors")
 
     args = parser.parse_args()
 
@@ -245,6 +247,7 @@ def main() -> int:
             mode=args.mode,
             quick=args.quick,
             json_only=args.json_only,
+            quiet=args.quiet,
         )
         return 0
     except Exception as e:
